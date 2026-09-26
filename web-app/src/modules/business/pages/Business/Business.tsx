@@ -219,7 +219,7 @@ export const BusinessPage: React.FC = () => {
             <tbody>
               {applications.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '2.5rem 1rem', color: '#64748b', fontSize: '0.925rem' }}>
+                  <td colSpan={6} className="biz-table__empty-cell">
                     No active license or registration applications yet. Choose a service above to apply.
                   </td>
                 </tr>

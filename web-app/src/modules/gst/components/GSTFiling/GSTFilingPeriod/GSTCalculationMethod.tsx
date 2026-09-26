@@ -1,0 +1,57 @@
+import React from 'react'
+import { TAX_CALCULATION_METHOD_OPTIONS } from '../../../utils/gstPeriodOptions'
+import './GSTCalculationMethod.css'
+
+interface GSTCalculationMethodProps {
+  value: 'ca_calculate' | 'estimated_figures' | ''
+  onChange: (value: 'ca_calculate' | 'estimated_figures') => void
+  error?: string
+}
+
+export const GSTCalculationMethod: React.FC<GSTCalculationMethodProps> = ({
+  value,
+  onChange,
+  error,
+}) => {
+  return (
+    <div className="gst-calc-method">
+      <span className="gst-calc-method__label">Tax Calculation Method *</span>
+      <div
+        className="gst-calc-method__grid"
+        role="radiogroup"
+        aria-label="Tax Calculation Method"
+      >
+        {TAX_CALCULATION_METHOD_OPTIONS.map((option) => {
+          const isSelected = value === option.id
+          return (
+            <div
+              key={option.id}
+              className={`gst-calc-method__card ${
+                isSelected ? 'gst-calc-method__card--active' : ''
+              }`}
+              role="radio"
+              aria-checked={isSelected}
+              tabIndex={0}
+              onClick={() => onChange(option.id)}
+              onKeyDown={(e) => {
+                if (e.key === ' ' || e.key === 'Enter') {
+                  e.preventDefault()
+                  onChange(option.id)
+                }
+              }}
+            >
+              <div className="gst-calc-method__radio-circle">
+                {isSelected && <div className="gst-calc-method__radio-dot" />}
+              </div>
+              <div className="gst-calc-method__content">
+                <span className="gst-calc-method__title">{option.title}</span>
+                <span className="gst-calc-method__desc">{option.description}</span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      {error && <span className="gst-calc-method__error">{error}</span>}
+    </div>
+  )
+}

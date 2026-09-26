@@ -220,17 +220,16 @@ export const validateRequiredFields = <T extends Record<string, any>>(
   values: T,
   fieldLabels: Partial<Record<keyof T, string>>
 ): { isValid: boolean; errors: Partial<Record<keyof T, string>> } => {
-  const errors: Partial<Record<keyof T, string>> = {}
-  let isValid = true
-
-  for (const [key, label] of Object.entries(fieldLabels) as [keyof T, string][]) {
+  const entries = Object.entries(fieldLabels) as [keyof T, string][]
+  const errors = entries.reduce<Partial<Record<keyof T, string>>>((acc, [key, label]) => {
     const val = values[key]
     const err = validateRequired(val, label)
     if (err) {
-      errors[key] = err
-      isValid = false
+      acc[key] = err
     }
-  }
+    return acc
+  }, {})
 
+  const isValid = Object.keys(errors).length === 0
   return { isValid, errors }
 }

@@ -1,0 +1,106 @@
+.home-loan-docs {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.home-loan-docs__section-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.home-loan-docs__error-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.home-loan-docs__required-star {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+
+/* Document Checklist Progress Card matching mobile wireframe */
+.home-loan-docs__progress-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.15rem 1.35rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.home-loan-docs__progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.home-loan-docs__progress-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.home-loan-docs__progress-count {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #ea580c;
+}
+
+.home-loan-docs__progress-track {
+  width: 100%;
+  height: 6px;
+  background-color: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.home-loan-docs__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ea580c, #f97316);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.home-loan-docs__progress-subtitle {
+  margin: 0;
+  font-size: 0.78125rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+  .home-loan-docs__progress-card {
+    padding: 1rem 1.15rem;
+  }
+}
+
+.home-loan-docs__error-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
+  border-radius: 12px;
+  padding: 0.9rem 1.15rem;
+  color: #991b1b;
+  font-size: 0.875rem;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.05);
+}
+
+.home-loan-docs__error-desc {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.8125rem;
+  color: #7f1d1d;
+  line-height: 1.4;
+}
+

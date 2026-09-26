@@ -52,13 +52,13 @@ export const useZodForm = <TInput extends Record<string, unknown>, TOutput>(
       const result = schema.safeParse(values)
 
       if (!result.success) {
-        const fieldErrors: Record<string, string> = {}
-        for (const issue of result.error.issues) {
+        const fieldErrors = result.error.issues.reduce<Record<string, string>>((acc, issue) => {
           const field = issue.path[0]
-          if (typeof field === 'string' && fieldErrors[field] === undefined) {
-            fieldErrors[field] = issue.message
+          if (typeof field === 'string' && acc[field] === undefined) {
+            acc[field] = issue.message
           }
-        }
+          return acc
+        }, {})
         setErrors(fieldErrors as FormErrors<TInput>)
         return
       }

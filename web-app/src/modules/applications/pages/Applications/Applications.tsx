@@ -37,22 +37,23 @@ export const Applications: React.FC = () => {
 
   // Compute category counts
   const categoryCounts = useMemo(() => {
-    const counts: Record<ApplicationCategory, number> = {
-      All: allApplications.length,
-      GST: 0,
-      ITR: 0,
-      Loans: 0,
-      Business: 0,
-      Insurance: 0,
-    }
-
-    allApplications.forEach((item) => {
-      if (counts[item.category] !== undefined) {
-        counts[item.category] += 1
+    return allApplications.reduce<Record<ApplicationCategory, number>>(
+      (acc, item) => {
+        if (acc[item.category] !== undefined) {
+          acc[item.category] += 1
+        }
+        acc.All += 1
+        return acc
+      },
+      {
+        All: 0,
+        GST: 0,
+        ITR: 0,
+        Loans: 0,
+        Business: 0,
+        Insurance: 0,
       }
-    })
-
-    return counts
+    )
   }, [allApplications])
 
   // Compute stats for overview cards based on active category

@@ -109,3 +109,18 @@
   background: #0b1f3c;
   color: #ffffff;
 }
+
+.profile-page-view__section-anchor {
+  scroll-margin-top: 280px;
+}
+
+.profile-page-view__item-divider {
+  height: 1px;
+  background-color: #f1f5f9;
+  margin: 0 16px;
+}
+
+.profile-page-view__logout-wrapper {
+  margin-top: 16px;
+}
+

@@ -3,6 +3,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  width: 18px;
+  height: 18px;
   color: #f97316;
 }
 
@@ -10,6 +12,28 @@
   width: 100%;
   height: 100%;
   stroke: currentColor;
+}
+
+.reg-icon--muted {
+  color: #64748b;
+}
+
+.reg-icon--navy {
+  color: #083b75;
+}
+
+.reg-icon--blue {
+  color: #2563eb;
+}
+
+.reg-icon--green {
+  color: #16a34a;
+}
+
+.reg-icon--google {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .reg-icon--spin {
@@ -24,4 +48,3 @@
     transform: rotate(360deg);
   }
 }
-

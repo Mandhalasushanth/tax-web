@@ -5,6 +5,7 @@ import { useDraftBlocker } from '@shared/hooks'
 import { DraftConfirmModal } from '@shared/components'
 import { userStorage } from '@core/storage/userStorage'
 import { useAppStore } from '@store/index'
+import { IncorporationProvider } from '../../hooks'
 
 export const IncorporationWizardLayout: React.FC = () => {
   const location = useLocation()
@@ -102,6 +103,7 @@ export const IncorporationWizardLayout: React.FC = () => {
 
   return (
     <>
+    <IncorporationProvider>
       <Outlet />
       <DraftConfirmModal
         isOpen={isModalOpen}
@@ -110,6 +112,7 @@ export const IncorporationWizardLayout: React.FC = () => {
         onDiscardAndExit={handleDiscardAndExit}
         onKeepEditing={handleKeepEditing}
       />
+    </IncorporationProvider>
     </>
   )
 }

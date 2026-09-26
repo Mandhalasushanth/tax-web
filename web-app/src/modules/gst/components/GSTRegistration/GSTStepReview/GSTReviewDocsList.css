@@ -1,0 +1,126 @@
+/* Uploaded Documents List in Review Step */
+.gst-review-doc-badge {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.gst-review-card__icon-badge--docs {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.gst-review-check-icon--success {
+  color: #059669;
+}
+
+.gst-review-docs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gst-review-doc-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.gst-review-doc-item:hover {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.gst-review-doc-item__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.gst-review-doc-item__check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.gst-review-doc-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.gst-review-doc-item__title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.gst-review-doc-item__filename {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gst-review-doc-item__view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0284c7;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.gst-review-doc-item__view-btn:hover {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+}
+
+.gst-review-doc-item--pending {
+  background: #fafafa;
+  border-color: #f1f5f9;
+}
+
+.gst-review-doc-item__pending-bullet {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  display: inline-block;
+}
+
+.gst-review-doc-item__status-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}

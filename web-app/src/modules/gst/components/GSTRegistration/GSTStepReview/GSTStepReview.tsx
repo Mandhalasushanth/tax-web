@@ -1,0 +1,160 @@
+import { useState, type FC } from 'react'
+import type { GSTStepReviewProps, ReviewField } from '../../../types/gstReview.types'
+import { INITIAL_DOCUMENTS } from '../../../utils/gstDocuments.constants'
+import {
+  BusinessRegIcon,
+  BankProofIcon,
+  UserSignatoryIcon,
+} from '../../../shared/GSTDocIcons/GSTDocIcons'
+import { GSTReviewSection } from './GSTReviewSection'
+import { GSTReviewDocsList } from './GSTReviewDocsList'
+import { GSTReviewDeclaration } from './GSTReviewDeclaration'
+import { GSTDocPreviewModal } from '../GSTStepDocuments/GSTDocPreviewModal'
+import type { DocPreviewState } from '../../../types/gstDocuments.types'
+import { StepActionBar } from '@shared/components'
+import './GSTStepReview.css'
+
+export const GSTStepReview: FC<GSTStepReviewProps> = ({
+  businessData,
+  documents = INITIAL_DOCUMENTS,
+  onEdit,
+  onBack,
+  onProceed,
+  onSaveDraft,
+}) => {
+  const [isDeclared, setIsDeclared] = useState<boolean>(false)
+  const [declarationError, setDeclarationError] = useState<boolean>(false)
+  const [previewDoc, setPreviewDoc] = useState<DocPreviewState | null>(null)
+
+  const handleDeclarationChange = (checked: boolean) => {
+    setIsDeclared(checked)
+    if (checked) setDeclarationError(false)
+  }
+
+  const handleProceedClick = () => {
+    if (!isDeclared) {
+      setDeclarationError(true)
+      return
+    }
+    onProceed()
+  }
+
+  const handleViewDoc = (title: string, fileName: string) => {
+    setPreviewDoc({ title, fileName })
+  }
+
+  const locationString = [businessData.city, businessData.district, businessData.state, businessData.pinCode ? `- ${businessData.pinCode}` : '']
+    .filter(Boolean)
+    .join(', ')
+
+  const businessFields: ReviewField[] = [
+    { label: 'Legal Name', value: businessData.legalName || '—' },
+    { label: 'Trade Name', value: businessData.tradeName || businessData.legalName || '—' },
+    { label: 'Constitution', value: businessData.constitution || '—' },
+    { label: 'Nature of Business', value: businessData.natureOfBusiness || '—' },
+    { label: 'Date of Commencement', value: businessData.commencementDate || '—' },
+    { label: 'Reason for Reg.', value: businessData.registrationReason || '—' },
+    {
+      label: 'Composition Scheme',
+      value:
+        businessData.compositionScheme === 'Yes'
+          ? 'Yes — composition scheme'
+          : businessData.compositionScheme === 'No'
+          ? 'No — regular scheme'
+          : '—',
+    },
+    { label: 'Place of Business', value: businessData.placeOfBusiness || '—' },
+    { label: 'Address', value: businessData.businessAddress || '—' },
+    {
+      label: 'Location',
+      value: locationString || '—',
+    },
+    { label: 'HSN / SAC Code', value: businessData.hsnSacCode || '—' },
+  ]
+
+  const bankFields: ReviewField[] = [
+    { label: 'Account Holder', value: businessData.accountHolderName || businessData.legalName || '—' },
+    { label: 'Account Number', value: businessData.accountNumber ? `••••${businessData.accountNumber.slice(-4)}` : '—' },
+    { label: 'IFSC Code', value: businessData.ifscCode || '—' },
+    {
+      label: 'Bank & Branch',
+      value: businessData.bankName
+        ? `${businessData.bankName}${businessData.branch ? ` (${businessData.branch})` : ''}`
+        : '—',
+    },
+    { label: 'Account Type', value: businessData.accountType || '—' },
+  ]
+
+  const signatoryFields: ReviewField[] = [
+    { label: 'Name', value: businessData.signatoryName || '—' },
+    { label: 'PAN', value: businessData.signatoryPan || '—' },
+    { label: 'DOB', value: businessData.dob || '—' },
+    { label: 'Designation', value: businessData.designation || '—' },
+    {
+      label: 'Contact',
+      value: (
+        <div className="gst-review-contact-val">
+          <span>{businessData.signatoryMobile ? `+91 ${businessData.signatoryMobile}` : '—'}</span>
+          {businessData.signatoryEmail && (
+            <span className="gst-review-contact-email">{businessData.signatoryEmail}</span>
+          )}
+        </div>
+      ),
+    },
+  ]
+
+  return (
+    <div className="gst-step-review-container">
+      {/* 1. Business Details Section */}
+      <GSTReviewSection
+        title="Business Details"
+        icon={<BusinessRegIcon width={20} height={20} />}
+        iconBg="#ffedd5"
+        fields={businessFields}
+        onEdit={() => onEdit('business')}
+      />
+
+      {/* 2. Bank Details Section */}
+      <GSTReviewSection
+        title="Bank Details"
+        icon={<BankProofIcon width={20} height={20} />}
+        iconBg="#dcfce7"
+        fields={bankFields}
+        onEdit={() => onEdit('bank')}
+      />
+
+      {/* 3. Authorised Signatory Section */}
+      <GSTReviewSection
+        title="Authorised Signatory"
+        icon={<UserSignatoryIcon width={20} height={20} />}
+        iconBg="#f3e8ff"
+        fields={signatoryFields}
+        onEdit={() => onEdit('signatory')}
+      />
+
+      {/* 4. Uploaded Documents Section */}
+      <GSTReviewDocsList documents={documents} onViewDoc={handleViewDoc} />
+
+      {/* 5. Declaration Checkbox Card */}
+      <GSTReviewDeclaration
+        checked={isDeclared}
+        onChange={handleDeclarationChange}
+        hasError={declarationError}
+      />
+
+      {/* 6. Navigation Footer Actions */}
+      <StepActionBar
+        onBack={onBack}
+        onSaveDraft={onSaveDraft}
+        onNext={handleProceedClick}
+        nextLabel="Continue to Payment"
+        nextDisabled={!isDeclared}
+      />
+
+      {/* Document Preview Modal */}
+      <GSTDocPreviewModal previewDoc={previewDoc} onClose={() => setPreviewDoc(null)} />
+    </div>
+  )
+}
+
+export default GSTStepReview

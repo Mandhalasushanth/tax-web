@@ -63,7 +63,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <div className="profile-hero__avatar-wrapper">
             <div className="profile-hero__avatar-circle">
               {avatarUrl ? (
-                <img src={avatarUrl} alt="Profile Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={avatarUrl} alt="Profile Avatar" className="profile-hero__avatar-img" />
               ) : (
                 <span className="profile-hero__avatar-initials">{initials}</span>
               )}
@@ -94,7 +94,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               accept="image/*" 
               ref={fileInputRef} 
               onChange={handleFileChange}
-              style={{ display: 'none' }} 
+              className="profile-hero__file-input-hidden"
             />
           </div>
 

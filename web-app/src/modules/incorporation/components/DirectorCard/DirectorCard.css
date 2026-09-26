@@ -145,6 +145,12 @@
   color: #1e293b;
 }
 
+.director-label--section {
+  font-weight: 700;
+  margin-top: 0.25rem;
+}
+
+
 .director-required {
   color: #ef4444;
   margin-left: 2px;

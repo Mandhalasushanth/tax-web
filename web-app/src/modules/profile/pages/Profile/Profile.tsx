@@ -38,9 +38,10 @@ export const Profile = () => {
       }
     )
 
-    profileSectionsConfig.forEach((section) => {
+    profileSectionsConfig.map((section) => {
       const el = document.getElementById(section.title.toLowerCase())
       if (el && observer.current) observer.current.observe(el)
+      return el
     })
 
     return () => {
@@ -97,7 +98,7 @@ export const Profile = () => {
         {profileSectionsConfig.map((section) => {
           const id = section.title.toLowerCase()
           return (
-          <div id={id} key={id} style={{ scrollMarginTop: '280px' }}>
+          <div id={id} key={id} className="profile-page-view__section-anchor">
           <ProfileSection title={section.title.toUpperCase()}>
             {section.items.map((item, index) => (
               <React.Fragment key={item.id}>
@@ -105,10 +106,10 @@ export const Profile = () => {
                   label={item.label}
                   to={item.to}
                   icon={item.icon}
-                  iconBg={item.iconBg}
+                  iconBgClass={item.iconBgClass}
                 />
                 {index < section.items.length - 1 && (
-                  <div style={{ height: '1px', backgroundColor: '#f1f5f9', margin: '0 16px' }} />
+                  <div className="profile-page-view__item-divider" />
                 )}
               </React.Fragment>
             ))}
@@ -117,7 +118,7 @@ export const Profile = () => {
           )
         })}
 
-        <div style={{ marginTop: '16px' }}>
+        <div className="profile-page-view__logout-wrapper">
           <LogoutButton onClick={handleLogout} />
         </div>
       </div>

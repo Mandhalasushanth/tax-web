@@ -57,11 +57,10 @@ export const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   const handleCardChange = (updated: Partial<CardDetails>) => {
     setCardDetails((prev) => ({ ...prev, ...updated }))
     setCardErrors((prev) => {
-      const copy = { ...prev }
-      for (const k of Object.keys(updated) as (keyof CardDetails)[]) {
-        delete copy[k]
-      }
-      return copy
+      const keysToClear = new Set(Object.keys(updated))
+      return Object.fromEntries(
+        Object.entries(prev).filter(([k]) => !keysToClear.has(k))
+      )
     })
   }
 

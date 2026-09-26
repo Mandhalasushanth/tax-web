@@ -217,7 +217,7 @@ export const DirectorCard: React.FC<DirectorCardProps> = ({
             </div>
 
             <div className="director-group">
-              <label className="director-label" style={{ fontWeight: 700, marginTop: '0.25rem' }}>Permanent Residential Address<span className="director-required"> *</span></label>
+              <label className="director-label director-label--section">Permanent Residential Address<span className="director-required"> *</span></label>
             </div>
 
             <DirectorFormField label="Address Line 1" value={director.addressLine1} onChange={(val) => handleFieldChange('addressLine1', val)} placeholder="Flat / Door No., Building, Street" required error={errors.addressLine1} />

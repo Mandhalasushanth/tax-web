@@ -5,7 +5,7 @@ export type { StepItem } from './GSTRegistrationStepper/GSTRegistrationStepper'
 export { GSTSidebar } from './GSTSidebar/GSTSidebar'
 export type { GSTSidebarProps } from './GSTSidebar/GSTSidebar'
 
-export { GSTOrderSummary } from './GSTOrderSummary/GSTOrderSummary'
-export type { GSTOrderSummaryProps } from './GSTOrderSummary/GSTOrderSummary'
+export { GSTOrderSummary } from '../shared/GSTOrderSummary/GSTOrderSummary'
+export type { GSTOrderSummaryProps } from '../shared/GSTOrderSummary/GSTOrderSummary'
 
-export { GSTProofUpload, GSTAmendmentProofUpload } from './GSTProofUpload/GSTProofUpload'
+export { GSTProofUpload, GSTAmendmentProofUpload } from '../shared/GSTProofUpload/GSTProofUpload'

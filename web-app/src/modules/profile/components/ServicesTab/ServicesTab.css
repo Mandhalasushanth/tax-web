@@ -38,6 +38,44 @@
   flex-shrink: 0;
 }
 
+.services-tab__icon--amber {
+  background-color: #fef3c7;
+}
+
+.services-tab__icon--blue {
+  background-color: #e0f2fe;
+}
+
+.services-tab__icon--teal {
+  background-color: #ccfbf1;
+}
+
+.services-tab__icon--orange {
+  background-color: #ffedd5;
+}
+
+.services-tab__dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.services-tab__dot--amber {
+  background-color: #f59e0b;
+}
+
+.services-tab__dot--blue {
+  background-color: #3b82f6;
+}
+
+.services-tab__dot--teal {
+  background-color: #14b8a6;
+}
+
+.services-tab__dot--orange {
+  background-color: #f97316;
+}
+
 .services-tab__content {
   display: flex;
   flex-direction: column;
@@ -56,3 +94,4 @@
   font-size: 13px;
   color: #6b7280;
 }
+

@@ -24,7 +24,8 @@ export interface ProfileSectionData {
     label: string
     to: string
     icon: React.ReactNode
-    iconBg: string
+    iconBg?: string
+    iconBgClass: string
   }[]
 }
 
@@ -32,44 +33,44 @@ export const profileSectionsConfig: ProfileSectionData[] = [
   {
     title: 'Account',
     items: [
-      { id: 'personal', label: 'Personal Information', to: routePaths.profilePersonal, icon: <IconUser />, iconBg: '#f3e8ff' }, // purple bg
-      { id: 'kyc', label: 'KYC Details', to: routePaths.profileKyc, icon: <IconCard />, iconBg: '#e0f2fe' }, // blue bg
-      { id: 'gst', label: 'GST Details', to: routePaths.profile, icon: <IconDoc color="#6366f1" />, iconBg: '#e0e7ff' }, // indigo bg
-      { id: 'itr', label: 'ITR History', to: routePaths.profile, icon: <IconDoc color="#f97316" />, iconBg: '#ffedd5' }, // orange bg
-      { id: 'loan', label: 'Loan History', to: routePaths.profile, icon: <IconBuilding />, iconBg: '#f1f5f9' }, // grey bg
+      { id: 'personal', label: 'Personal Information', to: routePaths.profilePersonal, icon: <IconUser />, iconBgClass: 'profile-menu-item__icon-wrapper--purple' },
+      { id: 'kyc', label: 'KYC Details', to: routePaths.profileKyc, icon: <IconCard />, iconBgClass: 'profile-menu-item__icon-wrapper--blue' },
+      { id: 'gst', label: 'GST Details', to: routePaths.profile, icon: <IconDoc color="#6366f1" />, iconBgClass: 'profile-menu-item__icon-wrapper--indigo' },
+      { id: 'itr', label: 'ITR History', to: routePaths.profile, icon: <IconDoc color="#f97316" />, iconBgClass: 'profile-menu-item__icon-wrapper--orange' },
+      { id: 'loan', label: 'Loan History', to: routePaths.profile, icon: <IconBuilding />, iconBgClass: 'profile-menu-item__icon-wrapper--grey' },
     ]
   },
   {
     title: 'Services',
     items: [
-      { id: 'apps', label: 'My Applications', to: routePaths.applications, icon: <IconFolder />, iconBg: '#fef3c7' }, // amber bg
-      { id: 'docs', label: 'My Documents', to: routePaths.documents, icon: <IconDoc color="#3b82f6" />, iconBg: '#e0f2fe' }, // blue bg
-      { id: 'payments', label: 'Payments & Invoices', to: routePaths.payments, icon: <IconCard />, iconBg: '#ccfbf1' }, // teal bg
-      { id: 'notifications', label: 'Notifications', to: routePaths.notifications, icon: <IconBell />, iconBg: '#ffedd5' }, // orange bg
+      { id: 'apps', label: 'My Applications', to: routePaths.applications, icon: <IconFolder />, iconBgClass: 'profile-menu-item__icon-wrapper--amber' },
+      { id: 'docs', label: 'My Documents', to: routePaths.documents, icon: <IconDoc color="#3b82f6" />, iconBgClass: 'profile-menu-item__icon-wrapper--blue' },
+      { id: 'payments', label: 'Payments & Invoices', to: routePaths.payments, icon: <IconCard />, iconBgClass: 'profile-menu-item__icon-wrapper--teal' },
+      { id: 'notifications', label: 'Notifications', to: routePaths.notifications, icon: <IconBell />, iconBgClass: 'profile-menu-item__icon-wrapper--orange' },
     ]
   },
   {
     title: 'Preferences',
     items: [
-      { id: 'appearance', label: 'Appearance & Settings', to: routePaths.profile, icon: <IconPalette />, iconBg: '#ffedd5' }, // orange bg
+      { id: 'appearance', label: 'Appearance & Settings', to: routePaths.profile, icon: <IconPalette />, iconBgClass: 'profile-menu-item__icon-wrapper--orange' },
     ]
   },
   {
     title: 'Security',
     items: [
-      { id: 'password', label: 'Change Password', to: routePaths.profile, icon: <IconLock />, iconBg: '#fee2e2' }, // red bg
-      { id: '2fa', label: 'Two-Factor Authentication', to: routePaths.profile, icon: <IconKeypad />, iconBg: '#f3e8ff' }, // purple bg
-      { id: 'history', label: 'Login History', to: routePaths.profile, icon: <IconClock />, iconBg: '#f1f5f9' }, // grey bg
-      { id: 'privacy', label: 'Privacy Settings', to: routePaths.profile, icon: <IconShield color="#f59e0b" />, iconBg: '#fef3c7' }, // amber bg
+      { id: 'password', label: 'Change Password', to: routePaths.profile, icon: <IconLock />, iconBgClass: 'profile-menu-item__icon-wrapper--red' },
+      { id: '2fa', label: 'Two-Factor Authentication', to: routePaths.profile, icon: <IconKeypad />, iconBgClass: 'profile-menu-item__icon-wrapper--purple' },
+      { id: 'history', label: 'Login History', to: routePaths.profile, icon: <IconClock />, iconBgClass: 'profile-menu-item__icon-wrapper--grey' },
+      { id: 'privacy', label: 'Privacy Settings', to: routePaths.profile, icon: <IconShield color="#f59e0b" />, iconBgClass: 'profile-menu-item__icon-wrapper--amber' },
     ]
   },
   {
     title: 'Support',
     items: [
-      { id: 'support', label: 'Customer Support', to: routePaths.support, icon: <IconChat />, iconBg: '#e0f2fe' }, // blue bg
-      { id: 'rate', label: 'Rate TaxEdge', to: routePaths.profile, icon: <IconStar />, iconBg: '#fef3c7' }, // amber bg
-      { id: 'terms', label: 'Terms & Conditions', to: routePaths.profile, icon: <IconDoc color="#64748b" />, iconBg: '#f1f5f9' }, // grey bg
-      { id: 'policy', label: 'Privacy Policy', to: routePaths.profile, icon: <IconShield color="#14b8a6" />, iconBg: '#ccfbf1' }, // teal bg
+      { id: 'support', label: 'Customer Support', to: routePaths.support, icon: <IconChat />, iconBgClass: 'profile-menu-item__icon-wrapper--blue' },
+      { id: 'rate', label: 'Rate TaxEdge', to: routePaths.profile, icon: <IconStar />, iconBgClass: 'profile-menu-item__icon-wrapper--amber' },
+      { id: 'terms', label: 'Terms & Conditions', to: routePaths.profile, icon: <IconDoc color="#64748b" />, iconBgClass: 'profile-menu-item__icon-wrapper--grey' },
+      { id: 'policy', label: 'Privacy Policy', to: routePaths.profile, icon: <IconShield color="#14b8a6" />, iconBgClass: 'profile-menu-item__icon-wrapper--teal' },
     ]
   }
 ]

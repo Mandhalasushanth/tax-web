@@ -62,16 +62,17 @@ export const DashboardLayout = () => {
   }
 
   const currentNav = useMemo(() => {
-    for (const section of navSections) {
-      const match = section.items
-        .filter((i) => !i.to.includes('#'))
-        .filter((i) => location.pathname === i.to || location.pathname.startsWith(`${i.to}/`))
-        .sort((a, b) => b.to.length - a.to.length)[0]
-      if (match) {
-        return { sectionTitle: section.title, label: match.label }
-      }
-    }
-    return { sectionTitle: 'Overview', label: 'Dashboard' }
+    const matchedSection = navSections
+      .map((section) => {
+        const match = section.items
+          .filter((i) => !i.to.includes('#'))
+          .filter((i) => location.pathname === i.to || location.pathname.startsWith(`${i.to}/`))
+          .sort((a, b) => b.to.length - a.to.length)[0]
+        return match ? { sectionTitle: section.title, label: match.label } : null
+      })
+      .find(Boolean)
+
+    return matchedSection || { sectionTitle: 'Overview', label: 'Dashboard' }
   }, [location.pathname])
 
   const notificationsCount = data?.recentApplications?.length ?? 0
@@ -221,7 +222,7 @@ export const DashboardLayout = () => {
         </header>
 
         <main className="shell__content">
-          <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>Loading...</div>}>
+          <Suspense fallback={<div className="shell__loading">Loading...</div>}>
             <Outlet />
           </Suspense>
         </main>

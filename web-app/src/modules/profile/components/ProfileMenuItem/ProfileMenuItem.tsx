@@ -8,6 +8,7 @@ export interface ProfileMenuItemProps {
   onClick?: () => void
   icon: React.ReactNode
   iconBg?: string
+  iconBgClass?: string
 }
 
 const ChevronRight = () => (
@@ -21,12 +22,12 @@ export const ProfileMenuItem: React.FC<ProfileMenuItemProps> = ({
   to,
   onClick,
   icon,
-  iconBg = '#f3f4f6'
+  iconBgClass = ''
 }) => {
   const content = (
     <>
       <div className="profile-menu-item__left">
-        <div className="profile-menu-item__icon-wrapper" style={{ backgroundColor: iconBg }}>
+        <div className={`profile-menu-item__icon-wrapper ${iconBgClass}`}>
           {icon}
         </div>
         <span className="profile-menu-item__label">{label}</span>

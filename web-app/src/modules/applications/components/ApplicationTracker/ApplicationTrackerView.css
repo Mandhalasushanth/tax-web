@@ -117,6 +117,12 @@
   gap: 1.5rem;
 }
 
+.app-tracker-web-container--empty {
+  padding: 4rem 1.5rem;
+  text-align: center;
+}
+
+
 .app-tracker-web-tabs {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

@@ -26,9 +26,7 @@ export const userStorage = {
     // Filter out dummy/mock placeholders (e.g. empty 'New Registration · India' default submissions or mock references)
     // and deduplicate by code/service so repeated submissions don't duplicate identical applications
     const seenCodes = new Set<string>()
-    const cleaned: RecentApplication[] = []
-
-    for (const app of raw) {
+    const cleaned = raw.filter((app) => {
       // Exclude placeholder submissions where no real user details were filled
       const isDummyMeta =
         !app.meta ||
@@ -51,14 +49,14 @@ export const userStorage = {
         app.code === 'ITR-2026-37226' ||
         app.code === 'ITR-2026-00074'
 
-      if (isDummyMeta || isMockId || isMockCode) continue
+      if (isDummyMeta || isMockId || isMockCode) return false
 
       const key = app.code || app.id
-      if (!seenCodes.has(key)) {
-        seenCodes.add(key)
-        cleaned.push(app)
-      }
-    }
+      if (seenCodes.has(key)) return false
+
+      seenCodes.add(key)
+      return true
+    })
 
     // If cleaned differs from raw (duplicates or mock items removed), sync back to local storage
     if (cleaned.length !== raw.length) {

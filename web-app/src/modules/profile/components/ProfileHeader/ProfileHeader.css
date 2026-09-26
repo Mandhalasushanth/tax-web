@@ -64,6 +64,17 @@
   letter-spacing: 1px;
 }
 
+.profile-hero__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-hero__file-input-hidden {
+  display: none;
+}
+
+
 .profile-hero__edit-btn {
   position: absolute;
   bottom: 0;

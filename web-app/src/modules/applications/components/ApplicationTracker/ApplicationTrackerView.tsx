@@ -24,7 +24,7 @@ export const ApplicationTrackerView: React.FC<{ customId?: string }> = ({ custom
   if (!data) {
     return (
       <div className="app-tracker-web-page">
-        <div className="app-tracker-web-container" style={{ padding: '4rem 1.5rem', textAlign: 'center' }}>
+        <div className="app-tracker-web-container app-tracker-web-container--empty">
           <div className="app-tracker-empty-card">
             <div className="app-tracker-empty-icon-wrap">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="app-tracker-empty-icon">

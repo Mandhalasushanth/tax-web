@@ -38,7 +38,7 @@ const NotificationsPage: React.FC = () => {
 
   return (
     <div className="notifications-page">
-      <div className="notifications-header" style={{ justifyContent: 'center' }}>
+      <div className="notifications-header notifications-header--centered">
         <h1>Notifications</h1>
       </div>
 

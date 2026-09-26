@@ -31,10 +31,7 @@ export const ExecutiveList = ({
               className={`cs-exec-item ${isActive ? 'cs-exec-item--active' : ''}`}
               onClick={() => onSelectExecutive(exec)}
             >
-              <div
-                className="cs-exec-item__avatar"
-                style={{ backgroundColor: exec.avatarColor || '#032b69' }}
-              >
+              <div className="cs-exec-item__avatar">
                 {exec.avatarInitials}
               </div>
 

@@ -3,16 +3,16 @@ import type { RouteObject } from 'react-router-dom'
 
 import { routePaths } from '@core/config'
 
-const GSTDashboard = lazy(() => import('./pages/GSTDashboard/GSTDashboard'))
-const GSTRegistration = lazy(() => import('./pages/GSTRegistration/GSTRegistration'))
-const GSTReturn = lazy(() => import('./pages/GSTReturn/GSTReturn'))
-const GSTFiling = lazy(() => import('./pages/GSTFiling/GSTFiling'))
-const GSTDetails = lazy(() => import('./pages/GSTDetails/GSTDetails'))
-const GSTTrack = lazy(() => import('./pages/GSTTrack/GSTTrack'))
-const GSTAmendment = lazy(() => import('./pages/GSTAmendment/GSTAmendment'))
-const GSTCertificate = lazy(() => import('./pages/GSTCertificate/GSTCertificate'))
-const GSTCompliance = lazy(() => import('./pages/GSTCompliance/GSTCompliance'))
-const GSTCancellation = lazy(() => import('./pages/GSTCancellation/GSTCancellation'))
+const GSTDashboard = lazy(() => import('./pages/GSTDashboard'))
+const GSTRegistration = lazy(() => import('./pages/GSTRegistration'))
+const GSTReturn = lazy(() => import('./pages/GSTReturn'))
+const GSTFiling = lazy(() => import('./pages/GSTFiling'))
+const GSTDetails = lazy(() => import('./pages/GSTDetails'))
+const GSTTrack = lazy(() => import('./pages/GSTTrack'))
+const GSTAmendment = lazy(() => import('./pages/GSTAmendment'))
+const GSTCertificate = lazy(() => import('./pages/GSTCertificate'))
+const GSTCompliance = lazy(() => import('./pages/GSTCompliance'))
+const GSTCancellation = lazy(() => import('./pages/GSTCancellation'))
 
 export const gstRoutes: RouteObject[] = [
   { path: routePaths.gst.root, element: <GSTDashboard /> },

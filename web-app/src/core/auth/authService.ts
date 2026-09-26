@@ -29,16 +29,16 @@ export const authService = {
   startSession(session: AuthSession): void {
     authStorage.setTokens(session.tokens)
     authStorage.setUser(session.user)
-    listeners.forEach((listener) => listener(session))
+    Array.from(listeners).map((listener) => listener(session))
   },
   updateUser(user: AuthUser): void {
     authStorage.setUser(user)
     const tokens = authStorage.getTokens()
-    listeners.forEach((listener) => listener(tokens ? { user, tokens } : null))
+    Array.from(listeners).map((listener) => listener(tokens ? { user, tokens } : null))
   },
   endSession(): void {
     authStorage.clear()
-    listeners.forEach((listener) => listener(null))
+    Array.from(listeners).map((listener) => listener(null))
   },
   /** Lets providers react to sign-in / sign-out triggered anywhere (e.g. a 401). */
   subscribe(listener: Listener): () => void {

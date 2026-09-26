@@ -476,6 +476,14 @@
   background: #f8fafc;
 }
 
+.biz-table__empty-cell {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: #64748b;
+  font-size: 0.925rem;
+}
+
+
 .biz-status-badge {
   display: inline-flex;
   align-items: center;

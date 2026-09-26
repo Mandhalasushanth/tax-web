@@ -5,7 +5,6 @@ import type { AuthUser } from '@core/auth'
 import { routePaths } from '@core/config'
 import { useAuthStore } from '@store/index'
 import { authFlowService } from '../../services/authFlowService'
-import { lookupPincode, detectCurrentLocation } from '@shared/services'
 import { RegistrationPersonalFields } from '../RegistrationPersonalFields/RegistrationPersonalFields'
 import { RegistrationIdentityFields } from '../RegistrationIdentityFields/RegistrationIdentityFields'
 import { RegistrationResidentialFields } from '../RegistrationResidentialFields/RegistrationResidentialFields'
@@ -44,18 +43,10 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     email: user?.email || '',
   }))
 
-
   const [errors, setErrors] = useState<RegistrationFormErrors>({})
   const [touched, setTouched] = useState<Partial<Record<keyof RegistrationFormState, boolean>>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
-
-  // Address Auto-Fill & Location State
-  const [isDetectingLocation, setIsDetectingLocation] = useState(false)
-  const [locationError, setLocationError] = useState<string | null>(null)
-  const [pincodeStatus, setPincodeStatus] = useState<'idle' | 'verifying' | 'valid' | 'invalid'>('idle')
-  const [availablePostOffices, setAvailablePostOffices] = useState<string[]>([])
-
 
   const isFormValid = checkIsFormValid(values)
 
@@ -77,51 +68,22 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
     if (key === 'fullName' || key === 'fatherSpouseName') {
       formatted = value.replace(/[^a-zA-Z\s.'-]/g, '')
+    } else if (key === 'pan') {
+      formatted = value.toUpperCase().slice(0, 10)
+    } else if (key === 'aadhaar') {
+      formatted = value.replace(/\D/g, '').slice(0, 12)
+    } else if (key === 'mobile') {
+      formatted = value.replace(/\D/g, '').slice(0, 10)
+    } else if (key === 'pincode') {
+      formatted = value.replace(/\D/g, '').slice(0, 6)
+    } else if (key === 'password' || key === 'confirmPassword') {
+      formatted = value.replace(/\D/g, '').slice(0, 6)
+    } else if (key === 'dob' && value.length > values.dob.length) {
+      formatted = formatDOB(value)
     }
-    else if (key === 'pan') formatted = value.toUpperCase().slice(0, 10)
-    else if (key === 'aadhaar') formatted = value.replace(/\D/g, '').slice(0, 12)
-    else if (key === 'mobile') formatted = value.replace(/\D/g, '').slice(0, 10)
-    else if (key === 'pincode') formatted = value.replace(/\D/g, '').slice(0, 6)
-    else if (key === 'password' || key === 'confirmPassword') formatted = value.replace(/\D/g, '').slice(0, 6)
-    else if (key === 'dob' && value.length > values.dob.length) formatted = formatDOB(value)
 
     const nextValues = { ...values, [key]: formatted }
     setValues(nextValues)
-
-    // Trigger instant / debounced PIN code lookup when exactly 6 digits are entered
-    if (key === 'pincode') {
-      if (formatted.length === 6) {
-        setPincodeStatus('verifying')
-        lookupPincode(formatted)
-          .then((res) => {
-            if (res.valid) {
-              setPincodeStatus('valid')
-              setAvailablePostOffices(res.postOffices)
-              setValues((current) => ({
-                ...current,
-                city: res.city || current.city,
-                district: res.district || current.district,
-                state: res.state || current.state,
-                areaLocality: res.areaLocality || current.areaLocality,
-              }))
-              setErrors((prevErr) => ({
-                ...prevErr,
-                pincode: undefined,
-                city: undefined,
-                district: undefined,
-                state: undefined,
-              }))
-            } else {
-              setPincodeStatus('invalid')
-            }
-          })
-          .catch(() => {
-            setPincodeStatus('idle')
-          })
-      } else {
-        setPincodeStatus('idle')
-      }
-    }
 
     if (key === 'aadhaar') {
       // While user enters Aadhaar number, do not show error so user can enter freely
@@ -140,83 +102,6 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
           return updated
         })
       }
-    }
-  }
-
-  const handleUseCurrentLocation = async () => {
-    setIsDetectingLocation(true)
-    setLocationError(null)
-    try {
-      const res = await detectCurrentLocation()
-      if (res.success) {
-        let areaCandidate = res.areaLocality
-
-        // If a valid PIN code was detected via GPS, fetch verified postal info and village post offices
-        if (res.pincode && res.pincode.length === 6) {
-          setPincodeStatus('verifying')
-          try {
-            const pinRes = await lookupPincode(res.pincode)
-            if (pinRes.valid) {
-              setPincodeStatus('valid')
-
-              // If GPS did not detect an area or detected a generic one matching city/district, use the verified postal village
-              const isGeneric =
-                !areaCandidate ||
-                areaCandidate.toLowerCase() === res.city.toLowerCase() ||
-                areaCandidate.toLowerCase() === res.district.toLowerCase()
-
-              if (isGeneric && pinRes.areaLocality) {
-                areaCandidate = pinRes.areaLocality
-              }
-
-              // Place detected area at the top of available options in the dropdown
-              const mergedBranches = Array.from(
-                new Set([areaCandidate, ...pinRes.postOffices].filter(Boolean))
-              )
-              setAvailablePostOffices(mergedBranches)
-            } else {
-              if (areaCandidate) {
-                setAvailablePostOffices([areaCandidate])
-              }
-              setPincodeStatus('valid')
-            }
-          } catch {
-            if (areaCandidate) {
-              setAvailablePostOffices([areaCandidate])
-            }
-            setPincodeStatus('valid')
-          }
-        } else if (areaCandidate) {
-          setAvailablePostOffices([areaCandidate])
-        }
-
-        setValues((current) => ({
-          ...current,
-          addressLine1: res.addressLine1 || current.addressLine1,
-          areaLocality: areaCandidate || current.areaLocality,
-          city: res.city || current.city,
-          district: res.district || current.district,
-          state: res.state || current.state,
-          pincode: res.pincode || current.pincode,
-        }))
-        setErrors((prevErr) => ({
-          ...prevErr,
-          addressLine1: undefined,
-          city: undefined,
-          district: undefined,
-          state: undefined,
-          pincode: undefined,
-          areaLocality: undefined,
-        }))
-      } else {
-        setLocationError(
-          res.error || 'Unable to detect location. Please enter your address manually.'
-        )
-      }
-    } catch {
-      setLocationError('Location detection error. Please enter address manually.')
-    } finally {
-      setIsDetectingLocation(false)
     }
   }
 
@@ -421,12 +306,6 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
           district: touched.district ? errors.district : undefined,
           state: touched.state ? errors.state : undefined,
         }}
-        isDetectingLocation={isDetectingLocation}
-        locationError={locationError}
-        onClearLocationError={() => setLocationError(null)}
-        onUseCurrentLocation={handleUseCurrentLocation}
-        pincodeStatus={pincodeStatus}
-        availablePostOffices={availablePostOffices}
         onChange={handleChange}
         onBlur={handleBlur}
       />

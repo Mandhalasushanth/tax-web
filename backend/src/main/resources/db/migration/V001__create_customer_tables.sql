@@ -1,2 +1,0 @@
--- Placeholder migration: customer module tables.
--- TODO: define customer, address tables.

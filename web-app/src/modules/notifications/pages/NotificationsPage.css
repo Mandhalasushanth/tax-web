@@ -15,6 +15,11 @@
   position: relative;
 }
 
+.notifications-header--centered {
+  justify-content: center;
+}
+
+
 .back-button {
   background: none;
   border: none;

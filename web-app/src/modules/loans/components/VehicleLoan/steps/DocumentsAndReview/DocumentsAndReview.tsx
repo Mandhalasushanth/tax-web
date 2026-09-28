@@ -292,14 +292,26 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
           ]}
         />
 
-        {/* Banking Review */}
+        {/* Banking & ITR Review */}
         <LoanReviewSection
-          title="Disbursement Banking"
+          title="Disbursement Banking & ITR"
           onEdit={() => onNavigateToStep(3)}
           items={[
             { label: 'Bank Name', value: data.bankName || 'Not specified' },
             { label: 'Account Number', value: maskedAccountNumber },
             { label: 'IFSC Code', value: data.ifscCode || '—' },
+            { label: 'ITR Status', value: data.itrStatus || 'Not specified' },
+            ...(data.itrStatus === 'Filed'
+              ? [
+                  ...(data.itrAckNumber ? [{ label: 'ITR Ack Number', value: data.itrAckNumber }] : []),
+                  {
+                    label: 'Gross Annual Income',
+                    value: data.grossAnnualIncomeItr
+                      ? `₹${(Number(String(data.grossAnnualIncomeItr).replace(/\D/g, '')) || 0).toLocaleString('en-IN')}`
+                      : 'Not specified',
+                  },
+                ]
+              : []),
           ]}
         />
       </div>

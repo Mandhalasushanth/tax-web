@@ -20,7 +20,7 @@ import './VehicleLoan.css'
 const VEHICLE_LOAN_STEPS: FlowStepItem[] = [
   { stepNumber: 1, title: 'Vehicle & Loan Requirements', shortLabel: 'Requirements' },
   { stepNumber: 2, title: 'Employment & Income', shortLabel: 'Employment' },
-  { stepNumber: 3, title: 'Banking Details', shortLabel: 'Banking' },
+  { stepNumber: 3, title: 'Banking & ITR', shortLabel: 'Banking & ITR' },
   { stepNumber: 4, title: 'Documents & Review', shortLabel: 'Documents & Review' },
 ]
 
@@ -35,7 +35,6 @@ const INITIAL_VEHICLE_LOAN_DATA: VehicleLoanData = {
   downPayment: '',
   occupationType: 'Business Owner',
   monthlyIncomeRange: '',
-  exactMonthlyIncome: '',
   legalBusinessName: '',
   gstin: '',
   udyamNumber: '',
@@ -47,6 +46,9 @@ const INITIAL_VEHICLE_LOAN_DATA: VehicleLoanData = {
   accountNumber: '',
   ifscCode: '',
   branchName: '',
+  itrStatus: 'Filed',
+  itrAckNumber: '',
+  grossAnnualIncomeItr: '',
   uploadedDocs: {},
   termsAccepted: false,
 }
@@ -75,7 +77,7 @@ export const VehicleLoan: React.FC = () => {
     {
       serviceTitle: 'Vehicle Loan',
       totalSteps: 4,
-      stepLabels: ['Vehicle & Loan Requirements', 'Applicant & Employment', 'Banking Details', 'Documents & Review'],
+      stepLabels: ['Vehicle & Loan Requirements', 'Employment & Income', 'Banking & ITR', 'Documents & Review'],
       resumeRoute: '/loans/vehicle-loan',
     }
   )

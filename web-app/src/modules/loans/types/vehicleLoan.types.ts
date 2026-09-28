@@ -60,6 +60,8 @@ export type VehicleIncomeRange =
   | '₹50,000 - ₹1,00,000'
   | 'Above ₹1,00,000'
 
+export type VehicleItrFilingStatus = 'Filed' | 'Not Filed' | 'Exempt'
+
 export interface VehicleLoanData {
   // Step 1: Vehicle & Loan Requirements
   loanAmount: string | number
@@ -86,11 +88,14 @@ export interface VehicleLoanData {
   hasActiveEmis: boolean
   totalMonthlyEmi?: string | number
 
-  // Step 3: Banking & Disbursement
+  // Step 3: Banking & ITR
   bankName: string
   accountNumber: string
   ifscCode: string
   branchName?: string
+  itrStatus: VehicleItrFilingStatus
+  itrAckNumber?: string
+  grossAnnualIncomeItr?: string | number
 
   // Step 4: Documents & Review
   uploadedDocs?: Record<string, { name: string; size: string; file?: File; uploadedAt: string }>

@@ -124,6 +124,15 @@ export const vehicleLoanValidation = {
       errors.ifscCode = ifscRes.message || 'Invalid IFSC code'
     }
 
+    if (!data.itrStatus) {
+      errors.itrStatus = 'Please select ITR filing status'
+    } else if (data.itrStatus === 'Filed') {
+      const grossNum = Number(String(data.grossAnnualIncomeItr || '').replace(/\D/g, ''))
+      if (!grossNum || grossNum <= 0) {
+        errors.grossAnnualIncomeItr = 'Please enter gross total annual income as per ITR'
+      }
+    }
+
     const firstError = Object.values(errors)[0]
     return {
       isValid: Object.keys(errors).length === 0,

@@ -26,10 +26,6 @@ export function useLoanApplication<T extends object>(
 
     // 2. Fallback to legacy loan application storage
     const saved = loanApplicationService.getDraft<T>(loanType)
-    if (saved && (saved as Record<string, unknown>).accountNumber === '50100492817291') {
-      loanApplicationService.clearDraft(loanType)
-      return initialValues
-    }
     return saved ? { ...initialValues, ...saved } : initialValues
   })
 

@@ -1,0 +1,327 @@
+/* ==========================================================================
+   Business Loan - Step 4 (Document Verification) Styles
+   External CSS only - strictly loop-free and responsive
+   ========================================================================== */
+
+.document-verification-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* 1. Header Banner */
+.doc-verification-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.doc-verification-header__left {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.doc-verification-icon-tile {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #fff7ed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.doc-verification-header__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.doc-verification-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #041d3e;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.doc-verification-subtitle {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin: 0.2rem 0 0 0;
+  line-height: 1.4;
+}
+
+/* 2. Accepted Formats / Max Size Info Badge */
+.doc-verification-info-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 0.65rem 1.15rem;
+  flex-shrink: 0;
+}
+
+.doc-verification-info-icon {
+  flex-shrink: 0;
+}
+
+.doc-verification-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.doc-verification-info-line1 {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #9a3412;
+  line-height: 1.25;
+}
+
+.doc-verification-info-line2 {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #b45309;
+  line-height: 1.2;
+}
+
+/* 3. Global File Error Banner */
+.doc-verification-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  animation: docFadeIn 0.2s ease-out;
+}
+
+@keyframes docFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 4. Document Cards Section & Full-Width Single Column Layout */
+.business-doc-verification-section.taxedge-doc-section--flat {
+  margin-bottom: 0;
+  gap: 0;
+  width: 100%;
+}
+
+.business-doc-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  width: 100%;
+}
+
+/* Styling override for DocumentCard inside Business Loan: Full Width & Fluid Content */
+.business-loan-doc-card.supporting-doc-item {
+  width: 100%;
+  background: #ffffff;
+  border: 1.5px solid #edf2f7;
+  border-radius: 16px;
+  padding: clamp(0.95rem, 1.5vw, 1.25rem) clamp(1rem, 2vw, 1.5rem);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.business-loan-doc-card.supporting-doc-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.business-loan-doc-card .supporting-doc-item__main {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.business-loan-doc-card .supporting-doc-item__left {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 1.5vw, 1.15rem);
+  min-width: 0;
+  flex: 1;
+}
+
+.business-loan-doc-card .supporting-doc-item__icon-box {
+  width: clamp(38px, 3.5vw, 44px);
+  height: clamp(38px, 3.5vw, 44px);
+  border-radius: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* External CSS Theme Colors for Icon Tiles */
+.business-loan-doc-card--blue .supporting-doc-item__icon-box {
+  background-color: #eff6ff;
+}
+
+.business-loan-doc-card--purple .supporting-doc-item__icon-box {
+  background-color: #f5f3ff;
+}
+
+.business-loan-doc-card--green .supporting-doc-item__icon-box {
+  background-color: #ecfdf5;
+}
+
+.business-loan-doc-card--pink .supporting-doc-item__icon-box {
+  background-color: #fdf2f8;
+}
+
+.business-loan-doc-card--orange .supporting-doc-item__icon-box {
+  background-color: #fff7ed;
+}
+
+.business-loan-doc-card .supporting-doc-item__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.business-loan-doc-card .supporting-doc-item__title {
+  font-size: clamp(0.9rem, 1.15vw, 1.025rem);
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.business-loan-doc-card .supporting-doc-item__subtitle {
+  font-size: clamp(0.78rem, 0.9vw, 0.85rem);
+  color: #64748b;
+  margin-top: 1px;
+  white-space: normal;
+  line-height: 1.4;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.business-loan-doc-card .supporting-doc-item__filename {
+  font-size: clamp(0.75rem, 0.85vw, 0.82rem);
+  color: #475569;
+}
+
+/* Orange Cloud Upload Button matching reference image: Fluid sizing */
+.business-loan-doc-card .supporting-doc-item__upload-btn {
+  background: #fffaf5;
+  color: #ea580c;
+  border: 1.5px solid #fed7aa;
+  border-radius: 9999px;
+  padding: clamp(0.42rem, 0.8vw, 0.52rem) clamp(1rem, 1.6vw, 1.35rem);
+  font-size: clamp(0.8rem, 0.92vw, 0.875rem);
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(234, 88, 12, 0.08);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.business-loan-doc-card .supporting-doc-item__upload-btn:hover {
+  background: #fff7ed;
+  border-color: #ea580c;
+  color: #c2410c;
+  box-shadow: 0 3px 10px rgba(234, 88, 12, 0.15);
+  transform: translateY(-1px);
+}
+
+.business-loan-doc-card .supporting-doc-item__upload-btn:active {
+  transform: translateY(0);
+  background: #ffedd5;
+}
+
+/* Optional Badge for Udyam Registration Certificate */
+.business-doc-badge--optional {
+  display: inline-flex;
+  align-items: center;
+  font-size: clamp(0.68rem, 0.8vw, 0.74rem);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background-color: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+/* Error card state */
+.business-loan-doc-card.business-doc-card--error {
+  border-color: #ef4444 !important;
+  background-color: #fffbfb !important;
+  box-shadow: 0 0 0 1px #ef4444, 0 2px 8px rgba(239, 68, 68, 0.08) !important;
+}
+
+.business-doc-card-error-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ef4444;
+  margin-top: 4px;
+}
+
+/* Responsive adjustments across screen sizes */
+@media (max-width: 900px) {
+  .doc-verification-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .doc-verification-info-badge {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 600px) {
+  .business-loan-doc-card .supporting-doc-item__main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .business-loan-doc-card .supporting-doc-item__btn-group {
+    width: 100%;
+  }
+
+  .business-loan-doc-card .supporting-doc-item__upload-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .business-loan-doc-card .supporting-doc-item__uploaded-badge {
+    align-self: flex-start;
+  }
+
+  .doc-verification-title {
+    font-size: 1.125rem;
+  }
+}

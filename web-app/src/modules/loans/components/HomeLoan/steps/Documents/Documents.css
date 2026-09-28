@@ -70,6 +70,19 @@
   transition: width 0.3s ease;
 }
 
+.home-loan-docs__progress-fill--0 { width: 0%; }
+.home-loan-docs__progress-fill--10 { width: 10%; }
+.home-loan-docs__progress-fill--20 { width: 20%; }
+.home-loan-docs__progress-fill--30 { width: 30%; }
+.home-loan-docs__progress-fill--40 { width: 40%; }
+.home-loan-docs__progress-fill--50 { width: 50%; }
+.home-loan-docs__progress-fill--60 { width: 60%; }
+.home-loan-docs__progress-fill--70 { width: 70%; }
+.home-loan-docs__progress-fill--80 { width: 80%; }
+.home-loan-docs__progress-fill--90 { width: 90%; }
+.home-loan-docs__progress-fill--100 { width: 100%; }
+
+
 .home-loan-docs__progress-subtitle {
   margin: 0;
   font-size: 0.78125rem;

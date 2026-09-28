@@ -1,0 +1,249 @@
+/* ==========================================================================
+   Business Loan - Step 3 (Banking) Styles
+   External CSS only - strictly adheres to navy blue & vibrant orange design system
+   ========================================================================== */
+
+.business-banking-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* 1. Banking Cards */
+.banking-card {
+  background: #ffffff;
+  border: 1.5px solid #edf2f7;
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.banking-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.banking-icon-tile {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: #fff7ed;
+  border: 1px solid #ffedd5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.banking-card-header__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.banking-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #041d3e;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.banking-card-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* 2. Form Grid (2-Column) */
+.banking-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-top: 1.35rem;
+  align-items: start;
+}
+
+.banking-field-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  position: relative;
+}
+
+.banking-field-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+}
+
+.banking-field-label .text-required {
+  color: #ef4444;
+  margin-left: 0.2rem;
+  font-weight: 700;
+}
+
+/* 3. Form Inputs & Dropdowns */
+.banking-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #0f172a;
+  background-color: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+}
+
+.banking-input::placeholder {
+  color: #94a3b8;
+}
+
+.banking-input:focus {
+  outline: none;
+  border-color: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+.banking-input--error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.banking-input--error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* 4. Dropdown Container & Menu */
+.banking-dropdown-container {
+  position: relative;
+  width: 100%;
+}
+
+.banking-dropdown-trigger {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  background-color: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+  text-align: left;
+}
+
+.banking-dropdown-trigger:focus,
+.banking-dropdown-trigger--open {
+  outline: none;
+  border-color: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+.banking-dropdown-trigger--error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.banking-dropdown-placeholder {
+  color: #94a3b8;
+}
+
+.banking-dropdown-value {
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.banking-dropdown-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.banking-dropdown-chevron--open {
+  transform: rotate(180deg);
+}
+
+.banking-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 50;
+  padding: 0.35rem 0;
+}
+
+.banking-dropdown-option {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-size: 0.875rem;
+  color: #334155;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: inherit;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.banking-dropdown-option:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.banking-dropdown-option--selected {
+  background: #fff7ed;
+  color: #ea580c;
+  font-weight: 700;
+}
+
+.banking-dropdown-check {
+  flex-shrink: 0;
+}
+
+/* 5. Validation Error Message */
+.banking-field-error {
+  font-size: 0.78rem;
+  color: #ef4444;
+  margin-top: 0.2rem;
+  font-weight: 500;
+}
+
+/* 6. Responsive adjustments */
+@media (max-width: 900px) {
+  .banking-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .banking-card {
+    padding: 1.25rem 1rem;
+  }
+}

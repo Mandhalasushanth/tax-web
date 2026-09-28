@@ -24,13 +24,7 @@ export const LoanPageNavigation: React.FC<LoanPageNavigationProps> = ({
   const navigate = useNavigate()
 
   const handleBack = () => {
-    if (onBack) {
-      onBack()
-    } else if (backTo) {
-      navigate(backTo)
-    } else {
-      navigate(-1)
-    }
+    onBack ? onBack() : backTo ? navigate(backTo) : navigate(-1)
   }
 
   const hasExtraHeaderContent = showBack || category || subtitle

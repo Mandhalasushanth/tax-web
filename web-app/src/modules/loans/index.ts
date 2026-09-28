@@ -1,4 +1,19 @@
 export { loansRoutes } from './routes'
+ 
+export { useLoans } from './hooks/useLoans'
+export { useLoanApplication } from './hooks/useLoanApplication'
+export { loansService } from './services/loansService'
+export { loanApplicationService } from './services/loanApplicationService'
+export type * from './types/loan.types'
+export type * from './types/loanApplication.types'
+export type * from './types/businessLoan.types'
+export type * from './types/homeLoan.types'
+export type * from './documents/loanDocument.types'
+export { BusinessLoan } from './components/BusinessLoan'
+export { HomeLoan } from './components/HomeLoan'
+export { LoanMarketplace } from './components/LoanMarketplace'
+export { LoanApplicationStatus } from './components/LoanApplicationStatus'
+ 
 export * from './hooks'
 export * from './services'
 export * from './documents'
@@ -6,3 +21,4 @@ export * from './validation'
 export * from './types'
 export * from './components'
 
+ 

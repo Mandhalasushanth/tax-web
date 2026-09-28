@@ -26,24 +26,29 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
     const p = amount
     const r = rate / 12 / 100
     const n = tenure * 12
+    const isValid = p > 0 && r > 0 && n > 0
 
-    if (p > 0 && r > 0 && n > 0) {
+    const calculateValues = () => {
       const calculatedEmi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
       const calculatedTotalPayment = calculatedEmi * n
       const calculatedTotalInterest = calculatedTotalPayment - p
+      const roundedEmi = Math.round(calculatedEmi)
+      const roundedPayment = Math.round(calculatedTotalPayment)
+      const roundedInterest = Math.round(calculatedTotalInterest)
 
-      setEmi(Math.round(calculatedEmi))
-      setTotalPayment(Math.round(calculatedTotalPayment))
-      setTotalInterest(Math.round(calculatedTotalInterest))
+      setEmi(roundedEmi)
+      setTotalPayment(roundedPayment)
+      setTotalInterest(roundedInterest)
+      onCalculate?.(roundedEmi, roundedInterest, roundedPayment)
+    }
 
-      if (onCalculate) {
-        onCalculate(Math.round(calculatedEmi), Math.round(calculatedTotalInterest), Math.round(calculatedTotalPayment))
-      }
-    } else {
+    const resetValues = () => {
       setEmi(0)
       setTotalPayment(0)
       setTotalInterest(0)
     }
+
+    isValid ? calculateValues() : resetValues()
   }, [amount, tenure, rate, onCalculate])
 
   return (

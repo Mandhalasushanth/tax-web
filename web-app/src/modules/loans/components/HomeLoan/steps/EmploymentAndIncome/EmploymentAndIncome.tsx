@@ -1,7 +1,7 @@
 import React from 'react'
 import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
-import type { HomeLoanData, HomeLoanOccupation } from '../../types/homeLoan.types'
-import { loanInputHelpers } from '../../validation/homeLoanValidation'
+import type { HomeLoanData, HomeLoanOccupation } from '../../../../types/homeLoan.types'
+import { loanInputHelpers } from '../../../../validation/homeLoanValidation'
 import './EmploymentAndIncome.css'
 
 export interface EmploymentAndIncomeProps {

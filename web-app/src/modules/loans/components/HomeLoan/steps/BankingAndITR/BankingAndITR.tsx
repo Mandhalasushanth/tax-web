@@ -1,7 +1,7 @@
 import React from 'react'
 import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
-import type { HomeLoanData } from '../../types/homeLoan.types'
-import { loanInputHelpers } from '../../validation/homeLoanValidation'
+import type { HomeLoanData } from '../../../../types/homeLoan.types'
+import { loanInputHelpers } from '../../../../validation/homeLoanValidation'
 import './BankingAndITR.css'
 
 export interface BankingAndITRProps {
@@ -10,7 +10,7 @@ export interface BankingAndITRProps {
   errors?: Record<string, string>
 }
 
-const POPULAR_BANKS = [
+export const POPULAR_BANKS = [
   'HDFC Bank',
   'State Bank of India',
   'ICICI Bank',

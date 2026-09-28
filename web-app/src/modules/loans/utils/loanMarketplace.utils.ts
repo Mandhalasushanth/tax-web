@@ -15,14 +15,14 @@ export function safeNavigateTo(
   fallback: string = '/loans'
 ): void {
   try {
-    if (typeof destination === 'number') {
-      navigate(destination)
-    } else if (typeof destination === 'string' && destination.trim().length > 0) {
-      navigate(destination)
-    } else {
-      console.warn('[LoanMarketplace] Empty destination path provided, navigating to fallback:', fallback)
-      navigate(fallback)
-    }
+    const isNumber = typeof destination === 'number'
+    const isNonEmptyString = typeof destination === 'string' && destination.trim().length > 0
+    isNumber || isNonEmptyString
+      ? navigate(destination as any)
+      : (
+          console.warn('[LoanMarketplace] Empty destination path provided, navigating to fallback:', fallback),
+          navigate(fallback)
+        )
   } catch (error) {
     console.error('[LoanMarketplace] Navigation failure encountered:', error)
     try {
@@ -34,16 +34,13 @@ export function safeNavigateTo(
 }
 
 /**
- * Validates whether an object adheres to the required LoanMarketplaceItem shape.
- * Prevents runtime errors when processing dynamic loan items.
+ * Validates whether an object adheres to the required LoanMarketplaceItem shape (Pure functional).
  */
 export function isValidLoanMarketplaceItem(item: unknown): item is LoanMarketplaceItem {
   try {
-    if (!item || typeof item !== 'object') {
-      return false
-    }
-    const candidate = item as Partial<LoanMarketplaceItem>
-    return (
+    const candidate = (item && typeof item === 'object') ? (item as Partial<LoanMarketplaceItem>) : null
+    return Boolean(
+      candidate &&
       typeof candidate.id === 'string' &&
       typeof candidate.title === 'string' &&
       typeof candidate.applyPath === 'string' &&

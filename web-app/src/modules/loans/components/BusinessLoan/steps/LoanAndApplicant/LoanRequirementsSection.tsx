@@ -1,0 +1,227 @@
+import React from 'react'
+import {
+  formatDigitsOnly,
+  handleNumericKeyDown,
+} from '../../../../utils/loanInputFormatters'
+
+export interface LoanRequirementsSectionProps {
+  requiredLoanAmount: string
+  preferredTenureMonths: string
+  purposeOfLoan: string
+  revenueOrTurnover: string
+  onChange: (fields: {
+    requiredLoanAmount?: string
+    preferredTenureMonths?: string
+    purposeOfLoan?: string
+    revenueOrTurnover?: string
+  }) => void
+  errors?: Record<string, string>
+}
+
+/**
+ * 2-Column form inputs section for Loan Requirements (Loop-free)
+ * Clean component referencing icons from public/assets/icons/loans
+ */
+export const LoanRequirementsSection: React.FC<LoanRequirementsSectionProps> = ({
+  requiredLoanAmount,
+  preferredTenureMonths,
+  purposeOfLoan,
+  revenueOrTurnover,
+  onChange,
+  errors = {},
+}) => {
+  const handleAmountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onChange({ requiredLoanAmount: e.target.value })
+  }
+
+  const handleTenureChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onChange({ preferredTenureMonths: e.target.value })
+  }
+
+  const handlePurposeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onChange({ purposeOfLoan: e.target.value })
+  }
+
+  const handleRevenueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange({ revenueOrTurnover: formatDigitsOnly(e.target.value) })
+  }
+
+  return (
+    <div className="loan-requirements-grid">
+      {/* 1. Required Loan Amount */}
+      <div className="input-field-card">
+        <div className="input-field-header">
+          <div className="form-section-icon-box">
+            <img
+              src="/assets/icons/loans/wallet.svg"
+              alt=""
+              width="20"
+              height="20"
+              aria-hidden="true"
+            />
+          </div>
+          <label htmlFor="requiredLoanAmount" className="form-section-title">
+            Required Loan Amount (₹) <span className="text-required">*</span>
+          </label>
+        </div>
+
+        <div className="select-container">
+          <select
+            id="requiredLoanAmount"
+            className={`custom-form-select ${errors.requiredLoanAmount ? 'custom-form-input--error' : ''}`}
+            value={requiredLoanAmount}
+            onChange={handleAmountChange}
+            aria-label="Required Loan Amount"
+          >
+            <option value="">Select loan amount</option>
+            <option value="500000-1000000">₹5,00,000 - ₹10,00,000</option>
+            <option value="1000000-2500000">₹10,00,000 - ₹25,00,000</option>
+            <option value="2500000-5000000">₹25,00,000 - ₹50,00,000</option>
+            <option value="5000000+">Above ₹50,00,000</option>
+          </select>
+          <div className="select-chevron-icon" aria-hidden="true">
+            <img
+              src="/assets/icons/loans/chevron-down.svg"
+              alt=""
+              width="18"
+              height="18"
+              aria-hidden="true"
+            />
+          </div>
+        </div>
+        {errors.requiredLoanAmount && (
+          <span className="field-error-text">{errors.requiredLoanAmount}</span>
+        )}
+      </div>
+
+      {/* 2. Preferred Tenure (Months) */}
+      <div className="input-field-card">
+        <div className="input-field-header">
+          <div className="form-section-icon-box">
+            <img
+              src="/assets/icons/loans/calendar.svg"
+              alt=""
+              width="20"
+              height="20"
+              aria-hidden="true"
+            />
+          </div>
+          <label htmlFor="preferredTenureMonths" className="form-section-title">
+            Preferred Tenure (Months) <span className="text-required">*</span>
+          </label>
+        </div>
+
+        <div className="select-container">
+          <select
+            id="preferredTenureMonths"
+            className={`custom-form-select ${errors.preferredTenureMonths ? 'custom-form-input--error' : ''}`}
+            value={preferredTenureMonths}
+            onChange={handleTenureChange}
+            aria-label="Preferred Tenure"
+          >
+            <option value="">Select tenure</option>
+            <option value="12">12 Months (1 Year)</option>
+            <option value="24">24 Months (2 Years)</option>
+            <option value="36">36 Months (3 Years)</option>
+            <option value="48">48 Months (4 Years)</option>
+            <option value="60">60 Months (5 Years)</option>
+          </select>
+          <div className="select-chevron-icon" aria-hidden="true">
+            <img
+              src="/assets/icons/loans/chevron-down.svg"
+              alt=""
+              width="18"
+              height="18"
+              aria-hidden="true"
+            />
+          </div>
+        </div>
+        {errors.preferredTenureMonths && (
+          <span className="field-error-text">{errors.preferredTenureMonths}</span>
+        )}
+      </div>
+
+      {/* 3. Purpose of Loan */}
+      <div className="input-field-card">
+        <div className="input-field-header">
+          <div className="form-section-icon-box">
+            <img
+              src="/assets/icons/loans/purpose.svg"
+              alt=""
+              width="20"
+              height="20"
+              aria-hidden="true"
+            />
+          </div>
+          <label htmlFor="purposeOfLoan" className="form-section-title">
+            Purpose of Loan <span className="text-required">*</span>
+          </label>
+        </div>
+
+        <div className="select-container">
+          <select
+            id="purposeOfLoan"
+            className={`custom-form-select ${errors.purposeOfLoan ? 'custom-form-input--error' : ''}`}
+            value={purposeOfLoan}
+            onChange={handlePurposeChange}
+            aria-label="Purpose of Loan"
+          >
+            <option value="">Select your loan type</option>
+            <option value="Working Capital">Working Capital &amp; Daily Operations</option>
+            <option value="Business Expansion">Business Expansion &amp; Branch Growth</option>
+            <option value="Machinery Equipment">Machinery &amp; Equipment Purchase</option>
+            <option value="Inventory Stocking">Inventory &amp; Raw Material Stocking</option>
+            <option value="Technology Automation">Technology Upgrade &amp; Automation</option>
+            <option value="Debt Refinancing">Debt Refinancing &amp; Consolidation</option>
+          </select>
+          <div className="select-chevron-icon" aria-hidden="true">
+            <img
+              src="/assets/icons/loans/chevron-down.svg"
+              alt=""
+              width="18"
+              height="18"
+              aria-hidden="true"
+            />
+          </div>
+        </div>
+        {errors.purposeOfLoan && (
+          <span className="field-error-text">{errors.purposeOfLoan}</span>
+        )}
+      </div>
+
+      {/* 4. Monthly / Annual Revenue / Turnover */}
+      <div className="input-field-card">
+        <div className="input-field-header">
+          <div className="form-section-icon-box">
+            <img
+              src="/assets/icons/loans/turnover.svg"
+              alt=""
+              width="20"
+              height="20"
+              aria-hidden="true"
+            />
+          </div>
+          <label htmlFor="revenueOrTurnover" className="form-section-title">
+            Monthly / Annual Revenue / Turnover (₹) <span className="text-required">*</span>
+          </label>
+        </div>
+
+        <input
+          id="revenueOrTurnover"
+          type="text"
+          className={`custom-form-input ${errors.revenueOrTurnover ? 'custom-form-input--error' : ''}`}
+          placeholder="e.g. 150000"
+          value={revenueOrTurnover}
+          onChange={handleRevenueChange}
+          onKeyDown={handleNumericKeyDown}
+          aria-label="Monthly or Annual Revenue"
+        />
+        {errors.revenueOrTurnover && (
+          <span className="field-error-text">{errors.revenueOrTurnover}</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default LoanRequirementsSection

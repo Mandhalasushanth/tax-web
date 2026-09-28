@@ -1,0 +1,64 @@
+.vehicle-review-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.vehicle-loan-section-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.vehicle-loan-section-heading__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.vehicle-loan-section-heading__desc {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.vehicle-loan-review-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vehicle-review__declaration {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+
+.vehicle-review__checkbox {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: #ff7a00;
+}
+
+.vehicle-review__label {
+  font-size: 0.875rem;
+  color: #334155;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.vehicle-field-error {
+  font-size: 0.75rem;
+  color: #ef4444;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}

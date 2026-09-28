@@ -12,7 +12,8 @@ import { vehicleLoanValidation } from '../../validation/vehicleLoanValidation'
 import { VehicleRequirements } from './steps/VehicleRequirements/VehicleRequirements'
 import { ApplicantDetails } from './steps/ApplicantDetails/ApplicantDetails'
 import { BankingDetails } from './steps/BankingDetails/BankingDetails'
-import { DocumentsAndReview } from './steps/DocumentsAndReview/DocumentsAndReview'
+import { DocumentDossier } from './steps/DocumentDossier/DocumentDossier'
+import { ReviewAndDeclaration } from './steps/ReviewAndDeclaration/ReviewAndDeclaration'
 import { LoanSubmitModal } from '../MachineryLoan/steps/LoanSubmitModal/LoanSubmitModal'
 
 import './VehicleLoan.css'
@@ -21,7 +22,8 @@ const VEHICLE_LOAN_STEPS: FlowStepItem[] = [
   { stepNumber: 1, title: 'Vehicle & Loan Requirements', shortLabel: 'Requirements' },
   { stepNumber: 2, title: 'Employment & Income', shortLabel: 'Employment' },
   { stepNumber: 3, title: 'Banking & ITR', shortLabel: 'Banking & ITR' },
-  { stepNumber: 4, title: 'Documents & Review', shortLabel: 'Documents & Review' },
+  { stepNumber: 4, title: 'Document Dossier', shortLabel: 'Documents' },
+  { stepNumber: 5, title: 'Review & Submit', shortLabel: 'Review & Submit' },
 ]
 
 const INITIAL_VEHICLE_LOAN_DATA: VehicleLoanData = {
@@ -76,8 +78,14 @@ export const VehicleLoan: React.FC = () => {
     INITIAL_VEHICLE_LOAN_DATA,
     {
       serviceTitle: 'Vehicle Loan',
-      totalSteps: 4,
-      stepLabels: ['Vehicle & Loan Requirements', 'Employment & Income', 'Banking & ITR', 'Documents & Review'],
+      totalSteps: 5,
+      stepLabels: [
+        'Vehicle & Loan Requirements',
+        'Employment & Income',
+        'Banking & ITR',
+        'Document Dossier',
+        'Review & Submit',
+      ],
       resumeRoute: '/loans/vehicle-loan',
     }
   )
@@ -117,21 +125,28 @@ export const VehicleLoan: React.FC = () => {
     } else if (currentStep === 2) {
       const res = vehicleLoanValidation.validateStep2(formData)
       if (!res.isValid) {
-        setStepError(res.error || 'Please fill in all required applicant details.')
+        setStepError(res.error || 'Please fill in all required employment details.')
         setFieldErrors(res.errors)
         return false
       }
     } else if (currentStep === 3) {
       const res = vehicleLoanValidation.validateStep3(formData)
       if (!res.isValid) {
-        setStepError(res.error || 'Please fill in all banking fields.')
+        setStepError(res.error || 'Please fill in all banking and ITR fields.')
         setFieldErrors(res.errors)
         return false
       }
     } else if (currentStep === 4) {
       const res = vehicleLoanValidation.validateStep4(formData)
       if (!res.isValid) {
-        setStepError(res.error || 'Please accept the declaration and upload required documents.')
+        setStepError(res.error || 'Please upload all mandatory documents.')
+        setFieldErrors(res.errors)
+        return false
+      }
+    } else if (currentStep === 5) {
+      const res = vehicleLoanValidation.validateStep5(formData)
+      if (!res.isValid) {
+        setStepError(res.error || 'Please accept the declaration to submit.')
         setFieldErrors(res.errors)
         return false
       }
@@ -142,13 +157,13 @@ export const VehicleLoan: React.FC = () => {
   const handleNext = async () => {
     if (!validateCurrentStep()) return
 
-    if (currentStep < 4) {
+    if (currentStep < 5) {
       nextStep()
     } else {
       setIsSubmitting(true)
       try {
         const tenureMatch = String(formData.repaymentTenure).match(/\d+/)
-        const tenureMonths = tenureMatch ? Number(tenureMatch[0]) * (String(formData.repaymentTenure).includes('Year') ? 12 : 1) : 60
+        const tenureMonths = tenureMatch ? Number(tenureMatch[0]) * (String(formData.repaymentTenure).includes('Year') || String(formData.repaymentTenure).includes('Yr') ? 12 : 1) : 60
         const app = await loanApplicationService.submitApplication('vehicle_loan', {
           loanType: 'vehicle_loan',
           title: 'Vehicle Loan Application',
@@ -227,7 +242,14 @@ export const VehicleLoan: React.FC = () => {
           />
         )}
         {currentStep === 4 && (
-          <DocumentsAndReview
+          <DocumentDossier
+            data={formData}
+            onChange={handleFieldChange}
+            errors={fieldErrors}
+          />
+        )}
+        {currentStep === 5 && (
+          <ReviewAndDeclaration
             data={formData}
             onChange={handleFieldChange}
             onNavigateToStep={(stepNum) => {
@@ -245,7 +267,7 @@ export const VehicleLoan: React.FC = () => {
         onNext={handleNext}
         onSaveDraft={() => setIsDraftModalOpen(true)}
         saveDraftLabel="Save Draft"
-        nextLabel={currentStep === 4 ? (isSubmitting ? 'Submitting...' : 'Submit Application') : 'Continue'}
+        nextLabel={currentStep === 5 ? (isSubmitting ? 'Submitting...' : 'Submit Application') : 'Continue'}
         nextDisabled={isSubmitting}
       />
 

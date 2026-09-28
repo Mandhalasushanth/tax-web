@@ -72,11 +72,6 @@ export const vehicleLoanValidation = {
 
     if (!data.monthlyIncomeRange) {
       errors.monthlyIncomeRange = 'Please select monthly income range'
-    } else if (data.monthlyIncomeRange === 'Specify Exact Amount') {
-      const exactVal = Number(String(data.exactMonthlyIncome || '').replace(/\D/g, ''))
-      if (!exactVal || exactVal <= 0) {
-        errors.exactMonthlyIncome = 'Please enter your exact monthly net income'
-      }
     }
 
     if (data.occupationType === 'Business Owner' || data.occupationType === 'Self-Employed Pro') {
@@ -143,19 +138,40 @@ export const vehicleLoanValidation = {
 
   validateStep4(data: Partial<VehicleLoanData>): VehicleValidationResult {
     const errors: Record<string, string> = {}
+    const docs = data.uploadedDocs || {}
+
+    // 8 required checklist documents
+    const requiredDocList: { id: string; name: string }[] = [
+      { id: 'pan_card', name: 'PAN Card' },
+      { id: 'aadhaar_card', name: 'Aadhaar Card' },
+      { id: 'driving_license', name: 'Driving License' },
+      { id: 'passport_photo', name: 'Passport Size Photograph' },
+      { id: 'address_proof', name: 'Address Proof' },
+      { id: 'bank_statement', name: 'Bank Statements' },
+      { id: 'salary_slip', name: 'Salary Slips / Income Proof' },
+      { id: 'dealer_quotation', name: 'Dealer Proforma Invoice / Quotation' },
+    ]
+
+    const missingDocs = requiredDocList.filter((doc) => !docs[doc.id])
+    if (missingDocs.length > 0) {
+      missingDocs.forEach((doc) => {
+        errors[doc.id] = `${doc.name} is required`
+      })
+    }
+
+    const firstError = Object.values(errors)[0]
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors,
+      error: firstError,
+    }
+  },
+
+  validateStep5(data: Partial<VehicleLoanData>): VehicleValidationResult {
+    const errors: Record<string, string> = {}
 
     if (!data.termsAccepted) {
       errors.termsAccepted = 'Please accept the authorization and declaration to proceed.'
-    }
-
-    const docs = data.uploadedDocs || {}
-    const mandatoryDocs = ['pan_card', 'aadhaar_card', 'bank_statement']
-    const missingDocs = mandatoryDocs.filter((id) => !docs[id])
-
-    if (missingDocs.length > 0) {
-      missingDocs.forEach((id) => {
-        errors[id] = 'This document is mandatory'
-      })
     }
 
     const firstError = Object.values(errors)[0]

@@ -24,9 +24,14 @@ export interface LoanApplicationBase {
   applicantName?: string
   loanAmount: number
   tenureYears: number
+  tenureMonths?: number | string
+  equipment?: string
+  disbursementBank?: string
+  loanAgent?: string
   status: LoanApplicationStatusType
   statusLabel: string
   createdAt: string
   updatedAt: string
   milestones: LoanMilestoneItem[]
+  applicationData?: Record<string, unknown>
 }

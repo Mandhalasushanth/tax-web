@@ -1,0 +1,151 @@
+.applicant-details-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.applicant-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  position: relative;
+}
+
+.applicant-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.applicant-label__req {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.applicant-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.applicant-input:focus {
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.12);
+}
+
+.applicant-input--error {
+  border-color: #ef4444 !important;
+  background-color: #fffafb;
+}
+
+.applicant-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #0f172a;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.applicant-select:focus {
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.12);
+}
+
+.applicant-select--error {
+  border-color: #ef4444 !important;
+}
+
+.applicant-occupation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .applicant-occupation-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.applicant-occupation-btn {
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.applicant-occupation-btn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.applicant-occupation-btn--active {
+  border-color: #ff7a00;
+  background: #fff7ed;
+  color: #ea580c;
+  font-weight: 600;
+}
+
+.applicant-toggle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.applicant-toggle-btn {
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.applicant-toggle-btn:hover {
+  background: #f1f5f9;
+}
+
+.applicant-toggle-btn--active {
+  border-color: #ff7a00;
+  background: #ffffff;
+  color: #ea580c;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.applicant-field-error {
+  font-size: 0.75rem;
+  color: #ef4444;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}

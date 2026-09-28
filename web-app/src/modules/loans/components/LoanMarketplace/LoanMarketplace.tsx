@@ -21,11 +21,9 @@ export const LoanMarketplace: React.FC = () => {
   const handleLoanSelect = useCallback(
     (item: LoanMarketplaceItem): void => {
       try {
-        if (!isValidLoanMarketplaceItem(item)) {
-          console.warn('[LoanMarketplace] Attempted to navigate with invalid loan item:', item)
-          return
-        }
-        safeNavigateTo(navigate, item.applyPath, '/loans')
+        !isValidLoanMarketplaceItem(item)
+          ? console.warn('[LoanMarketplace] Attempted to navigate with invalid loan item:', item)
+          : safeNavigateTo(navigate, item.applyPath, '/loans')
       } catch (err) {
         console.error('[LoanMarketplace] Unexpected error in handleLoanSelect:', err)
         safeNavigateTo(navigate, '/loans')

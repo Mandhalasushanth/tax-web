@@ -2,40 +2,152 @@
   width: 100%;
   max-width: 100%;
   margin: 0;
-  padding: 0.5rem 2rem 3.5rem 2rem;
+  padding: 0.5rem 0 3.5rem 0;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   box-sizing: border-box;
 }
 
-.business-loan-page__card {
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 0;
-  box-shadow: none;
+.business-loan-page__title {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: #041d3e;
 }
 
 .business-loan-page__error-banner {
   background: #fef2f2;
   border: 1px solid #fecaca;
   color: #dc2626;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  padding: 0.85rem 1.25rem;
   font-size: 0.875rem;
+  font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.65rem;
 }
 
-@media (max-width: 768px) {
-  .business-loan-page {
-    padding: 0.5rem 1rem 2.5rem 1rem;
-  }
+.business-loan-page__error-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
 
-  .business-loan-page__card {
-    padding: 0;
-    border-radius: 0;
+/* Bottom Action Bar */
+.business-loan-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.business-loan-btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem 1.35rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.business-loan-btn-back:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateX(-2px);
+}
+
+.business-loan-btn-continue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ff7a00;
+  border: 1.5px solid #ff7a00;
+  border-radius: 10px;
+  padding: 0.75rem 1.75rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(255, 122, 0, 0.25);
+}
+
+.business-loan-btn-continue:hover {
+  background: #ea580c;
+  border-color: #ea580c;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(255, 122, 0, 0.35);
+}
+
+.business-loan-btn-continue:active {
+  transform: scale(0.98);
+}
+
+.business-loan-btn-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ea580c;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border: 1.5px solid #ea580c;
+  border-radius: 10px;
+  padding: 0.75rem 1.75rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.28);
+}
+
+.business-loan-btn-submit:hover:not(:disabled) {
+  background: #c2410c;
+  border-color: #c2410c;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.38);
+}
+
+.business-loan-btn-submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.business-loan-btn-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.business-loan-btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 640px) {
+  .business-loan-page {
+    padding: 0.5rem 0 2rem 0;
+  }
+  .business-loan-page__title {
+    font-size: 1.5rem;
+  }
+  .business-loan-action-bar {
+    padding-top: 1rem;
+  }
+  .business-loan-btn-back,
+  .business-loan-btn-continue {
+    padding: 0.65rem 1.15rem;
+    font-size: 0.88rem;
   }
 }

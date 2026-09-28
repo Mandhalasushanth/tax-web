@@ -1,0 +1,216 @@
+.vehicle-review-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.vehicle-review-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.vehicle-review-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.vehicle-review-card__header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.vehicle-review-card__icon {
+  width: 18px;
+  height: 18px;
+  color: #ea580c;
+  flex-shrink: 0;
+}
+
+.vehicle-review-card__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.vehicle-review-card__verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #10b981;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.vehicle-review-card__edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: transparent;
+  border: none;
+  color: #ea580c;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.vehicle-review-card__edit-btn:hover {
+  background-color: #fff7ed;
+}
+
+.vehicle-review-card__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.vehicle-review-card__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.vehicle-review-card__row-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.vehicle-review-card__row-value {
+  color: #0f172a;
+  font-weight: 600;
+  text-align: right;
+}
+
+.vehicle-review-card__row-value--highlight {
+  color: #ea580c;
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+/* Uploaded Records List in Step 5 */
+.vehicle-review-docs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.vehicle-review-doc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  gap: 0.75rem;
+}
+
+.vehicle-review-doc-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.vehicle-review-doc-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background-color: #dcfce7;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.vehicle-review-doc-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.vehicle-review-doc-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.vehicle-review-doc-filename {
+  font-size: 0.75rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vehicle-review-doc-preview-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  border-radius: 6px;
+  color: #ea580c;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.vehicle-review-doc-preview-btn:hover {
+  background: #ffedd5;
+  border-color: #fb923c;
+}
+
+.vehicle-review__declaration {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-top: 0.25rem;
+}
+
+.vehicle-review__checkbox {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: #ff7a00;
+  flex-shrink: 0;
+}
+
+.vehicle-review__label {
+  font-size: 0.875rem;
+  color: #334155;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.vehicle-field-error {
+  font-size: 0.75rem;
+  color: #ef4444;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}

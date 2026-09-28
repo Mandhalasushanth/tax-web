@@ -23,6 +23,7 @@
   margin-bottom: 2px;
 }
 
+ 
 .loan-status-header__left {
   display: flex;
   align-items: center;
@@ -31,6 +32,39 @@
 
 .loan-status-header__title {
   font-size: 1.75rem;
+ 
+.loan-success-banner__icon {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  min-height: 56px;
+  max-width: 56px;
+  max-height: 56px;
+  border-radius: 50%;
+  background: #16a34a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.loan-success-banner__icon svg {
+  width: 32px !important;
+  height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  display: block;
+  flex-shrink: 0;
+}
+
+.loan-success-banner__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+ 
   font-weight: 800;
   letter-spacing: -0.02em;
   color: #041d3e;
@@ -211,6 +245,26 @@
   .loan-status-actions-bar {
     grid-template-columns: 1fr;
   }
+}
+
+.loan-status-download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: #ea580c;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  margin-top: 0.25rem;
+  transition: opacity 0.2s ease;
+}
+
+.loan-status-download-btn:hover {
+  opacity: 0.85;
 }
 
 @media (max-width: 640px) {

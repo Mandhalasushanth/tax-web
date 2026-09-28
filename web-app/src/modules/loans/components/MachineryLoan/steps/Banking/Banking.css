@@ -1,0 +1,22 @@
+.machinery-loan-banking {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.machinery-loan-branch-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #15803d;
+}
+
+.machinery-loan-branch-check {
+  width: 16px;
+  height: 16px;
+  color: #16a34a;
+  flex-shrink: 0;
+}

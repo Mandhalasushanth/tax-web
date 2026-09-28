@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
 import type {
   VehicleLoanData,
@@ -21,12 +21,11 @@ export const OCCUPATION_OPTIONS: VehicleOccupationType[] = [
 ]
 
 export const INCOME_RANGE_OPTIONS: VehicleIncomeRange[] = [
-  'Below ₹25,000 / month',
-  '₹25,000 – ₹50,000 / month',
-  '₹50,000 – ₹1,00,000 / month',
-  '₹1,00,000 – ₹2,50,000 / month',
-  'Above ₹2,50,000 / month',
-  'Specify Exact Amount',
+  'Below ₹10,000',
+  '₹15,000 - ₹30,000',
+  '₹30,000 - ₹50,000',
+  '₹50,000 - ₹1,00,000',
+  'Above ₹1,00,000',
 ]
 
 export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
@@ -34,6 +33,8 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
   onChange,
   errors = {},
 }) => {
+  const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false)
+
   const handleTurnoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
     onChange({ annualTurnover: formatted })
@@ -44,11 +45,6 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
     onChange({ totalMonthlyEmi: formatted })
   }
 
-  const handleExactIncomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
-    onChange({ exactMonthlyIncome: formatted })
-  }
-
   const handleGstinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const clean = loanInputHelpers.cleanGstin(e.target.value)
     onChange({ gstin: clean })
@@ -56,15 +52,15 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
 
   return (
     <div className="applicant-details-step">
-      {/* 1. Occupation Selection */}
+      {/* 1. Employment & Income Category */}
       <LoanFormSection
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
+            <rect width="20" height="14" x="2" y="7" rx="2" />
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
           </svg>
         }
-        title="Employment & Occupation"
+        title="Employment & Income Category"
         subtitle="Select your occupation type. Underwriting checks and required financial proofs adapt based on this selection."
       >
         <div className="applicant-form-group">
@@ -102,45 +98,21 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
         subtitle="Select monthly take-home income range or specify your exact net income."
       >
         <div className="applicant-form-group">
-          <label htmlFor="vehicle-income-select" className="applicant-label">
+          <label className="applicant-label">
             Monthly Net Income (₹) <span className="applicant-label__req">*</span>
           </label>
-          <select
-            id="vehicle-income-select"
-            className={`applicant-select ${errors.monthlyIncomeRange ? 'applicant-select--error' : ''}`}
-            value={data.monthlyIncomeRange || ''}
-            onChange={(e) => onChange({ monthlyIncomeRange: e.target.value as VehicleIncomeRange })}
+          <button
+            type="button"
+            className={`vehicle-loan-custom-select ${!data.monthlyIncomeRange ? 'vehicle-loan-custom-select--placeholder' : ''} ${errors.monthlyIncomeRange ? 'vehicle-loan-custom-select--error' : ''}`}
+            onClick={() => setIsIncomeModalOpen(true)}
           >
-            <option value="" disabled>Select Monthly Income Range...</option>
-            {INCOME_RANGE_OPTIONS.map((range) => (
-              <option key={range} value={range}>
-                {range}
-              </option>
-            ))}
-          </select>
+            <span>{data.monthlyIncomeRange || 'Select Monthly Income Range...'}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="vehicle-loan-select-arrow">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
           {errors.monthlyIncomeRange && (
             <span className="applicant-field-error" role="alert">{errors.monthlyIncomeRange}</span>
-          )}
-
-          {data.monthlyIncomeRange === 'Specify Exact Amount' && (
-            <div className="applicant-form-group" style={{ marginTop: '0.75rem' }}>
-              <label htmlFor="vehicle-exact-income" className="applicant-label">
-                Exact Monthly Net Income (₹) <span className="applicant-label__req">*</span>
-              </label>
-              <input
-                id="vehicle-exact-income"
-                type="text"
-                inputMode="numeric"
-                className={`applicant-input ${errors.exactMonthlyIncome ? 'applicant-input--error' : ''}`}
-                placeholder="Enter exact monthly income in ₹"
-                value={data.exactMonthlyIncome ? loanInputHelpers.formatCurrencyString(String(data.exactMonthlyIncome)) : ''}
-                onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
-                onChange={handleExactIncomeChange}
-              />
-              {errors.exactMonthlyIncome && (
-                <span className="applicant-field-error" role="alert">{errors.exactMonthlyIncome}</span>
-              )}
-            </div>
           )}
         </div>
       </LoanFormSection>
@@ -161,7 +133,7 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
           {/* Legal Business / Firm Name */}
           <div className="applicant-form-group">
             <label htmlFor="vehicle-biz-name" className="applicant-label">
-              Legal Business / Firm Name <span className="applicant-label__req">*</span>
+              Legal Business / Firm Name
             </label>
             <input
               id="vehicle-biz-name"
@@ -216,7 +188,7 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
           {/* Business Vintage (in Years) */}
           <div className="applicant-form-group">
             <label htmlFor="vehicle-biz-vintage" className="applicant-label">
-              Business Vintage (in Years) <span className="applicant-label__req">*</span>
+              Business Vintage (in Years)
             </label>
             <input
               id="vehicle-biz-vintage"
@@ -236,7 +208,7 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
           {/* Annual Turnover (₹) */}
           <div className="applicant-form-group">
             <label htmlFor="vehicle-biz-turnover" className="applicant-label">
-              Annual Turnover (₹) <span className="applicant-label__req">*</span>
+              Annual Turnover (₹)
             </label>
             <input
               id="vehicle-biz-turnover"
@@ -306,6 +278,47 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
           </div>
         )}
       </LoanFormSection>
+
+      {/* Modal Bottom Sheet for Monthly In-Hand Income */}
+      {isIncomeModalOpen && (
+        <div className="vehicle-modal-overlay" onClick={() => setIsIncomeModalOpen(false)}>
+          <div className="vehicle-modal-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="vehicle-modal-header">
+              <h3 className="vehicle-modal-title">Select Monthly In-Hand Income</h3>
+              <button
+                type="button"
+                className="vehicle-modal-close-btn"
+                onClick={() => setIsIncomeModalOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="vehicle-modal-list">
+              {INCOME_RANGE_OPTIONS.map((range) => {
+                const isSelected = data.monthlyIncomeRange === range
+                return (
+                  <button
+                    key={range}
+                    type="button"
+                    className={`vehicle-modal-item ${isSelected ? 'vehicle-modal-item--selected' : ''}`}
+                    onClick={() => {
+                      onChange({ monthlyIncomeRange: range })
+                      setIsIncomeModalOpen(false)
+                    }}
+                  >
+                    <span>{range}</span>
+                    {isSelected && (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="vehicle-modal-check-icon">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

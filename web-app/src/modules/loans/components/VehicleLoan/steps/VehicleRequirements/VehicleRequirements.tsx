@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
 import type {
   VehicleLoanData,
   VehicleCategory,
   VehicleRepaymentTenure,
   VehicleCondition,
+  VehicleMakeModel,
 } from '../../../../types/vehicleLoan.types'
 import { loanInputHelpers } from '../../../../validation/vehicleLoanValidation'
 import './VehicleRequirements.css'
@@ -16,22 +17,69 @@ export interface VehicleRequirementsProps {
 }
 
 export const VEHICLE_CATEGORY_OPTIONS: VehicleCategory[] = [
-  'Two Wheeler',
-  'Four Wheeler (Car / SUV)',
-  'Commercial Vehicle (LCV / HCV)',
-  'Electric Vehicle (EV)',
-  'Tractor / Agri Vehicle',
-  'Construction Equipment Vehicle',
+  'New Car (Passenger)',
+  'Pre-Owned / Used Car',
+  'Electric Vehicle (EV - 2W / 4W)',
+  'Two-Wheeler / Superbike',
+  'Commercial Vehicle / Truck',
+  'Fleet Purchase',
+  'Balance Transfer & Top-Up',
   'Others',
 ]
 
-export const VEHICLE_TENURE_OPTIONS: { label: string; value: VehicleRepaymentTenure }[] = [
-  { label: '6 M', value: '6 Months' },
-  { label: '1 Yr', value: '1 Year' },
-  { label: '2 Yrs', value: '2 Years' },
-  { label: '3 Yrs', value: '3 Years' },
-  { label: '5 Yrs', value: '5 Years' },
-  { label: '7 Yrs', value: '7 Years' },
+export const SHORT_TERM_TENURE_OPTIONS: { label: string; value: VehicleRepaymentTenure }[] = [
+  { label: '3 M', value: '3 M (3 Months)' },
+  { label: '6 M', value: '6 M (6 Months)' },
+  { label: '9 M', value: '9 M (9 Months)' },
+]
+
+export const LONG_TERM_TENURE_OPTIONS: { label: string; value: VehicleRepaymentTenure }[] = [
+  { label: '1 Yr', value: '12 M (1 Yr)' },
+  { label: '1.5 Yrs', value: '18 M (1.5 Yrs)' },
+  { label: '2 Yrs', value: '24 M (2 Yrs)' },
+  { label: '3 Yrs', value: '36 M (3 Yrs)' },
+  { label: '4 Yrs', value: '48 M (4 Yrs)' },
+  { label: '5 Yrs', value: '60 M (5 Yrs)' },
+  { label: '6 Yrs', value: '72 M (6 Yrs)' },
+  { label: '7 Yrs', value: '84 M (7 Yrs)' },
+  { label: 'Custom', value: 'Other / Custom Tenure' },
+]
+
+export const QUICK_TENURE_PILLS: { label: string; value: VehicleRepaymentTenure }[] = [
+  { label: '6 M', value: '6 M (6 Months)' },
+  { label: '1 Yr', value: '12 M (1 Yr)' },
+  { label: '2 Yrs', value: '24 M (2 Yrs)' },
+  { label: '3 Yrs', value: '36 M (3 Yrs)' },
+  { label: '5 Yrs', value: '60 M (5 Yrs)' },
+  { label: '7 Yrs', value: '84 M (7 Yrs)' },
+]
+
+export const VEHICLE_MAKE_MODEL_OPTIONS: VehicleMakeModel[] = [
+  'Maruti Suzuki Swift',
+  'Maruti Suzuki Baleno',
+  'Maruti Suzuki Brezza',
+  'Maruti Suzuki Ertiga',
+  'Hyundai Creta',
+  'Hyundai Venue',
+  'Hyundai i20',
+  'Hyundai Verna',
+  'Tata Nexon',
+  'Tata Punch',
+  'Tata Harrier / Safari',
+  'Tata Nexon EV',
+  'Mahindra Thar',
+  'Mahindra Scorpio-N',
+  'Mahindra XUV700',
+  'Kia Seltos',
+  'Kia Sonet',
+  'Toyota Innova Crysta / Hycross',
+  'Toyota Fortuner',
+  'Honda City / Elevate',
+  'Electric: MG ZS EV / Ola S1 / Ather 450X',
+  'Two-Wheeler: Honda Activa / TVS Jupiter',
+  'Two-Wheeler: Royal Enfield / Bajaj Pulsar',
+  'Commercial: Tata Ace / Mahindra Bolero Pik-Up',
+  'Other (Specify Custom Vehicle Model)',
 ]
 
 export const AMOUNT_PRESETS = [
@@ -47,6 +95,8 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
   onChange,
   errors = {},
 }) => {
+  const [activeModal, setActiveModal] = useState<'category' | 'tenure' | 'makeModel' | null>(null)
+
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
     onChange({ loanAmount: formatted })
@@ -126,22 +176,19 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
         subtitle="Select your automobile category. Select 'Others' if your specific requirement is not listed."
       >
         <div className="vehicle-loan-form-group">
-          <label htmlFor="vehicle-category-select" className="vehicle-loan-label">
+          <label className="vehicle-loan-label">
             Select Category / Purpose <span className="vehicle-loan-label__req">*</span>
           </label>
-          <select
-            id="vehicle-category-select"
-            className={`vehicle-loan-select ${errors.vehicleCategory ? 'vehicle-loan-select--error' : ''}`}
-            value={data.vehicleCategory || ''}
-            onChange={(e) => onChange({ vehicleCategory: e.target.value as VehicleCategory })}
+          <button
+            type="button"
+            className={`vehicle-loan-custom-select ${!data.vehicleCategory ? 'vehicle-loan-custom-select--placeholder' : ''} ${errors.vehicleCategory ? 'vehicle-loan-custom-select--error' : ''}`}
+            onClick={() => setActiveModal('category')}
           >
-            <option value="" disabled>Select Vehicle Category / Purpose...</option>
-            {VEHICLE_CATEGORY_OPTIONS.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
+            <span>{data.vehicleCategory || 'Select Vehicle Category / Purpose...'}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="vehicle-loan-select-arrow">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
           {errors.vehicleCategory && (
             <span className="vehicle-loan-field-error" role="alert">{errors.vehicleCategory}</span>
           )}
@@ -160,24 +207,21 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
         subtitle="Select your intended loan tenure. Choose from short-term (below 1 year) to long-term (up to 7 years) or specify custom months."
       >
         <div className="vehicle-loan-form-group">
-          <label htmlFor="vehicle-tenure-select" className="vehicle-loan-label">
+          <label className="vehicle-loan-label">
             Select Tenure <span className="vehicle-loan-label__req">*</span>
           </label>
-          <select
-            id="vehicle-tenure-select"
-            className={`vehicle-loan-select ${errors.repaymentTenure ? 'vehicle-loan-select--error' : ''}`}
-            value={data.repaymentTenure || ''}
-            onChange={(e) => onChange({ repaymentTenure: e.target.value as VehicleRepaymentTenure })}
+          <button
+            type="button"
+            className={`vehicle-loan-custom-select ${!data.repaymentTenure ? 'vehicle-loan-custom-select--placeholder' : ''} ${errors.repaymentTenure ? 'vehicle-loan-custom-select--error' : ''}`}
+            onClick={() => setActiveModal('tenure')}
           >
-            <option value="" disabled>Select Repayment Tenure...</option>
-            {VEHICLE_TENURE_OPTIONS.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.value}
-              </option>
-            ))}
-          </select>
+            <span>{data.repaymentTenure || 'Select Repayment Tenure...'}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="vehicle-loan-select-arrow">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
           <div className="vehicle-loan-pill-grid">
-            {VEHICLE_TENURE_OPTIONS.map((t) => {
+            {QUICK_TENURE_PILLS.map((t) => {
               const isSelected = data.repaymentTenure === t.value
               return (
                 <button
@@ -234,23 +278,42 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
           )}
         </div>
 
-        {/* Vehicle Make & Model */}
+        {/* Vehicle Make & Model Dropdown */}
         <div className="vehicle-loan-form-group">
-          <label htmlFor="vehicle-make-model" className="vehicle-loan-label">
+          <label className="vehicle-loan-label">
             Vehicle Make & Model <span className="vehicle-loan-label__req">*</span>
           </label>
-          <input
-            id="vehicle-make-model"
-            type="text"
-            className={`vehicle-loan-input ${errors.vehicleMakeModel ? 'vehicle-loan-input--error' : ''}`}
-            placeholder="e.g. Hyundai Creta SX / Tata Nexon EV"
-            value={data.vehicleMakeModel || ''}
-            onChange={(e) => onChange({ vehicleMakeModel: e.target.value })}
-          />
+          <button
+            type="button"
+            className={`vehicle-loan-custom-select ${!data.vehicleMakeModel ? 'vehicle-loan-custom-select--placeholder' : ''} ${errors.vehicleMakeModel ? 'vehicle-loan-custom-select--error' : ''}`}
+            onClick={() => setActiveModal('makeModel')}
+          >
+            <span>{data.vehicleMakeModel || 'Select Vehicle Make & Model...'}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="vehicle-loan-select-arrow">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
           {errors.vehicleMakeModel && (
             <span className="vehicle-loan-field-error" role="alert">{errors.vehicleMakeModel}</span>
           )}
         </div>
+
+        {/* If user selected custom vehicle model */}
+        {data.vehicleMakeModel === 'Other (Specify Custom Vehicle Model)' && (
+          <div className="vehicle-loan-form-group" style={{ marginTop: '0.5rem' }}>
+            <label htmlFor="custom-vehicle-model" className="vehicle-loan-label">
+              Specify Custom Vehicle Make & Model <span className="vehicle-loan-label__req">*</span>
+            </label>
+            <input
+              id="custom-vehicle-model"
+              type="text"
+              className="vehicle-loan-input"
+              placeholder="e.g. BMW 3 Series / Harley Davidson"
+              value={data.customVehicleMakeModel || ''}
+              onChange={(e) => onChange({ customVehicleMakeModel: e.target.value })}
+            />
+          </div>
+        )}
 
         {/* Estimated On-Road Price / Valuation */}
         <div className="vehicle-loan-form-group">
@@ -292,6 +355,154 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
           )}
         </div>
       </LoanFormSection>
+
+      {/* MODAL BOTTOM SHEETS */}
+      {/* 1. Category Modal */}
+      {activeModal === 'category' && (
+        <div className="vehicle-modal-overlay" onClick={() => setActiveModal(null)}>
+          <div className="vehicle-modal-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="vehicle-modal-header">
+              <h3 className="vehicle-modal-title">Select Vehicle Category / Purpose</h3>
+              <button
+                type="button"
+                className="vehicle-modal-close-btn"
+                onClick={() => setActiveModal(null)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="vehicle-modal-list">
+              {VEHICLE_CATEGORY_OPTIONS.map((cat) => {
+                const isSelected = data.vehicleCategory === cat
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    className={`vehicle-modal-item ${isSelected ? 'vehicle-modal-item--selected' : ''}`}
+                    onClick={() => {
+                      onChange({ vehicleCategory: cat })
+                      setActiveModal(null)
+                    }}
+                  >
+                    <span>{cat}</span>
+                    {isSelected && (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="vehicle-modal-check-icon">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. Tenure Modal */}
+      {activeModal === 'tenure' && (
+        <div className="vehicle-modal-overlay" onClick={() => setActiveModal(null)}>
+          <div className="vehicle-modal-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="vehicle-modal-header">
+              <h3 className="vehicle-modal-title">Select Repayment Tenure</h3>
+              <button
+                type="button"
+                className="vehicle-modal-close-btn"
+                onClick={() => setActiveModal(null)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="vehicle-modal-list">
+              <div className="vehicle-modal-group-label">BELOW 1 YEAR (SHORT-TERM)</div>
+              {SHORT_TERM_TENURE_OPTIONS.map((t) => {
+                const isSelected = data.repaymentTenure === t.value
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    className={`vehicle-modal-item ${isSelected ? 'vehicle-modal-item--selected' : ''}`}
+                    onClick={() => {
+                      onChange({ repaymentTenure: t.value })
+                      setActiveModal(null)
+                    }}
+                  >
+                    <span>{t.value}</span>
+                    {isSelected && (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="vehicle-modal-check-icon">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </button>
+                )
+              })}
+
+              <div className="vehicle-modal-group-label" style={{ marginTop: '0.75rem' }}>1 YEAR & ABOVE</div>
+              {LONG_TERM_TENURE_OPTIONS.map((t) => {
+                const isSelected = data.repaymentTenure === t.value
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    className={`vehicle-modal-item ${isSelected ? 'vehicle-modal-item--selected' : ''}`}
+                    onClick={() => {
+                      onChange({ repaymentTenure: t.value })
+                      setActiveModal(null)
+                    }}
+                  >
+                    <span>{t.value}</span>
+                    {isSelected && (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="vehicle-modal-check-icon">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Make & Model Modal */}
+      {activeModal === 'makeModel' && (
+        <div className="vehicle-modal-overlay" onClick={() => setActiveModal(null)}>
+          <div className="vehicle-modal-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="vehicle-modal-header">
+              <h3 className="vehicle-modal-title">Select Vehicle Make & Model</h3>
+              <button
+                type="button"
+                className="vehicle-modal-close-btn"
+                onClick={() => setActiveModal(null)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="vehicle-modal-list">
+              {VEHICLE_MAKE_MODEL_OPTIONS.map((model) => {
+                const isSelected = data.vehicleMakeModel === model
+                return (
+                  <button
+                    key={model}
+                    type="button"
+                    className={`vehicle-modal-item ${isSelected ? 'vehicle-modal-item--selected' : ''}`}
+                    onClick={() => {
+                      onChange({ vehicleMakeModel: model })
+                      setActiveModal(null)
+                    }}
+                  >
+                    <span>{model}</span>
+                    {isSelected && (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="vehicle-modal-check-icon">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

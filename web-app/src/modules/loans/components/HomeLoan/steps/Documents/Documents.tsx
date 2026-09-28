@@ -2,7 +2,7 @@ import React from 'react'
 import { LoanDocumentSection } from '../../../../components/LoanDocumentSection/LoanDocumentSection'
 import { loanDocumentService } from '../../../../documents/loanDocumentService'
 import type { LoanDocumentDefinition } from '../../../../documents/loanDocument.types'
-import type { HomeLoanData } from '../../types/homeLoan.types'
+import type { HomeLoanData } from '../../../../types/homeLoan.types'
 import './Documents.css'
 
 export interface DocumentsProps {
@@ -244,6 +244,11 @@ const PROPERTY_DOCS: LoanDocumentDefinition[] = [
 
 const ALL_DOCS = [...IDENTITY_DOCS, ...INCOME_DOCS, ...PROPERTY_DOCS]
 
+function getProgressFillClass(percent: number): string {
+  const rounded = Math.min(100, Math.max(0, Math.floor(percent / 10) * 10))
+  return `home-loan-docs__progress-fill--${rounded}`
+}
+
 export const Documents: React.FC<DocumentsProps> = ({
   data,
   onChange,
@@ -301,8 +306,7 @@ export const Documents: React.FC<DocumentsProps> = ({
         </div>
         <div className="home-loan-docs__progress-track">
           <div
-            className="home-loan-docs__progress-fill"
-            style={{ width: `${progressPercent}%` }}
+            className={`home-loan-docs__progress-fill ${getProgressFillClass(progressPercent)}`}
           />
         </div>
         <p className="home-loan-docs__progress-subtitle">

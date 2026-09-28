@@ -4,10 +4,6 @@ import { loanApplicationService } from '../services/loanApplicationService'
 export function useLoanApplication<T extends object>(loanType: string, initialValues: T) {
   const [formData, setFormData] = useState<T>(() => {
     const saved = loanApplicationService.getDraft<T>(loanType)
-    if (saved && (saved as Record<string, unknown>).accountNumber === '50100492817291') {
-      loanApplicationService.clearDraft(loanType)
-      return initialValues
-    }
     return saved ? { ...initialValues, ...saved } : initialValues
   })
 

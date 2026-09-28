@@ -1,0 +1,412 @@
+.loan-and-applicant-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* 1. Applicant Identity Card */
+.applicant-id-card {
+  background: #ffffff;
+  border: 1.5px solid #edf2f7;
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.applicant-id-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.applicant-id-card__title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.applicant-id-card__icon-tile {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #fff7ed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.applicant-id-card__title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.applicant-id-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  border-radius: 9999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.applicant-id-card__badge-check {
+  width: 13px;
+  height: 13px;
+}
+
+/* Security Alert Banner */
+.applicant-id-card__alert {
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.applicant-id-card__alert-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.applicant-id-card__alert-text {
+  font-size: 0.85rem;
+  color: #1e40af;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Profile Grid */
+.applicant-id-card__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.applicant-id-card__row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.applicant-id-card__row--full {
+  grid-template-columns: 1fr;
+}
+
+.applicant-id-card__divider {
+  height: 1px;
+  background-color: #f1f5f9;
+  width: 100%;
+}
+
+.applicant-id-card__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.applicant-id-card__field-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: capitalize;
+}
+
+.applicant-id-card__field-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  word-break: break-word;
+}
+
+/* Form Section Common Blocks */
+.form-section-block {
+  background: #ffffff;
+  border: 1.5px solid #edf2f7;
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.form-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-section-header__left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.form-section-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #fff7ed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.form-section-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.text-required {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.form-section-info-icon {
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+}
+
+/* Employment Options Row */
+.employment-options-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.employment-option-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.95rem 1.25rem;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+}
+
+.employment-option-card:hover {
+  border-color: #cbd5e1;
+  background: #fafafa;
+}
+
+.employment-option-card--selected {
+  background: #fff7ed;
+  border-color: #ff7a00;
+}
+
+.employment-option-card__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* Custom Radio Circle */
+.custom-radio-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.2s ease;
+}
+
+.custom-radio-circle--selected {
+  border-color: #ff7a00;
+}
+
+.custom-radio-inner-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff7a00;
+}
+
+/* 2-Column Loan Requirements Grid */
+.loan-requirements-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.input-field-card {
+  background: #ffffff;
+  border: 1.5px solid #edf2f7;
+  border-radius: 16px;
+  padding: 1.35rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  height: fit-content;
+  box-sizing: border-box;
+}
+
+.input-field-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.select-container {
+  position: relative;
+  width: 100%;
+}
+
+.custom-form-select,
+.custom-form-input {
+  width: 100%;
+  height: 48px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0 2.5rem 0 1rem;
+  font-size: 0.925rem;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.custom-form-input {
+  padding-right: 1rem;
+}
+
+.custom-form-select:focus,
+.custom-form-input:focus {
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.12);
+}
+
+.custom-form-input--error {
+  border-color: #ef4444 !important;
+}
+
+.select-chevron-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  color: #64748b;
+}
+
+/* Existing Loans Row */
+.existing-loans-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.existing-loan-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.95rem;
+  padding: 1.15rem 1.35rem;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+}
+
+.existing-loan-card:hover {
+  border-color: #cbd5e1;
+  background: #fafafa;
+}
+
+.existing-loan-card--selected {
+  background: #fff7ed;
+  border-color: #ff7a00;
+}
+
+.existing-loan-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.existing-loan-card__title {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.existing-loan-card__subtitle {
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.field-error-text {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #ef4444;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .applicant-id-card__row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .employment-options-row {
+    grid-template-columns: 1fr;
+  }
+  .loan-requirements-grid {
+    grid-template-columns: 1fr;
+  }
+  .existing-loans-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .applicant-id-card__row {
+    grid-template-columns: 1fr;
+  }
+  .applicant-id-card {
+    padding: 1.15rem;
+  }
+  .form-section-block {
+    padding: 1.15rem;
+  }
+  .input-field-card {
+    padding: 1.15rem;
+  }
+}

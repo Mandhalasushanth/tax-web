@@ -1,6 +1,6 @@
 import React from 'react'
 import { LoanReviewSection } from '../../../../components/LoanReviewSection/LoanReviewSection'
-import type { HomeLoanData } from '../../types/homeLoan.types'
+import type { HomeLoanData } from '../../../../types/homeLoan.types'
 import './ReviewAndSubmit.css'
 
 export interface ReviewAndSubmitProps {

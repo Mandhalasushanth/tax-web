@@ -36,8 +36,8 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
   isRequired = false,
   badge,
   uploadIcon,
-  iconBg = '#eff6ff',
-  iconColor = '#2563eb',
+  iconBg,
+  iconColor,
   isUploaded = false,
   fileName,
   fileSize,
@@ -93,7 +93,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
         ref={fileInputRef}
         type="file"
         accept={accept}
-        style={{ display: 'none' }}
+        className="supporting-doc-item__file-input"
         onChange={handleFileChange}
       />
 
@@ -102,7 +102,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
         <div className="supporting-doc-item__left">
           <div
             className="supporting-doc-item__icon-box"
-            style={{ backgroundColor: iconBg, color: iconColor }}
+            {...(iconBg || iconColor ? { style: { ...(iconBg ? { backgroundColor: iconBg } : {}), ...(iconColor ? { color: iconColor } : {}) } } : {})}
             aria-hidden="true"
           >
             {icon || (

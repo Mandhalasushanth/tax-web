@@ -1,0 +1,145 @@
+.vehicle-loan-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.vehicle-loan-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.vehicle-loan-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.vehicle-loan-label__req {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.vehicle-loan-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.vehicle-loan-input:focus {
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.12);
+}
+
+.vehicle-loan-input--error {
+  border-color: #ef4444 !important;
+  background-color: #fffafb;
+}
+
+.vehicle-loan-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #0f172a;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.vehicle-loan-select:focus {
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.12);
+}
+
+.vehicle-loan-select--error {
+  border-color: #ef4444 !important;
+}
+
+.vehicle-loan-amount-presets,
+.vehicle-loan-pill-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.vehicle-loan-pill-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vehicle-loan-pill-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.vehicle-loan-pill-btn--active {
+  background: #fff7ed;
+  border-color: #ff7a00;
+  color: #ea580c;
+  font-weight: 600;
+}
+
+.vehicle-loan-condition-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.vehicle-loan-condition-btn {
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.vehicle-loan-condition-btn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.vehicle-loan-condition-btn--active {
+  border-color: #ff7a00;
+  background: #fff7ed;
+  color: #ea580c;
+  font-weight: 600;
+}
+
+.vehicle-loan-field-error {
+  font-size: 0.75rem;
+  color: #ef4444;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}

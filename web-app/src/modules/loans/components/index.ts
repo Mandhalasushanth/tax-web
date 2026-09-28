@@ -1,6 +1,7 @@
 export { HomeLoan } from './HomeLoan/HomeLoan'
 export { MachineryLoan } from './MachineryLoan/MachineryLoan'
 export { WorkingCapitalLoan } from './WorkingCapitalLoan/WorkingCapitalLoan'
+export { VehicleLoan } from './VehicleLoan/VehicleLoan'
 export { LoanMarketplace } from './LoanMarketplace/LoanMarketplace'
 export { LoanApplicationStatus } from './LoanApplicationStatus/LoanApplicationStatus'
 export { LoanBreadcrumbs } from './LoanBreadcrumbs/LoanBreadcrumbs'

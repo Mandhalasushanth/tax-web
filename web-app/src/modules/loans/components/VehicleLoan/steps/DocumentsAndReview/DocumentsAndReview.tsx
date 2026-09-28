@@ -263,17 +263,32 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
           title="Applicant & Employment"
           onEdit={() => onNavigateToStep(2)}
           items={[
-            { label: 'Full Name', value: data.fullName || 'Not specified' },
-            { label: 'Mobile', value: data.mobileNumber || 'Not specified' },
-            { label: 'PAN', value: data.panNumber || 'Not specified' },
-            { label: 'Employment', value: data.employmentType || 'Not specified' },
+            { label: 'Occupation', value: data.occupationType || 'Not specified' },
             {
-              label: 'Net Monthly Income',
-              value: data.monthlyNetIncome
-                ? `₹${(Number(String(data.monthlyNetIncome).replace(/\D/g, '')) || 0).toLocaleString('en-IN')}`
-                : 'Not specified',
+              label: 'Monthly Net Income',
+              value: data.monthlyIncomeRange === 'Specify Exact Amount' && data.exactMonthlyIncome
+                ? `₹${(Number(String(data.exactMonthlyIncome).replace(/\D/g, '')) || 0).toLocaleString('en-IN')}`
+                : data.monthlyIncomeRange || 'Not specified',
             },
-            { label: 'City', value: data.city || 'Not specified' },
+            ...(data.occupationType === 'Business Owner' || data.occupationType === 'Self-Employed Pro'
+              ? [
+                  { label: 'Business Name', value: data.legalBusinessName || 'Not specified' },
+                  { label: 'GSTIN', value: data.gstin || 'Not specified' },
+                  { label: 'Vintage', value: data.businessVintageYears ? `${data.businessVintageYears} Years` : 'Not specified' },
+                  {
+                    label: 'Turnover',
+                    value: data.annualTurnover
+                      ? `₹${(Number(String(data.annualTurnover).replace(/\D/g, '')) || 0).toLocaleString('en-IN')}`
+                      : 'Not specified',
+                  },
+                ]
+              : []),
+            {
+              label: 'Existing EMIs',
+              value: data.hasActiveEmis
+                ? `Active (₹${(Number(String(data.totalMonthlyEmi).replace(/\D/g, '')) || 0).toLocaleString('en-IN')}/mo)`
+                : 'No Other EMIs',
+            },
           ]}
         />
 

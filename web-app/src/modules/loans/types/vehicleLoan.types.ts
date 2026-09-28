@@ -51,7 +51,15 @@ export type VehicleMakeModel =
   | 'Commercial: Tata Ace / Mahindra Bolero Pik-Up'
   | 'Other (Specify Custom Vehicle Model)'
 
-export type VehicleEmploymentType = 'Salaried' | 'Self Employed Professional' | 'Self Employed Business'
+export type VehicleOccupationType = 'Salaried' | 'Self-Employed Pro' | 'Business Owner'
+
+export type VehicleIncomeRange =
+  | 'Below ₹25,000 / month'
+  | '₹25,000 – ₹50,000 / month'
+  | '₹50,000 – ₹1,00,000 / month'
+  | '₹1,00,000 – ₹2,50,000 / month'
+  | 'Above ₹2,50,000 / month'
+  | 'Specify Exact Amount'
 
 export interface VehicleLoanData {
   // Step 1: Vehicle & Loan Requirements
@@ -64,13 +72,25 @@ export interface VehicleLoanData {
   onRoadPrice: string | number
   downPayment: string | number
 
-  // Step 2: Applicant & Employment Details
-  fullName: string
-  mobileNumber: string
-  panNumber: string
-  employmentType: VehicleEmploymentType
-  monthlyNetIncome: string | number
-  city: string
+  // Step 2: Employment & Income
+  occupationType: VehicleOccupationType
+  monthlyIncomeRange: VehicleIncomeRange | ''
+  exactMonthlyIncome?: string | number
+  
+  // Salaried / Professional fields
+  employerName?: string
+  workExperienceYears?: string
+  
+  // Business Profile & Compliance (when Business Owner or Self-Employed Pro)
+  legalBusinessName?: string
+  gstin?: string
+  udyamNumber?: string
+  businessVintageYears?: string
+  annualTurnover?: string | number
+
+  // Existing Loan Obligations
+  hasActiveEmis: boolean
+  totalMonthlyEmi?: string | number
 
   // Step 3: Banking & Disbursement
   bankName: string

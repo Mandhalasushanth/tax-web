@@ -2,7 +2,8 @@ import React from 'react'
 import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
 import type {
   VehicleLoanData,
-  VehicleEmploymentType,
+  VehicleOccupationType,
+  VehicleIncomeRange,
 } from '../../../../types/vehicleLoan.types'
 import { loanInputHelpers } from '../../../../validation/vehicleLoanValidation'
 import './ApplicantDetails.css'
@@ -13,10 +14,19 @@ export interface ApplicantDetailsProps {
   errors?: Record<string, string>
 }
 
-export const EMPLOYMENT_TYPE_OPTIONS: VehicleEmploymentType[] = [
+export const OCCUPATION_OPTIONS: VehicleOccupationType[] = [
   'Salaried',
-  'Self Employed Professional',
-  'Self Employed Business',
+  'Self-Employed Pro',
+  'Business Owner',
+]
+
+export const INCOME_RANGE_OPTIONS: VehicleIncomeRange[] = [
+  'Below ₹25,000 / month',
+  '₹25,000 – ₹50,000 / month',
+  '₹50,000 – ₹1,00,000 / month',
+  '₹1,00,000 – ₹2,50,000 / month',
+  'Above ₹2,50,000 / month',
+  'Specify Exact Amount',
 ]
 
 export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
@@ -24,23 +34,29 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
   onChange,
   errors = {},
 }) => {
-  const handleIncomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTurnoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
-    onChange({ monthlyNetIncome: formatted })
+    onChange({ annualTurnover: formatted })
   }
 
-  const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const clean = loanInputHelpers.cleanPan(e.target.value)
-    onChange({ panNumber: clean })
+  const handleEmiChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
+    onChange({ totalMonthlyEmi: formatted })
   }
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const clean = loanInputHelpers.digitsOnly(e.target.value, 10)
-    onChange({ mobileNumber: clean })
+  const handleExactIncomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
+    onChange({ exactMonthlyIncome: formatted })
+  }
+
+  const handleGstinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const clean = loanInputHelpers.cleanGstin(e.target.value)
+    onChange({ gstin: clean })
   }
 
   return (
-    <div className="vehicle-loan-step">
+    <div className="applicant-details-step">
+      {/* 1. Occupation Selection */}
       <LoanFormSection
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -48,130 +64,247 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
             <circle cx="12" cy="7" r="4" />
           </svg>
         }
-        title="Applicant & Employment Profile"
-        subtitle="Provide primary borrower KYC details, employment type, and monthly net income."
+        title="Employment & Occupation"
+        subtitle="Select your occupation type. Underwriting checks and required financial proofs adapt based on this selection."
       >
-        {/* Full Name */}
-        <div className="vehicle-loan-form-group">
-          <label htmlFor="vehicle-applicant-name" className="vehicle-loan-label">
-            Full Name (As per PAN) <span className="vehicle-loan-label__req">*</span>
-          </label>
-          <input
-            id="vehicle-applicant-name"
-            type="text"
-            className={`vehicle-loan-input ${errors.fullName ? 'vehicle-loan-input--error' : ''}`}
-            placeholder="Enter full legal name"
-            value={data.fullName || ''}
-            onChange={(e) => onChange({ fullName: e.target.value })}
-          />
-          {errors.fullName && (
-            <span className="vehicle-loan-field-error" role="alert">{errors.fullName}</span>
-          )}
-        </div>
-
-        {/* Mobile Number */}
-        <div className="vehicle-loan-form-group">
-          <label htmlFor="vehicle-mobile" className="vehicle-loan-label">
-            Mobile Number <span className="vehicle-loan-label__req">*</span>
-          </label>
-          <input
-            id="vehicle-mobile"
-            type="text"
-            inputMode="numeric"
-            maxLength={10}
-            className={`vehicle-loan-input ${errors.mobileNumber ? 'vehicle-loan-input--error' : ''}`}
-            placeholder="Enter 10-digit mobile number"
-            value={data.mobileNumber || ''}
-            onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
-            onChange={handlePhoneChange}
-          />
-          {errors.mobileNumber && (
-            <span className="vehicle-loan-field-error" role="alert">{errors.mobileNumber}</span>
-          )}
-        </div>
-
-        {/* PAN Card */}
-        <div className="vehicle-loan-form-group">
-          <label htmlFor="vehicle-pan" className="vehicle-loan-label">
-            PAN Number <span className="vehicle-loan-label__req">*</span>
-          </label>
-          <input
-            id="vehicle-pan"
-            type="text"
-            maxLength={10}
-            className={`vehicle-loan-input ${errors.panNumber ? 'vehicle-loan-input--error' : ''}`}
-            placeholder="e.g. ABCDE1234F"
-            value={data.panNumber || ''}
-            onKeyDown={loanInputHelpers.allowOnlyAlphanumericKeyDown}
-            onChange={handlePanChange}
-          />
-          {errors.panNumber && (
-            <span className="vehicle-loan-field-error" role="alert">{errors.panNumber}</span>
-          )}
-        </div>
-
-        {/* Employment Type */}
-        <div className="vehicle-loan-form-group">
-          <label className="vehicle-loan-label">
-            Employment Type <span className="vehicle-loan-label__req">*</span>
-          </label>
-          <div className="vehicle-loan-pill-grid">
-            {EMPLOYMENT_TYPE_OPTIONS.map((emp) => {
-              const isSelected = data.employmentType === emp
+        <div className="applicant-form-group">
+          <div className="applicant-occupation-grid">
+            {OCCUPATION_OPTIONS.map((occ) => {
+              const isSelected = data.occupationType === occ
               return (
                 <button
-                  key={emp}
+                  key={occ}
                   type="button"
-                  className={`vehicle-loan-pill-btn ${isSelected ? 'vehicle-loan-pill-btn--active' : ''}`}
-                  onClick={() => onChange({ employmentType: emp })}
+                  className={`applicant-occupation-btn ${isSelected ? 'applicant-occupation-btn--active' : ''}`}
+                  onClick={() => onChange({ occupationType: occ })}
                 >
-                  {emp}
+                  {occ}
                 </button>
               )
             })}
           </div>
-          {errors.employmentType && (
-            <span className="vehicle-loan-field-error" role="alert">{errors.employmentType}</span>
+          {errors.occupationType && (
+            <span className="applicant-field-error" role="alert">{errors.occupationType}</span>
           )}
+        </div>
+      </LoanFormSection>
+
+      {/* 2. Monthly In-Hand Income */}
+      <LoanFormSection
+        icon={
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect width="20" height="12" x="2" y="6" rx="2" />
+            <circle cx="12" cy="12" r="2" />
+            <path d="M6 12h.01M18 12h.01" />
+          </svg>
+        }
+        title="Monthly In-Hand Income"
+        subtitle="Select monthly take-home income range or specify your exact net income."
+      >
+        <div className="applicant-form-group">
+          <label htmlFor="vehicle-income-select" className="applicant-label">
+            Monthly Net Income (₹) <span className="applicant-label__req">*</span>
+          </label>
+          <select
+            id="vehicle-income-select"
+            className={`applicant-select ${errors.monthlyIncomeRange ? 'applicant-select--error' : ''}`}
+            value={data.monthlyIncomeRange || ''}
+            onChange={(e) => onChange({ monthlyIncomeRange: e.target.value as VehicleIncomeRange })}
+          >
+            <option value="" disabled>Select Monthly Income Range...</option>
+            {INCOME_RANGE_OPTIONS.map((range) => (
+              <option key={range} value={range}>
+                {range}
+              </option>
+            ))}
+          </select>
+          {errors.monthlyIncomeRange && (
+            <span className="applicant-field-error" role="alert">{errors.monthlyIncomeRange}</span>
+          )}
+
+          {data.monthlyIncomeRange === 'Specify Exact Amount' && (
+            <div className="applicant-form-group" style={{ marginTop: '0.75rem' }}>
+              <label htmlFor="vehicle-exact-income" className="applicant-label">
+                Exact Monthly Net Income (₹) <span className="applicant-label__req">*</span>
+              </label>
+              <input
+                id="vehicle-exact-income"
+                type="text"
+                inputMode="numeric"
+                className={`applicant-input ${errors.exactMonthlyIncome ? 'applicant-input--error' : ''}`}
+                placeholder="Enter exact monthly income in ₹"
+                value={data.exactMonthlyIncome ? loanInputHelpers.formatCurrencyString(String(data.exactMonthlyIncome)) : ''}
+                onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
+                onChange={handleExactIncomeChange}
+              />
+              {errors.exactMonthlyIncome && (
+                <span className="applicant-field-error" role="alert">{errors.exactMonthlyIncome}</span>
+              )}
+            </div>
+          )}
+        </div>
+      </LoanFormSection>
+
+      {/* 3. Business Profile & Compliance (Shown for Business Owner & Self-Employed Pro) */}
+      {(data.occupationType === 'Business Owner' || data.occupationType === 'Self-Employed Pro') && (
+        <LoanFormSection
+          icon={
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect width="16" height="20" x="4" y="2" rx="2" />
+              <path d="M9 22v-4h6v4" />
+              <path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" />
+            </svg>
+          }
+          title="Business Profile & Compliance"
+          subtitle="Provide enterprise details for commercial/auto-credit underwriting."
+        >
+          {/* Legal Business / Firm Name */}
+          <div className="applicant-form-group">
+            <label htmlFor="vehicle-biz-name" className="applicant-label">
+              Legal Business / Firm Name <span className="applicant-label__req">*</span>
+            </label>
+            <input
+              id="vehicle-biz-name"
+              type="text"
+              className={`applicant-input ${errors.legalBusinessName ? 'applicant-input--error' : ''}`}
+              placeholder="Enter legal business / firm name"
+              value={data.legalBusinessName || ''}
+              onChange={(e) => onChange({ legalBusinessName: e.target.value })}
+            />
+            {errors.legalBusinessName && (
+              <span className="applicant-field-error" role="alert">{errors.legalBusinessName}</span>
+            )}
+          </div>
+
+          {/* GSTIN (15 Digits) */}
+          <div className="applicant-form-group">
+            <label htmlFor="vehicle-biz-gstin" className="applicant-label">
+              GSTIN (15 Digits)
+            </label>
+            <input
+              id="vehicle-biz-gstin"
+              type="text"
+              maxLength={15}
+              className={`applicant-input ${errors.gstin ? 'applicant-input--error' : ''}`}
+              placeholder="Enter 15-digit GSTIN (e.g. 27ABCDE1234F1Z5)"
+              value={data.gstin || ''}
+              onKeyDown={loanInputHelpers.allowOnlyAlphanumericKeyDown}
+              onChange={handleGstinChange}
+              style={{ textTransform: 'uppercase' }}
+            />
+            {errors.gstin && (
+              <span className="applicant-field-error" role="alert">{errors.gstin}</span>
+            )}
+          </div>
+
+          {/* Udyam Registration Number */}
+          <div className="applicant-form-group">
+            <label htmlFor="vehicle-biz-udyam" className="applicant-label">
+              Udyam Registration Number
+            </label>
+            <input
+              id="vehicle-biz-udyam"
+              type="text"
+              className="applicant-input"
+              placeholder="Enter Udyam number (e.g. UDYAM-MH-01-0012345)"
+              value={data.udyamNumber || ''}
+              onChange={(e) => onChange({ udyamNumber: e.target.value.toUpperCase() })}
+              style={{ textTransform: 'uppercase' }}
+            />
+          </div>
+
+          {/* Business Vintage (in Years) */}
+          <div className="applicant-form-group">
+            <label htmlFor="vehicle-biz-vintage" className="applicant-label">
+              Business Vintage (in Years) <span className="applicant-label__req">*</span>
+            </label>
+            <input
+              id="vehicle-biz-vintage"
+              type="text"
+              inputMode="numeric"
+              className={`applicant-input ${errors.businessVintageYears ? 'applicant-input--error' : ''}`}
+              placeholder="Enter business vintage in years"
+              value={data.businessVintageYears || ''}
+              onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
+              onChange={(e) => onChange({ businessVintageYears: loanInputHelpers.digitsOnly(e.target.value, 2) })}
+            />
+            {errors.businessVintageYears && (
+              <span className="applicant-field-error" role="alert">{errors.businessVintageYears}</span>
+            )}
+          </div>
+
+          {/* Annual Turnover (₹) */}
+          <div className="applicant-form-group">
+            <label htmlFor="vehicle-biz-turnover" className="applicant-label">
+              Annual Turnover (₹) <span className="applicant-label__req">*</span>
+            </label>
+            <input
+              id="vehicle-biz-turnover"
+              type="text"
+              inputMode="numeric"
+              className={`applicant-input ${errors.annualTurnover ? 'applicant-input--error' : ''}`}
+              placeholder="Enter annual turnover (₹)"
+              value={data.annualTurnover ? loanInputHelpers.formatCurrencyString(String(data.annualTurnover)) : ''}
+              onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
+              onChange={handleTurnoverChange}
+            />
+            {errors.annualTurnover && (
+              <span className="applicant-field-error" role="alert">{errors.annualTurnover}</span>
+            )}
+          </div>
+        </LoanFormSection>
+      )}
+
+      {/* 4. Existing Loan Obligations */}
+      <LoanFormSection
+        icon={
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect width="20" height="14" x="2" y="5" rx="2" />
+            <line x1="2" y1="10" x2="22" y2="10" />
+          </svg>
+        }
+        title="Existing Loan Obligations"
+        subtitle="Indicate if you have active ongoing loans or EMIs. Lenders use this to verify debt servicing capacity."
+      >
+        <div className="applicant-form-group">
+          <div className="applicant-toggle-grid">
+            <button
+              type="button"
+              className={`applicant-toggle-btn ${!data.hasActiveEmis ? 'applicant-toggle-btn--active' : ''}`}
+              onClick={() => onChange({ hasActiveEmis: false, totalMonthlyEmi: '' })}
+            >
+              No Other EMIs
+            </button>
+            <button
+              type="button"
+              className={`applicant-toggle-btn ${data.hasActiveEmis ? 'applicant-toggle-btn--active' : ''}`}
+              onClick={() => onChange({ hasActiveEmis: true })}
+            >
+              Yes, Active EMIs
+            </button>
+          </div>
         </div>
 
-        {/* Monthly Net Income */}
-        <div className="vehicle-loan-form-group">
-          <label htmlFor="vehicle-monthly-income" className="vehicle-loan-label">
-            Monthly Net Income (₹) <span className="vehicle-loan-label__req">*</span>
-          </label>
-          <input
-            id="vehicle-monthly-income"
-            type="text"
-            inputMode="numeric"
-            className={`vehicle-loan-input ${errors.monthlyNetIncome ? 'vehicle-loan-input--error' : ''}`}
-            placeholder="Enter monthly take-home salary or net income"
-            value={data.monthlyNetIncome ? loanInputHelpers.formatCurrencyString(String(data.monthlyNetIncome)) : ''}
-            onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
-            onChange={handleIncomeChange}
-          />
-          {errors.monthlyNetIncome && (
-            <span className="vehicle-loan-field-error" role="alert">{errors.monthlyNetIncome}</span>
-          )}
-        </div>
-
-        {/* City */}
-        <div className="vehicle-loan-form-group">
-          <label htmlFor="vehicle-city" className="vehicle-loan-label">
-            Current City <span className="vehicle-loan-label__req">*</span>
-          </label>
-          <input
-            id="vehicle-city"
-            type="text"
-            className={`vehicle-loan-input ${errors.city ? 'vehicle-loan-input--error' : ''}`}
-            placeholder="e.g. Hyderabad / Mumbai"
-            value={data.city || ''}
-            onChange={(e) => onChange({ city: e.target.value })}
-          />
-          {errors.city && (
-            <span className="vehicle-loan-field-error" role="alert">{errors.city}</span>
-          )}
-        </div>
+        {data.hasActiveEmis && (
+          <div className="applicant-form-group" style={{ marginTop: '1rem' }}>
+            <label htmlFor="vehicle-total-emi" className="applicant-label">
+              Total Ongoing Monthly EMI (₹) <span className="applicant-label__req">*</span>
+            </label>
+            <input
+              id="vehicle-total-emi"
+              type="text"
+              inputMode="numeric"
+              className={`applicant-input ${errors.totalMonthlyEmi ? 'applicant-input--error' : ''}`}
+              placeholder="Enter total ongoing monthly EMI (₹)"
+              value={data.totalMonthlyEmi ? loanInputHelpers.formatCurrencyString(String(data.totalMonthlyEmi)) : ''}
+              onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
+              onChange={handleEmiChange}
+            />
+            {errors.totalMonthlyEmi && (
+              <span className="applicant-field-error" role="alert">{errors.totalMonthlyEmi}</span>
+            )}
+          </div>
+        )}
       </LoanFormSection>
     </div>
   )

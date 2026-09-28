@@ -37,6 +37,8 @@ export const vehicleLoanValidation = {
     // 5. Vehicle Make & Model
     if (!data.vehicleMakeModel || !data.vehicleMakeModel.trim()) {
       errors.vehicleMakeModel = 'Please enter or select vehicle make and model'
+    } else if (data.vehicleMakeModel === 'Other (Specify Custom Vehicle Model)' && !data.customVehicleMakeModel?.trim()) {
+      errors.vehicleMakeModel = 'Please specify your custom vehicle make & model'
     }
 
     // 6. Estimated On-Road Price / Valuation
@@ -64,31 +66,37 @@ export const vehicleLoanValidation = {
   validateStep2(data: Partial<VehicleLoanData>): VehicleValidationResult {
     const errors: Record<string, string> = {}
 
-    if (!data.fullName || !data.fullName.trim()) {
-      errors.fullName = 'Please enter applicant full name'
+    if (!data.occupationType) {
+      errors.occupationType = 'Please select your occupation type'
     }
 
-    const phoneRes = commonLoanValidation.validatePhone(data.mobileNumber || '')
-    if (!phoneRes.isValid) {
-      errors.mobileNumber = phoneRes.message || 'Invalid mobile number'
+    if (!data.monthlyIncomeRange) {
+      errors.monthlyIncomeRange = 'Please select monthly income range'
+    } else if (data.monthlyIncomeRange === 'Specify Exact Amount') {
+      const exactVal = Number(String(data.exactMonthlyIncome || '').replace(/\D/g, ''))
+      if (!exactVal || exactVal <= 0) {
+        errors.exactMonthlyIncome = 'Please enter your exact monthly net income'
+      }
     }
 
-    const panRes = commonLoanValidation.validatePan(data.panNumber || '')
-    if (!panRes.isValid) {
-      errors.panNumber = panRes.message || 'Invalid PAN number'
+    if (data.occupationType === 'Business Owner' || data.occupationType === 'Self-Employed Pro') {
+      if (!data.legalBusinessName || !data.legalBusinessName.trim()) {
+        errors.legalBusinessName = 'Please enter legal business / firm name'
+      }
+      if (!data.businessVintageYears || !data.businessVintageYears.trim()) {
+        errors.businessVintageYears = 'Please enter business vintage in years'
+      }
+      const turnoverVal = Number(String(data.annualTurnover || '').replace(/\D/g, ''))
+      if (!turnoverVal || turnoverVal <= 0) {
+        errors.annualTurnover = 'Please enter annual turnover in ₹'
+      }
     }
 
-    if (!data.employmentType) {
-      errors.employmentType = 'Please select employment type'
-    }
-
-    const incomeVal = Number(String(data.monthlyNetIncome || '').replace(/\D/g, ''))
-    if (!incomeVal || incomeVal <= 0) {
-      errors.monthlyNetIncome = 'Please enter monthly net take-home income'
-    }
-
-    if (!data.city || !data.city.trim()) {
-      errors.city = 'Please enter current residing city'
+    if (data.hasActiveEmis) {
+      const emiVal = Number(String(data.totalMonthlyEmi || '').replace(/\D/g, ''))
+      if (!emiVal || emiVal <= 0) {
+        errors.totalMonthlyEmi = 'Please enter total ongoing monthly EMI'
+      }
     }
 
     const firstError = Object.values(errors)[0]

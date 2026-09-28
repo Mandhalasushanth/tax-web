@@ -22,6 +22,10 @@
 .loan-success-banner__icon {
   width: 56px;
   height: 56px;
+  min-width: 56px;
+  min-height: 56px;
+  max-width: 56px;
+  max-height: 56px;
   border-radius: 50%;
   background: #16a34a;
   color: #ffffff;
@@ -30,11 +34,17 @@
   justify-content: center;
   margin-bottom: 1rem;
   box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .loan-success-banner__icon svg {
-  width: 32px;
-  height: 32px;
+  width: 32px !important;
+  height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  display: block;
+  flex-shrink: 0;
 }
 
 .loan-success-banner__title {

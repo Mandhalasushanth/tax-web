@@ -1,74 +1,66 @@
 import React from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
-import type { LoanMilestone } from '../../types/loan.types'
 import './LoanApplicationStatus.css'
-
-const DEFAULT_MILESTONES: LoanMilestone[] = [
-  {
-    id: 'm1',
-    title: 'Application Submitted',
-    timestamp: '24 Sep 2026, 11:20 AM',
-    status: 'completed',
-  },
-  {
-    id: 'm2',
-    title: 'In Progress',
-    timestamp: '24 Sep 2026, 02:15 PM',
-    status: 'current',
-  },
-  {
-    id: 'm3',
-    title: 'Agent Review',
-    timestamp: 'Pending',
-    status: 'pending',
-  },
-  {
-    id: 'm4',
-    title: 'Lender Review',
-    timestamp: 'Pending',
-    status: 'pending',
-  },
-  {
-    id: 'm5',
-    title: 'Sanctioned',
-    timestamp: 'Pending',
-    status: 'pending',
-  },
-  {
-    id: 'm6',
-    title: 'Disbursed',
-    timestamp: 'Pending',
-    status: 'pending',
-  },
-]
 
 export const LoanApplicationStatus: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const location = useLocation()
-  const stateData = location.state as { refNumber?: string; formData?: { loanAmount?: number } } | null
+  const stateData = location.state as {
+    refNumber?: string
+    formData?: Record<string, unknown>
+    loanTitle?: string
+  } | null
 
-  const refNumber = id || stateData?.refNumber || 'TXE-LN-041928'
-  const loanAmount = stateData?.formData?.loanAmount || 5000000
+  const refNumber = id || stateData?.refNumber || 'TXE-LN-499927'
+  const formData = stateData?.formData || {}
+
+  // Determine loan type & title
+  const isWorkingCapital = location.pathname.includes('working-capital') || Boolean(formData.requiredCreditLimit) || stateData?.loanTitle === 'Working Capital'
+  const loanTitle = stateData?.loanTitle || (isWorkingCapital ? 'Working Capital' : formData.machineryType ? 'Machinery Loan' : 'Loan Application')
+
+  // Extract dynamic details
+  const loanAmountRaw = formData.requiredCreditLimit || formData.loanAmount || 1500000
+  const loanAmountNumber = typeof loanAmountRaw === 'number'
+    ? loanAmountRaw
+    : Number(String(loanAmountRaw).replace(/\D/g, '')) || 1500000
+
+  const equipmentOrPurpose = isWorkingCapital
+    ? (formData.creditPurpose as string) || (formData.preferredFacilityType as string) || 'Supplier Payments'
+    : (formData.machineryType as string) || 'CNC / Automation Machinery'
+
+  const tenure = (formData.repaymentTenure as string) || '12 Months'
+  const disbursementBank = (formData.currentAccountBankName as string) || (formData.bankName as string) ? `${(formData.currentAccountBankName || formData.bankName)} (-)` : 'Primary Current Bank (-)'
+  const loanAgent = 'TaxEdge Loan Desk'
 
   return (
     <div className="loan-status-page">
       {/* 1. Green Success Banner */}
       <section className="loan-success-banner">
         <div className="loan-success-banner__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ width: 32, height: 32, maxWidth: 32, maxHeight: 32, flexShrink: 0 }}
+          >
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
         <h1 className="loan-success-banner__title">Application Submitted Successfully</h1>
         <p className="loan-success-banner__desc">
-          Your Home Loan application has been submitted. Our credit verification officer and underwriting desk will initiate verification shortly.
+          Your {loanTitle} application has been lodged. Our Loan Agent and underwriting desk will initiate verification shortly.
         </p>
       </section>
 
       {/* 2. Application Summary Card */}
       <div className="loan-status-card">
         <div className="loan-status-card__top">
-          <span className="loan-status-card__ref">Ref No. {refNumber}</span>
+          <span className="loan-status-card__ref">Ref: {refNumber}</span>
           <span className="loan-status-card__badge">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
               <polyline points="20 6 9 17 4 12" />
@@ -79,19 +71,29 @@ export const LoanApplicationStatus: React.FC = () => {
 
         <div className="loan-status-card__main">
           <div>
-            <p className="loan-status-card__loan-type">Home Loan</p>
-            <h2 className="loan-status-card__amount">₹{loanAmount.toLocaleString('en-IN')}</h2>
+            <p className="loan-status-card__loan-type">{loanTitle}</p>
+            <h2 className="loan-status-card__amount" style={{ color: '#16a34a' }}>
+              ₹{loanAmountNumber.toLocaleString('en-IN')}
+            </h2>
           </div>
         </div>
 
-        <div className="loan-status-card__meta-grid">
+        <div className="loan-status-card__meta-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))' }}>
           <div className="loan-status-card__meta-item">
-            <span className="loan-status-card__meta-label">Lender Network</span>
-            <span className="loan-status-card__meta-value">Multi-Bank Desk</span>
+            <span className="loan-status-card__meta-label">{isWorkingCapital ? 'Facility' : 'Equipment'}</span>
+            <span className="loan-status-card__meta-value">{equipmentOrPurpose}</span>
           </div>
           <div className="loan-status-card__meta-item">
-            <span className="loan-status-card__meta-label">Case Advisor</span>
-            <span className="loan-status-card__meta-value">TaxEdge Credit CA</span>
+            <span className="loan-status-card__meta-label">Tenure</span>
+            <span className="loan-status-card__meta-value">{tenure}</span>
+          </div>
+          <div className="loan-status-card__meta-item">
+            <span className="loan-status-card__meta-label">Disbursement Bank</span>
+            <span className="loan-status-card__meta-value">{disbursementBank}</span>
+          </div>
+          <div className="loan-status-card__meta-item">
+            <span className="loan-status-card__meta-label">Loan Agent</span>
+            <span className="loan-status-card__meta-value">{loanAgent}</span>
           </div>
         </div>
       </div>
@@ -101,41 +103,82 @@ export const LoanApplicationStatus: React.FC = () => {
         <h3 className="loan-timeline-card__title">Application Lifecycle Milestones</h3>
 
         <div className="loan-timeline">
-          {DEFAULT_MILESTONES.map((m) => {
-            return (
-              <div
-                key={m.id}
-                className={`loan-timeline-item loan-timeline-item--${m.status}`}
-              >
-                <div className="loan-timeline-node">
-                  {m.status === 'completed' && (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  )}
-                  {m.status === 'current' && (
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                      <circle cx="12" cy="12" r="6" />
-                    </svg>
-                  )}
-                </div>
+          <div className="loan-timeline-item loan-timeline-item--completed">
+            <div className="loan-timeline-node">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <div className="loan-timeline-content">
+              <span className="loan-timeline-name">Application Submitted</span>
+              <span className="loan-timeline-date" style={{ color: '#10b981', fontWeight: 600 }}>Completed</span>
+            </div>
+          </div>
 
-                <div className="loan-timeline-content">
-                  <span className="loan-timeline-name">{m.title}</span>
-                  <span className="loan-timeline-date">{m.timestamp}</span>
-                </div>
-              </div>
-            )
-          })}
+          <div className="loan-timeline-item loan-timeline-item--current">
+            <div className="loan-timeline-node">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="12" r="6" />
+              </svg>
+            </div>
+            <div className="loan-timeline-content">
+              <span className="loan-timeline-name">Agent Review</span>
+              <span className="loan-timeline-date">Documents Received</span>
+            </div>
+          </div>
+
+          <div className="loan-timeline-item loan-timeline-item--pending">
+            <div className="loan-timeline-node" />
+            <div className="loan-timeline-content">
+              <span className="loan-timeline-name">Lender Review</span>
+              <span className="loan-timeline-date">Pending</span>
+            </div>
+          </div>
+
+          <div className="loan-timeline-item loan-timeline-item--pending">
+            <div className="loan-timeline-node" />
+            <div className="loan-timeline-content">
+              <span className="loan-timeline-name">Sanctioned</span>
+              <span className="loan-timeline-date">Pending</span>
+            </div>
+          </div>
+
+          <div className="loan-timeline-item loan-timeline-item--pending">
+            <div className="loan-timeline-node" />
+            <div className="loan-timeline-content">
+              <span className="loan-timeline-name">Disbursed</span>
+              <span className="loan-timeline-date">Pending</span>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* 4. Action Buttons */}
-      <div className="loan-status-actions">
-        <Link to="/applications" className="loan-status-btn loan-status-btn--primary">
+      <div className="loan-status-actions" style={{ flexDirection: 'column', gap: '0.85rem' }}>
+        <Link
+          to="/applications"
+          className="loan-status-btn loan-status-btn--primary"
+          style={{ width: '100%', borderRadius: '10px' }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6" />
+            <line x1="8" y1="12" x2="21" y2="12" />
+            <line x1="8" y1="18" x2="21" y2="18" />
+            <line x1="3" y1="6" x2="3.01" y2="6" />
+            <line x1="3" y1="12" x2="3.01" y2="12" />
+            <line x1="3" y1="18" x2="3.01" y2="18" />
+          </svg>
           <span>Track My Applications</span>
         </Link>
-        <Link to="/dashboard" className="loan-status-btn loan-status-btn--secondary">
+        <Link
+          to="/dashboard"
+          className="loan-status-btn loan-status-btn--secondary"
+          style={{ width: '100%', borderRadius: '10px' }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
           <span>Go to Home</span>
         </Link>
       </div>

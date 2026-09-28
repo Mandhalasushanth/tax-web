@@ -63,7 +63,16 @@ export const HomeLoan: React.FC = () => {
     setIsSubmitting,
     saveDraft,
     discardDraft,
-  } = useLoanApplication<HomeLoanData>('home_loan', INITIAL_HOME_LOAN_DATA)
+  } = useLoanApplication<HomeLoanData>(
+    'home_loan',
+    INITIAL_HOME_LOAN_DATA,
+    {
+      serviceTitle: 'Home Loan',
+      totalSteps: 5,
+      stepLabels: ['Requirements', 'Employment & Income', 'Banking & ITR', 'Documents', 'Review & Submit'],
+      resumeRoute: '/loans/home-loan',
+    }
+  )
 
   const handleFieldChange = (fields: Partial<HomeLoanData>) => {
     updateFormData(fields)
@@ -170,7 +179,11 @@ export const HomeLoan: React.FC = () => {
 
   return (
     <div className="home-loan-page">
-      <LoanPageNavigation title="Home Loan" />
+      <LoanPageNavigation
+        title="Home Loan"
+        showBack={true}
+        onBack={() => setIsDraftModalOpen(true)}
+      />
 
       <FlowStepper
         steps={HOME_LOAN_STEPS}

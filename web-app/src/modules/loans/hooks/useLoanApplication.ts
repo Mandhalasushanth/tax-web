@@ -78,7 +78,15 @@ export function useLoanApplication<T extends object>(
     const totalSteps = options?.totalSteps || 4
     const stepLabel = options?.stepLabels?.[currentStep - 1] || `Step ${currentStep} of ${totalSteps}`
     const serviceTitle = options?.serviceTitle || 'Loan Application'
-    const resumeRoute = options?.resumeRoute || (loanType === 'working_capital_loan' ? '/loans/working-capital-loan' : loanType === 'machinery_loan' ? '/loans/machinery-loan' : '/loans/home-loan')
+    const resumeRoute = options?.resumeRoute || (
+      loanType === 'vehicle_loan'
+        ? '/loans/vehicle-loan'
+        : loanType === 'working_capital_loan'
+        ? '/loans/working-capital-loan'
+        : loanType === 'machinery_loan'
+        ? '/loans/machinery-loan'
+        : '/loans/home-loan'
+    )
 
     userStorage.saveDraft({
       serviceId: loanType,

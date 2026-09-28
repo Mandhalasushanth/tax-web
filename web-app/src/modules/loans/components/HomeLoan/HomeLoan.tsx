@@ -181,8 +181,7 @@ export const HomeLoan: React.FC = () => {
     <div className="home-loan-page">
       <LoanPageNavigation
         title="Home Loan"
-        showBack={true}
-        onBack={() => setIsDraftModalOpen(true)}
+        showBack={false}
       />
 
       <FlowStepper

@@ -187,8 +187,7 @@ export const WorkingCapitalLoan: React.FC = () => {
       {/* 1. Header Navigation */}
       <LoanPageNavigation
         title="Working Capital"
-        showBack={true}
-        onBack={() => setIsDraftModalOpen(true)}
+        showBack={false}
       />
 
       {/* 2. Stepper Header */}

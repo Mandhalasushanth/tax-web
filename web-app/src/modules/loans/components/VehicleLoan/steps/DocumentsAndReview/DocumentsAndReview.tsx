@@ -266,9 +266,7 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
             { label: 'Occupation', value: data.occupationType || 'Not specified' },
             {
               label: 'Monthly Net Income',
-              value: data.monthlyIncomeRange === 'Specify Exact Amount' && data.exactMonthlyIncome
-                ? `₹${(Number(String(data.exactMonthlyIncome).replace(/\D/g, '')) || 0).toLocaleString('en-IN')}`
-                : data.monthlyIncomeRange || 'Not specified',
+              value: data.monthlyIncomeRange || 'Not specified',
             },
             ...(data.occupationType === 'Business Owner' || data.occupationType === 'Self-Employed Pro'
               ? [

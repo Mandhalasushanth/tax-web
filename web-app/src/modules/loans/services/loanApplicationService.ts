@@ -1,3 +1,4 @@
+import { localStore } from '@core/storage/localStorage'
 import { userStorage } from '@core/storage/userStorage'
 import type { LoanApplicationBase } from '../types/loanApplication.types'
 
@@ -5,28 +6,15 @@ const STORAGE_PREFIX = 'taxedge_loan_app_'
 
 export const loanApplicationService = {
   getDraft: <T>(loanType: string): T | null => {
-    try {
-      const data = localStorage.getItem(`${STORAGE_PREFIX}${loanType}`)
-      return data ? JSON.parse(data) : null
-    } catch {
-      return null
-    }
+    return localStore.get<T>(`${STORAGE_PREFIX}${loanType}`)
   },
 
   saveDraft: <T>(loanType: string, data: T): void => {
-    try {
-      localStorage.setItem(`${STORAGE_PREFIX}${loanType}`, JSON.stringify(data))
-    } catch (e) {
-      console.warn('Failed to save loan draft', e)
-    }
+    localStore.set(`${STORAGE_PREFIX}${loanType}`, data)
   },
 
   clearDraft: (loanType: string): void => {
-    try {
-      localStorage.removeItem(`${STORAGE_PREFIX}${loanType}`)
-    } catch (e) {
-      console.warn('Failed to clear loan draft', e)
-    }
+    localStore.remove(`${STORAGE_PREFIX}${loanType}`)
   },
 
   submitApplication: async <T>(

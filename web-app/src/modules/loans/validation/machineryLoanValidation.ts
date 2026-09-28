@@ -1,4 +1,4 @@
-import { commonLoanValidation } from './commonLoanValidation'
+import { commonLoanValidation, loanInputHelpers } from './commonLoanValidation'
 import type { MachineryLoanData } from '../types/machineryLoan.types'
 
 export interface StepValidationResult {
@@ -17,52 +17,8 @@ export const MACHINERY_DOCUMENT_CONFIGS = [
   { id: 'udyam_certificate', name: 'Udyam Certificate', isRequired: false, category: 'business' },
 ]
 
-export const loanInputHelpers = {
-  allowOnlyNumbersKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (
-      ['Backspace', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter'].includes(e.key) ||
-      e.ctrlKey ||
-      e.metaKey
-    ) {
-      return
-    }
-    if (!/^\d$/.test(e.key)) {
-      e.preventDefault()
-    }
-  },
+export { loanInputHelpers }
 
-  allowOnlyAlphanumericKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (
-      ['Backspace', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter'].includes(e.key) ||
-      e.ctrlKey ||
-      e.metaKey
-    ) {
-      return
-    }
-    if (!/^[a-zA-Z0-9]$/.test(e.key)) {
-      e.preventDefault()
-    }
-  },
-
-  formatCurrencyString: (val: string): string => {
-    const digits = val.replace(/\D/g, '')
-    if (!digits) return ''
-    return Number(digits).toLocaleString('en-IN')
-  },
-
-  digitsOnly: (val: string, maxLen?: number): string => {
-    const digits = val.replace(/\D/g, '')
-    return maxLen ? digits.slice(0, maxLen) : digits
-  },
-
-  cleanIfsc: (val: string): string => {
-    return val.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11)
-  },
-
-  cleanGstin: (val: string): string => {
-    return val.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15)
-  },
-}
 
 export const machineryLoanValidation = {
   validateStep1: (data: MachineryLoanData): StepValidationResult => {

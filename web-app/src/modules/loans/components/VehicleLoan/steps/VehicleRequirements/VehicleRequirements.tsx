@@ -4,7 +4,6 @@ import type {
   VehicleLoanData,
   VehicleCategory,
   VehicleRepaymentTenure,
-  VehicleCondition,
   VehicleMakeModel,
 } from '../../../../types/vehicleLoan.types'
 import { loanInputHelpers } from '../../../../validation/vehicleLoanValidation'

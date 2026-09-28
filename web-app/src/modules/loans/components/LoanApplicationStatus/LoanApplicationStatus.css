@@ -313,6 +313,26 @@
   color: #0f172a;
 }
 
+.loan-status-download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: #ea580c;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  margin-top: 0.25rem;
+  transition: opacity 0.2s ease;
+}
+
+.loan-status-download-btn:hover {
+  opacity: 0.85;
+}
+
 @media (max-width: 640px) {
   .loan-status-page {
     padding: 1rem 1rem 3rem;

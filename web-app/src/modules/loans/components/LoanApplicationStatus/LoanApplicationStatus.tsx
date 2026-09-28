@@ -15,21 +15,26 @@ export const LoanApplicationStatus: React.FC = () => {
   const formData = stateData?.formData || {}
 
   // Determine loan type & title
+  const isVehicleLoan = location.pathname.includes('vehicle') || stateData?.loanTitle === 'Vehicle Loan' || Boolean(formData.vehicleCategory || formData.vehicleModel)
   const isWorkingCapital = location.pathname.includes('working-capital') || Boolean(formData.requiredCreditLimit) || stateData?.loanTitle === 'Working Capital'
-  const loanTitle = stateData?.loanTitle || (isWorkingCapital ? 'Working Capital' : formData.machineryType ? 'Machinery Loan' : 'Loan Application')
+  const loanTitle = stateData?.loanTitle || (isVehicleLoan ? 'Vehicle Loan' : isWorkingCapital ? 'Working Capital' : formData.machineryType ? 'Machinery Loan' : 'Loan Application')
 
   // Extract dynamic details
-  const loanAmountRaw = formData.requiredCreditLimit || formData.loanAmount || 1500000
+  const loanAmountRaw = formData.requiredCreditLimit || formData.loanAmount || formData.requiredLoanAmount || 1500000
   const loanAmountNumber = typeof loanAmountRaw === 'number'
     ? loanAmountRaw
     : Number(String(loanAmountRaw).replace(/\D/g, '')) || 1500000
 
-  const equipmentOrPurpose = isWorkingCapital
+  const equipmentOrPurpose = isVehicleLoan
+    ? (formData.vehicleModel as string) || (formData.vehicleCategory as string) || 'Electric Vehicle (EV - 2W / 4W)'
+    : isWorkingCapital
     ? (formData.creditPurpose as string) || (formData.preferredFacilityType as string) || 'Supplier Payments'
     : (formData.machineryType as string) || 'CNC / Automation Machinery'
 
-  const tenure = (formData.repaymentTenure as string) || '12 Months'
-  const disbursementBank = (formData.currentAccountBankName as string) || (formData.bankName as string) ? `${(formData.currentAccountBankName || formData.bankName)} (-)` : 'Primary Current Bank (-)'
+  const tenure = (formData.repaymentTenure as string) || (formData.tenure as string) || '36 Months (3 Yrs)'
+  const disbursementBank = (formData.operatingBank as string) || (formData.currentAccountBankName as string) || (formData.bankName as string)
+    ? `${formData.operatingBank || formData.currentAccountBankName || formData.bankName} (-)`
+    : 'Primary Current Bank (-)'
   const loanAgent = 'TaxEdge Loan Desk'
 
   return (
@@ -80,7 +85,7 @@ export const LoanApplicationStatus: React.FC = () => {
 
         <div className="loan-status-card__meta-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))' }}>
           <div className="loan-status-card__meta-item">
-            <span className="loan-status-card__meta-label">{isWorkingCapital ? 'Facility' : 'Equipment'}</span>
+            <span className="loan-status-card__meta-label">{isVehicleLoan ? 'Vehicle / Model' : isWorkingCapital ? 'Facility' : 'Equipment'}</span>
             <span className="loan-status-card__meta-value">{equipmentOrPurpose}</span>
           </div>
           <div className="loan-status-card__meta-item">
@@ -154,11 +159,10 @@ export const LoanApplicationStatus: React.FC = () => {
       </div>
 
       {/* 4. Action Buttons */}
-      <div className="loan-status-actions" style={{ flexDirection: 'column', gap: '0.85rem' }}>
+      <div className="loan-status-actions">
         <Link
           to="/applications"
           className="loan-status-btn loan-status-btn--primary"
-          style={{ width: '100%', borderRadius: '10px' }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="8" y1="6" x2="21" y2="6" />
@@ -173,7 +177,6 @@ export const LoanApplicationStatus: React.FC = () => {
         <Link
           to="/dashboard"
           className="loan-status-btn loan-status-btn--secondary"
-          style={{ width: '100%', borderRadius: '10px' }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -181,6 +184,21 @@ export const LoanApplicationStatus: React.FC = () => {
           </svg>
           <span>Go to Home</span>
         </Link>
+
+        <button
+          type="button"
+          className="loan-status-download-btn"
+          onClick={() => {
+            alert(`Downloading acknowledgement receipt for ${refNumber}...`)
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span>Download Sanction Letter / Receipt</span>
+        </button>
       </div>
     </div>
   )

@@ -170,8 +170,7 @@ export const MachineryLoan: React.FC = () => {
     <div className="machinery-loan-page">
       <LoanPageNavigation
         title="Machinery Loan"
-        showBack={true}
-        onBack={() => setIsDraftModalOpen(true)}
+        showBack={false}
       />
 
       <FlowStepper

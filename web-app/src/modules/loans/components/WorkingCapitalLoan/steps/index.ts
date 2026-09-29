@@ -9,6 +9,3 @@ export type { DocumentsProps } from './Documents/Documents'
 
 export { ReviewAndSubmit } from './ReviewAndSubmit/ReviewAndSubmit'
 export type { ReviewAndSubmitProps } from './ReviewAndSubmit/ReviewAndSubmit'
-
-export { LoanSubmitModal } from './LoanSubmitModal/LoanSubmitModal'
-export type { LoanSubmitModalProps } from './LoanSubmitModal/LoanSubmitModal'

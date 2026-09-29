@@ -12,7 +12,7 @@ export type * from './documents/loanDocument.types'
 export { BusinessLoan } from './components/BusinessLoan'
 export { HomeLoan } from './components/HomeLoan'
 export { LoanMarketplace } from './components/LoanMarketplace'
-export { LoanApplicationStatus } from './components/LoanApplicationStatus'
+export { LoanApplicationStatus } from './shared'
  
 export * from './hooks'
 export * from './services'
@@ -20,5 +20,6 @@ export * from './documents'
 export * from './validation'
 export * from './types'
 export * from './components'
+export * from './shared'
 
  

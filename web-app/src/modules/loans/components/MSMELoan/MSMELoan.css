@@ -1,41 +1,56 @@
 .msme-loan-page {
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 0.5rem 2rem 3.5rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
   box-sizing: border-box;
 }
 
+.msme-loan-page__title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
 .msme-loan-page__card {
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 0;
-  box-shadow: none;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .msme-loan-page__error-banner {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.625rem;
+  padding: 0.875rem 1.125rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
-@media (max-width: 768px) {
+.msme-loan-page__error-banner svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
   .msme-loan-page {
-    padding: 0.5rem 1rem 2.5rem 1rem;
+    padding: 1rem;
+    gap: 1rem;
   }
 
   .msme-loan-page__card {
-    padding: 0;
-    border-radius: 0;
+    padding: 1.25rem;
   }
 }

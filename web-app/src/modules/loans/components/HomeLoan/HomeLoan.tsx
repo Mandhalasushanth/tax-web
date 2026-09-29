@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { StepActionBar, DraftConfirmModal, FlowStepper } from '@shared/components'
 import type { FlowStepItem } from '@shared/components'
 
-import { LoanPageNavigation } from '../../components/LoanPageNavigation/LoanPageNavigation'
 import { useLoanApplication } from '../../hooks/useLoanApplication'
 import { loanApplicationService } from '../../services/loanApplicationService'
 import type { HomeLoanData } from '../../types/homeLoan.types'
@@ -30,6 +29,7 @@ const HOME_LOAN_STEPS: FlowStepItem[] = [
 const INITIAL_HOME_LOAN_DATA: HomeLoanData = {
   loanAmount: '',
   propertyIntent: '',
+  customPropertyIntent: '',
   repaymentTenureYears: 0,
   propertyStage: '',
   estimatedPropertyCost: '',
@@ -77,8 +77,9 @@ export const HomeLoan: React.FC = () => {
     setIsDraftModalOpen,
     isSubmitting,
     setIsSubmitting,
-    saveDraft,
-    discardDraft,
+    handleSaveAndExit,
+    handleDiscardAndExit,
+    handleKeepEditing,
   } = useLoanApplication<HomeLoanData>(
     'home_loan',
     INITIAL_HOME_LOAN_DATA,
@@ -92,28 +93,13 @@ export const HomeLoan: React.FC = () => {
 
   const handleFieldChange = (fields: Partial<HomeLoanData>) => {
     updateFormData(fields)
-    Object.keys(fieldErrors).length > 0
-      ? setFieldErrors((prev) => {
-          const next = { ...prev }
-          'loanAmount' in fields && delete next.loanAmount
-          'repaymentTenureYears' in fields && delete next.repaymentTenureYears
-          'propertyIntent' in fields && delete next.propertyIntent
-          'propertyStage' in fields && delete next.propertyStage
-          'estimatedPropertyCost' in fields && delete next.estimatedPropertyCost
-          'occupation' in fields && delete next.occupation
-          'monthlyIncomeRange' in fields && delete next.monthlyIncomeRange
-          'hasExistingEmis' in fields && delete next.hasExistingEmis
-          'existingEmiAmount' in fields && delete next.existingEmiAmount
-          'bankName' in fields && delete next.bankName
-          'accountNumber' in fields && delete next.accountNumber
-          'ifscCode' in fields && delete next.ifscCode
-          'itrStatus' in fields && delete next.itrStatus
-          'itrAckNumber' in fields && delete next.itrAckNumber
-          'annualIncomeAsPerItr' in fields && delete next.annualIncomeAsPerItr
-          'termsAccepted' in fields && delete next.termsAccepted
-          return next
-        })
-      : undefined
+    if (Object.keys(fieldErrors).length > 0) {
+      setFieldErrors((prev) => {
+        const next = { ...prev }
+        Object.keys(fields).forEach((k) => delete next[k])
+        return next
+      })
+    }
     Boolean(stepError) && setStepError(null)
   }
 
@@ -134,11 +120,23 @@ export const HomeLoan: React.FC = () => {
   }
 
   const handleNext = async () => {
+    if (currentStep === 5 && !formData.termsAccepted) {
+      setStepError('Please authorize TaxEdge and accept the declaration to submit your application.')
+      setFieldErrors({ termsAccepted: 'Please authorize TaxEdge and accept the declaration to submit your application.' })
+      const declarationEl = document.getElementById('home-loan-terms-checkbox')
+      if (declarationEl) {
+        declarationEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        declarationEl.focus()
+      }
+      return
+    }
+
     const isValid = validateCurrentStep()
+    if (!isValid) return
 
-    const executeAdvance = () => nextStep()
-
-    const executeSubmit = async () => {
+    if (currentStep < 5) {
+      nextStep()
+    } else {
       setIsSubmitting(true)
       try {
         const app = await loanApplicationService.submitApplication('home_loan', {
@@ -150,7 +148,7 @@ export const HomeLoan: React.FC = () => {
           details: formData,
         })
         navigate(`/loans/status/${app.referenceNumber}`, {
-          state: { formData, refNumber: app.referenceNumber },
+          state: { formData, refNumber: app.referenceNumber, application: app, loanTitle: 'Home Loan' },
         })
       } catch (err: unknown) {
         setStepError(err instanceof Error ? err.message : 'Submission failed. Please try again.')
@@ -158,15 +156,12 @@ export const HomeLoan: React.FC = () => {
         setIsSubmitting(false)
       }
     }
-
-    const proceed = () => (currentStep < 5 ? executeAdvance() : executeSubmit())
-
-    isValid ? proceed() : undefined
   }
 
   const handleStepClick = (stepNumber: number) => {
     const canGoBack = stepNumber < currentStep
     const canGoNext = stepNumber === currentStep + 1 && validateCurrentStep()
+
 
     canGoBack || canGoNext
       ? (setStepError(null), setFieldErrors({}), goToStep(stepNumber))
@@ -174,11 +169,8 @@ export const HomeLoan: React.FC = () => {
   }
 
   return (
-    <div className="home-loan-page">
-      <LoanPageNavigation
-        title="Home Loan"
-        showBack={false}
-      />
+    <div className="home-loan-page" data-testid="home-loan-page">
+      <h1 className="home-loan-page__title">Home Loan</h1>
 
       <FlowStepper
         steps={HOME_LOAN_STEPS}
@@ -225,31 +217,26 @@ export const HomeLoan: React.FC = () => {
       </div>
 
       <StepActionBar
-        showBack={currentStep > 1}
+        showBack={true}
         onBack={() => {
           setStepError(null)
           setFieldErrors({})
-          prevStep()
+          currentStep > 1 ? prevStep() : navigate('/loans')
         }}
         onNext={handleNext}
         onSaveDraft={() => setIsDraftModalOpen(true)}
         saveDraftLabel="Save Draft & Exit"
         nextLabel={currentStep === 5 ? (isSubmitting ? 'Submitting...' : 'Submit Application') : 'Continue'}
-        nextDisabled={isSubmitting}
+        nextDisabled={isSubmitting || (currentStep === 5 && !formData.termsAccepted)}
+        nextTestId={currentStep === 5 ? 'submit-application-btn' : 'step-continue-btn'}
       />
 
       <DraftConfirmModal
         isOpen={isDraftModalOpen}
         serviceTitle="Home Loan Application"
-        onSaveAndExit={() => {
-          saveDraft()
-          navigate('/loans')
-        }}
-        onDiscardAndExit={() => {
-          discardDraft()
-          navigate('/loans')
-        }}
-        onKeepEditing={() => setIsDraftModalOpen(false)}
+        onSaveAndExit={handleSaveAndExit}
+        onDiscardAndExit={handleDiscardAndExit}
+        onKeepEditing={handleKeepEditing}
       />
     </div>
   )

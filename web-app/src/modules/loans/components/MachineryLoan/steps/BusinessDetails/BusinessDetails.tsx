@@ -1,5 +1,5 @@
 import React from 'react'
-import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
+import { LoanFormSection } from '@modules/loans/shared'
 import type {
   MachineryLoanData,
   MachineryBusinessType,

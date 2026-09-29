@@ -13,7 +13,7 @@
 .passcode-login-form__mobile-field {
   display: flex;
   flex-direction: column;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.65rem;
   width: 100%;
 }
 
@@ -165,7 +165,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.45rem;
 }
 
 .passcode-login-form__forgot-link {
@@ -197,7 +197,7 @@
   justify-content: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.8rem 1.5rem;
+  padding: 0.72rem 1.25rem;
   border-radius: 12px;
   font-size: 1rem;
   font-weight: 600;
@@ -228,7 +228,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin: 0.75rem 0;
+  margin: 0.55rem 0;
   color: #94a3b8;
   font-size: 0.8125rem;
 }
@@ -245,7 +245,7 @@
   justify-content: center;
   gap: 0.65rem;
   width: 100%;
-  padding: 0.75rem 1.25rem;
+  padding: 0.68rem 1.25rem;
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 12px;

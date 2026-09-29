@@ -27,6 +27,10 @@ const DEMO_ROLES: Record<string, { role: UserRole; fullName: string; id: string;
   '9000000005': { role: 'ITR_AGENT', fullName: 'Sneha Kulkarni', id: 'stf_005', department: 'Compliance' },
 }
 
+const DEMO_EXISTING_USERS: Record<string, { fullName: string; passcode: string; email: string }> = {
+  '7008138785': { fullName: 'Sagarika Jena', passcode: '123456', email: 'sagarika@taxedge.in' },
+}
+
 const mockUser = (mobile: string): AuthUser => {
   const clean = mobile.replace(/\D/g, '')
   const demo = DEMO_ROLES[clean]
@@ -44,17 +48,31 @@ const mockUser = (mobile: string): AuthUser => {
   }
 
   const registeredRecord = authStorage.getRegisteredUser(clean)
-  if (registeredRecord?.user) {
+  if (registeredRecord?.user && registeredRecord.isRegistered) {
     return {
       ...registeredRecord.user,
-      isProfileComplete: Boolean(registeredRecord.user.isProfileComplete),
+      isProfileComplete: true,
+    }
+  }
+
+  const demoExisting = DEMO_EXISTING_USERS[clean]
+  if (demoExisting) {
+    return {
+      id: `usr_${clean}`,
+      fullName: demoExisting.fullName,
+      email: demoExisting.email,
+      mobile: clean,
+      role: 'CUSTOMER',
+      customerType: 'INDIVIDUAL',
+      permissions: [],
+      isProfileComplete: true,
     }
   }
 
   return {
-    id: `usr_${Date.now().toString(36)}`,
-    fullName: '',
-    email: '',
+    id: `usr_${clean || Date.now().toString(36)}`,
+    fullName: registeredRecord?.user?.fullName || '',
+    email: registeredRecord?.user?.email || '',
     mobile: clean,
     role: 'CUSTOMER',
     customerType: 'INDIVIDUAL',
@@ -83,7 +101,9 @@ export const authFlowService = {
   isRegistered(mobile: string): boolean {
     const clean = mobile.replace(/\D/g, '')
     if (DEMO_ROLES[clean]) return true
-    return authStorage.isMobileRegistered(clean)
+    if (DEMO_EXISTING_USERS[clean]) return true
+    const record = authStorage.getRegisteredUser(clean)
+    return Boolean(record && record.isRegistered && record.passcode)
   },
 
   async login(payload: LoginPayload): Promise<AuthSession> {
@@ -109,23 +129,39 @@ export const authFlowService = {
       }
 
       const record = authStorage.getRegisteredUser(clean)
-      if (!record || !record.isRegistered) {
+      const expectedPasscode = record?.passcode || DEMO_EXISTING_USERS[clean]?.passcode
+
+      if (!expectedPasscode || (!record?.isRegistered && !DEMO_EXISTING_USERS[clean])) {
         throw new Error('No registered account found for this mobile number.')
       }
 
-      if (record.passcode !== payload.passcode && payload.passcode !== '123456') {
-        throw new Error('Incorrect passcode. Please try again.')
+      if (payload.passcode !== expectedPasscode) {
+        throw new Error('Incorrect passcode. Please enter the passcode you created during registration.')
+      }
+
+      const userProfile: AuthUser = record?.user ? {
+        ...record.user,
+        isProfileComplete: true,
+      } : {
+        id: `usr_${clean}`,
+        fullName: DEMO_EXISTING_USERS[clean]?.fullName || 'TaxEdge User',
+        email: DEMO_EXISTING_USERS[clean]?.email || 'user@taxedge.in',
+        mobile: clean,
+        role: 'CUSTOMER',
+        customerType: 'INDIVIDUAL',
+        permissions: [],
+        isProfileComplete: true,
       }
 
       const session: AuthSession = {
-        user: record.user,
+        user: userProfile,
         tokens: {
-          accessToken: `tok_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
-          refreshToken: `ref_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+          accessToken: `tok_${clean}_${Date.now().toString(36)}`,
+          refreshToken: `ref_${clean}_${Date.now().toString(36)}`,
         },
       }
       authStorage.setTokens(session.tokens)
-      authStorage.setUser(record.user)
+      authStorage.setUser(userProfile)
       return session
     }
 
@@ -136,7 +172,7 @@ export const authFlowService = {
     const clean = payload.mobile.replace(/\D/g, '')
     const step1User: AuthUser = {
       ...payload.user,
-      isProfileComplete: false,
+      isProfileComplete: true,
     }
     authStorage.saveRegisteredUser({
       mobile: clean,
@@ -162,24 +198,9 @@ export const authFlowService = {
         user: updatedUser,
       })
       authStorage.setUser(updatedUser)
-    } else {
-      const currentUser = authStorage.getUser()
-      if (currentUser) {
-        const completedUser = {
-          ...currentUser,
-          customerType: customerType || currentUser.customerType,
-          isProfileComplete: true,
-        }
-        authStorage.saveRegisteredUser({
-          mobile: clean,
-          passcode: '123456',
-          isRegistered: true,
-          user: completedUser,
-        })
-        authStorage.setUser(completedUser)
-      }
     }
   },
+
 
   async sendOtp(mobile: string): Promise<void> {
     if (env.enableMocks) {

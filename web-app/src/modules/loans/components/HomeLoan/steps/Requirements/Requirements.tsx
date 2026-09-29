@@ -1,5 +1,5 @@
 import React from 'react'
-import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
+import { LoanFormSection } from '@modules/loans/shared'
 import type { HomeLoanData } from '../../../../types/homeLoan.types'
 import { loanInputHelpers } from '../../../../validation/homeLoanValidation'
 import './Requirements.css'
@@ -46,11 +46,6 @@ const CONSTRUCTION_STAGES = [
 ]
 
 export const Requirements: React.FC<RequirementsProps> = ({ data, onChange, errors = {} }) => {
-  const handleLoanAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
-    onChange({ loanAmount: formatted })
-  }
-
   const handlePropertyCostChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
     onChange({ estimatedPropertyCost: formatted })
@@ -68,38 +63,26 @@ export const Requirements: React.FC<RequirementsProps> = ({ data, onChange, erro
           </svg>
         }
         title="Required Home Loan Amount"
-        subtitle="Enter your required loan amount or select one of the quick presets below."
+        subtitle="Select your required loan amount from the dropdown below."
       >
         <div className="home-loan-form-group">
-          <label htmlFor="req-amount-input" className="home-loan-label">
-            Amount (₹) <span className="home-loan-label__req">*</span>
+          <label htmlFor="req-amount-select" className="home-loan-label">
+            Amount <span className="home-loan-label__req">*</span>
           </label>
-          <input
-            id="req-amount-input"
-            type="text"
-            inputMode="numeric"
-            className={`home-loan-input ${errors.loanAmount ? 'home-loan-input--error' : ''}`}
-            placeholder="Enter loan amount in ₹ (e.g. 50,00,000)"
-            value={data.loanAmount ? loanInputHelpers.formatCurrencyString(String(data.loanAmount)) : ''}
-            onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
-            onChange={handleLoanAmountChange}
-          />
-          <div className="home-loan-amount-presets">
-            {AMOUNT_PRESETS.map((p) => {
-              const currentNum = Number(String(data.loanAmount || '').replace(/\D/g, ''))
-              const isSelected = currentNum === p.value
-              return (
-                <button
-                  key={p.value}
-                  type="button"
-                  className={`home-loan-amount-pill ${isSelected ? 'home-loan-amount-pill--active' : ''}`}
-                  onClick={() => onChange({ loanAmount: p.value })}
-                >
-                  {p.label}
-                </button>
-              )
-            })}
-          </div>
+          <select
+            id="req-amount-select"
+            className={`home-loan-select ${errors.loanAmount ? 'home-loan-select--error' : ''}`}
+            value={Number(String(data.loanAmount || '').replace(/\D/g, '')) || ''}
+            onChange={(e) => {
+              const val = e.target.value
+              onChange({ loanAmount: val ? Number(val) : '' as unknown as number })
+            }}
+          >
+            <option value="">Select loan amount...</option>
+            {AMOUNT_PRESETS.map((p) => (
+              <option key={p.value} value={p.value}>{p.label}</option>
+            ))}
+          </select>
           {errors.loanAmount && (
             <span className="home-loan-field-error" role="alert">{errors.loanAmount}</span>
           )}
@@ -126,7 +109,13 @@ export const Requirements: React.FC<RequirementsProps> = ({ data, onChange, erro
             id="req-intent-select"
             className={`home-loan-select ${errors.propertyIntent ? 'home-loan-select--error' : ''}`}
             value={data.propertyIntent || ''}
-            onChange={(e) => onChange({ propertyIntent: e.target.value })}
+            onChange={(e) => {
+              const val = e.target.value
+              onChange({
+                propertyIntent: val,
+                ...(val !== 'Others' ? { customPropertyIntent: '' } : {}),
+              })
+            }}
           >
             <option value="" disabled>Select property intent / purpose</option>
             {PROPERTY_INTENTS.map((intent) => (
@@ -139,6 +128,24 @@ export const Requirements: React.FC<RequirementsProps> = ({ data, onChange, erro
             <span className="home-loan-field-error" role="alert">{errors.propertyIntent}</span>
           )}
         </div>
+        {data.propertyIntent === 'Others' && (
+          <div className="home-loan-form-group">
+            <label htmlFor="req-custom-intent" className="home-loan-label">
+              Specify Custom Property Intent <span className="home-loan-label__req">*</span>
+            </label>
+            <input
+              id="req-custom-intent"
+              type="text"
+              className={`home-loan-input ${errors.customPropertyIntent ? 'home-loan-input--error' : ''}`}
+              placeholder="Enter custom property intent"
+              value={data.customPropertyIntent || ''}
+              onChange={(e) => onChange({ customPropertyIntent: e.target.value })}
+            />
+            {errors.customPropertyIntent && (
+              <span className="home-loan-field-error" role="alert">{errors.customPropertyIntent}</span>
+            )}
+          </div>
+        )}
       </LoanFormSection>
 
       {/* 3. Repayment Tenure */}
@@ -152,24 +159,25 @@ export const Requirements: React.FC<RequirementsProps> = ({ data, onChange, erro
         title="Repayment Tenure"
         subtitle="Select your intended loan tenure. Longer tenure lowers monthly EMI burden."
       >
-        <div className="home-loan-pill-grid">
-          {TENURE_PRESETS.map((t) => {
-            const isSelected = data.repaymentTenureYears === t.value
-            return (
-              <button
-                key={t.value}
-                type="button"
-                className={`home-loan-pill ${isSelected ? 'home-loan-pill--active' : ''}`}
-                onClick={() => onChange({ repaymentTenureYears: t.value })}
-              >
-                {t.label}
-              </button>
-            )
-          })}
+        <div className="home-loan-form-group">
+          <label htmlFor="req-tenure-select" className="home-loan-label">
+            Select Tenure <span className="home-loan-label__req">*</span>
+          </label>
+          <select
+            id="req-tenure-select"
+            className={`home-loan-select ${errors.repaymentTenureYears ? 'home-loan-select--error' : ''}`}
+            value={data.repaymentTenureYears || ''}
+            onChange={(e) => onChange({ repaymentTenureYears: Number(e.target.value) })}
+          >
+            <option value="">Select repayment tenure...</option>
+            {TENURE_PRESETS.map((t) => (
+              <option key={t.value} value={t.value}>{t.label}</option>
+            ))}
+          </select>
+          {errors.repaymentTenureYears && (
+            <span className="home-loan-field-error" role="alert">{errors.repaymentTenureYears}</span>
+          )}
         </div>
-        {errors.repaymentTenureYears && (
-          <span className="home-loan-field-error" role="alert">{errors.repaymentTenureYears}</span>
-        )}
       </LoanFormSection>
 
       {/* 4. Property Details & Valuation */}

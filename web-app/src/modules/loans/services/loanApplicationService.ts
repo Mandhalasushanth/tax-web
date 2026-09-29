@@ -66,35 +66,79 @@ export const loanApplicationService = {
     })
 
     const rawForm = (formData || {}) as Record<string, unknown>
+    const innerDetails = (rawForm.details as Record<string, unknown>) || rawForm
 
     const loanAmountNum =
       Number(
         String(
+          rawForm.requestedAmount ||
           rawForm.loanAmount ||
-            rawForm.requiredLoanAmount ||
-            ''
+          innerDetails.loanAmount ||
+          innerDetails.requiredLoanAmount ||
+          innerDetails.requiredCreditLimit ||
+          ''
         ).replace(/\D/g, '')
-      ) || 0
-    const tenureMonths = String(rawForm.preferredTenureMonths || '')
+      ) || 1500000
+
     const tenureYearsNum =
+      Number(innerDetails.repaymentTenureYears) ||
       Number(rawForm.repaymentTenureYears) ||
-      (tenureMonths ? Math.round(Number(tenureMonths) / 12) : 0)
+      (rawForm.tenureMonths ? Math.round(Number(rawForm.tenureMonths) / 12) : 0) ||
+      (innerDetails.repaymentTenure ? (String(innerDetails.repaymentTenure).match(/\d+/) ? Number(String(innerDetails.repaymentTenure).match(/\d+/)![0]) : 0) : 0)
 
-    const equipmentVal = String(rawForm.purposeOfLoan || rawForm.propertyIntent || '')
+    const tenureMonthsNum =
+      Number(rawForm.tenureMonths) ||
+      (tenureYearsNum > 0 ? tenureYearsNum * 12 : 0) ||
+      Number(innerDetails.preferredTenureMonths) ||
+      (String(innerDetails.repaymentTenure || '').match(/\d+/) ? Number(String(innerDetails.repaymentTenure).match(/\d+/)![0]) : 0)
 
-    const disbursementBankVal = String(
-      rawForm.primaryOperatingBankName || rawForm.bankName || ''
+    const formattedTenure =
+      tenureYearsNum > 0
+        ? `${tenureYearsNum} Years (${tenureMonthsNum > 0 ? tenureMonthsNum : tenureYearsNum * 12} Mos)`
+        : tenureMonthsNum > 0
+        ? `${tenureMonthsNum} Months`
+        : '20 Years'
+
+    const equipmentVal = String(
+      innerDetails.customPropertyIntent ||
+      innerDetails.propertyIntent ||
+      innerDetails.vehicleModel ||
+      innerDetails.vehicleCategory ||
+      innerDetails.machineryType ||
+      innerDetails.machineryName ||
+      innerDetails.creditPurpose ||
+      innerDetails.preferredFacilityType ||
+      innerDetails.projectSector ||
+      innerDetails.projectName ||
+      innerDetails.msmePurpose ||
+      innerDetails.purposeOfLoan ||
+      rawForm.title ||
+      'General Purpose'
     )
+
+    const bankName = String(
+      innerDetails.bankName ||
+      innerDetails.operatingBank ||
+      innerDetails.primaryOperatingBankName ||
+      innerDetails.currentAccountBankName ||
+      rawForm.disbursementBank ||
+      'Primary Bank Account'
+    )
+    const accNumber = String(innerDetails.accountNumber || '')
+    const disbursementBankVal =
+      accNumber && accNumber.length >= 4
+        ? `${bankName} (••• ${accNumber.slice(-4)})`
+        : bankName
 
     const application: LoanApplicationBase = {
       id: refNumber,
       refNumber,
       referenceNumber: refNumber,
       loanType,
-      loanCategory: 'Capital & Financing',
+      loanCategory: (rawForm.category as string) || 'Capital & Financing',
       loanAmount: loanAmountNum,
       tenureYears: tenureYearsNum,
-      tenureMonths: `${tenureMonths} Months`,
+      tenureMonths: formattedTenure,
       equipment: equipmentVal,
       disbursementBank: disbursementBankVal,
       loanAgent: 'TaxEdge Loan Agent',
@@ -102,7 +146,7 @@ export const loanApplicationService = {
       statusLabel: 'Documents Received',
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
-      applicationData: rawForm,
+      applicationData: { ...innerDetails, ...rawForm },
       milestones: [
         {
           id: 'm1',

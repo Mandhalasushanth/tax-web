@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
+import { LoanFormSection } from '@modules/loans/shared'
 import type {
   VehicleLoanData,
   VehicleCategory,
@@ -89,6 +89,61 @@ export const AMOUNT_PRESETS = [
   { label: '₹20 Lakhs', value: 2000000 },
 ]
 
+const ModalSheet: React.FC<{
+  title: string
+  onClose: () => void
+  children: React.ReactNode
+}> = ({ title, onClose, children }) => (
+  <div className="vehicle-modal-overlay" onClick={onClose}>
+    <div className="vehicle-modal-sheet" onClick={(e) => e.stopPropagation()}>
+      <div className="vehicle-modal-header">
+        <h3 className="vehicle-modal-title">{title}</h3>
+        <button type="button" className="vehicle-modal-close-btn" onClick={onClose}>
+          ✕
+        </button>
+      </div>
+      <div className="vehicle-modal-list">{children}</div>
+    </div>
+  </div>
+)
+
+const ModalItem: React.FC<{
+  label: string
+  isSelected: boolean
+  onClick: () => void
+}> = ({ label, isSelected, onClick }) => (
+  <button
+    type="button"
+    className={`vehicle-modal-item ${isSelected ? 'vehicle-modal-item--selected' : ''}`}
+    onClick={onClick}
+  >
+    <span>{label}</span>
+    {isSelected && (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="vehicle-modal-check-icon">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    )}
+  </button>
+)
+
+const SelectTrigger: React.FC<{
+  value?: string
+  placeholder: string
+  hasError?: boolean
+  onClick: () => void
+}> = ({ value, placeholder, hasError, onClick }) => (
+  <button
+    type="button"
+    className={`vehicle-loan-custom-select ${!value ? 'vehicle-loan-custom-select--placeholder' : ''} ${hasError ? 'vehicle-loan-custom-select--error' : ''}`}
+    onClick={onClick}
+  >
+    <span>{value || placeholder}</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="vehicle-loan-select-arrow">
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  </button>
+)
+
 export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
   data,
   onChange,
@@ -96,20 +151,11 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
 }) => {
   const [activeModal, setActiveModal] = useState<'category' | 'tenure' | 'makeModel' | null>(null)
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
-    onChange({ loanAmount: formatted })
+  const handleCurrencyInput = (field: keyof VehicleLoanData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange({ [field]: loanInputHelpers.formatCurrencyString(e.target.value) })
   }
 
-  const handleOnRoadPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
-    onChange({ onRoadPrice: formatted })
-  }
-
-  const handleDownPaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
-    onChange({ downPayment: formatted })
-  }
+  const currentAmountNum = Number(String(data.loanAmount || '').replace(/\D/g, ''))
 
   return (
     <div className="vehicle-loan-step">
@@ -137,27 +183,21 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
             placeholder="Enter required loan amount (₹)"
             value={data.loanAmount ? loanInputHelpers.formatCurrencyString(String(data.loanAmount)) : ''}
             onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
-            onChange={handleAmountChange}
+            onChange={handleCurrencyInput('loanAmount')}
           />
           <div className="vehicle-loan-amount-presets">
-            {AMOUNT_PRESETS.map((p) => {
-              const currentNum = Number(String(data.loanAmount || '').replace(/\D/g, ''))
-              const isSelected = currentNum === p.value
-              return (
-                <button
-                  key={p.value}
-                  type="button"
-                  className={`vehicle-loan-pill-btn ${isSelected ? 'vehicle-loan-pill-btn--active' : ''}`}
-                  onClick={() => onChange({ loanAmount: p.value })}
-                >
-                  {p.label}
-                </button>
-              )
-            })}
+            {AMOUNT_PRESETS.map((p) => (
+              <button
+                key={p.value}
+                type="button"
+                className={`vehicle-loan-pill-btn ${currentAmountNum === p.value ? 'vehicle-loan-pill-btn--active' : ''}`}
+                onClick={() => onChange({ loanAmount: p.value })}
+              >
+                {p.label}
+              </button>
+            ))}
           </div>
-          {errors.loanAmount && (
-            <span className="vehicle-loan-field-error" role="alert">{errors.loanAmount}</span>
-          )}
+          {errors.loanAmount && <span className="vehicle-loan-field-error" role="alert">{errors.loanAmount}</span>}
         </div>
       </LoanFormSection>
 
@@ -178,19 +218,13 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
           <label className="vehicle-loan-label">
             Select Category / Purpose <span className="vehicle-loan-label__req">*</span>
           </label>
-          <button
-            type="button"
-            className={`vehicle-loan-custom-select ${!data.vehicleCategory ? 'vehicle-loan-custom-select--placeholder' : ''} ${errors.vehicleCategory ? 'vehicle-loan-custom-select--error' : ''}`}
+          <SelectTrigger
+            value={data.vehicleCategory}
+            placeholder="Select Vehicle Category / Purpose..."
+            hasError={Boolean(errors.vehicleCategory)}
             onClick={() => setActiveModal('category')}
-          >
-            <span>{data.vehicleCategory || 'Select Vehicle Category / Purpose...'}</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="vehicle-loan-select-arrow">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
-          {errors.vehicleCategory && (
-            <span className="vehicle-loan-field-error" role="alert">{errors.vehicleCategory}</span>
-          )}
+          />
+          {errors.vehicleCategory && <span className="vehicle-loan-field-error" role="alert">{errors.vehicleCategory}</span>}
         </div>
       </LoanFormSection>
 
@@ -209,34 +243,25 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
           <label className="vehicle-loan-label">
             Select Tenure <span className="vehicle-loan-label__req">*</span>
           </label>
-          <button
-            type="button"
-            className={`vehicle-loan-custom-select ${!data.repaymentTenure ? 'vehicle-loan-custom-select--placeholder' : ''} ${errors.repaymentTenure ? 'vehicle-loan-custom-select--error' : ''}`}
+          <SelectTrigger
+            value={data.repaymentTenure}
+            placeholder="Select Repayment Tenure..."
+            hasError={Boolean(errors.repaymentTenure)}
             onClick={() => setActiveModal('tenure')}
-          >
-            <span>{data.repaymentTenure || 'Select Repayment Tenure...'}</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="vehicle-loan-select-arrow">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
+          />
           <div className="vehicle-loan-pill-grid">
-            {QUICK_TENURE_PILLS.map((t) => {
-              const isSelected = data.repaymentTenure === t.value
-              return (
-                <button
-                  key={t.value}
-                  type="button"
-                  className={`vehicle-loan-pill-btn ${isSelected ? 'vehicle-loan-pill-btn--active' : ''}`}
-                  onClick={() => onChange({ repaymentTenure: t.value })}
-                >
-                  {t.label}
-                </button>
-              )
-            })}
+            {QUICK_TENURE_PILLS.map((t) => (
+              <button
+                key={t.value}
+                type="button"
+                className={`vehicle-loan-pill-btn ${data.repaymentTenure === t.value ? 'vehicle-loan-pill-btn--active' : ''}`}
+                onClick={() => onChange({ repaymentTenure: t.value })}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
-          {errors.repaymentTenure && (
-            <span className="vehicle-loan-field-error" role="alert">{errors.repaymentTenure}</span>
-          )}
+          {errors.repaymentTenure && <span className="vehicle-loan-field-error" role="alert">{errors.repaymentTenure}</span>}
         </div>
       </LoanFormSection>
 
@@ -251,55 +276,40 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
         title="Vehicle Details & Valuation"
         subtitle="Vehicle condition, model selection, estimated on-road price, and margin contribution."
       >
-        {/* Vehicle Condition */}
         <div className="vehicle-loan-form-group">
           <label className="vehicle-loan-label">
             Vehicle Condition <span className="vehicle-loan-label__req">*</span>
           </label>
           <div className="vehicle-loan-condition-toggle">
-            <button
-              type="button"
-              className={`vehicle-loan-condition-btn ${data.vehicleCondition === 'New Vehicle' ? 'vehicle-loan-condition-btn--active' : ''}`}
-              onClick={() => onChange({ vehicleCondition: 'New Vehicle' })}
-            >
-              New Vehicle
-            </button>
-            <button
-              type="button"
-              className={`vehicle-loan-condition-btn ${data.vehicleCondition === 'Pre-Owned / Used Vehicle' ? 'vehicle-loan-condition-btn--active' : ''}`}
-              onClick={() => onChange({ vehicleCondition: 'Pre-Owned / Used Vehicle' })}
-            >
-              Pre-Owned / Used Vehicle
-            </button>
+            {(['New Vehicle', 'Pre-Owned / Used Vehicle'] as const).map((cond) => (
+              <button
+                key={cond}
+                type="button"
+                className={`vehicle-loan-condition-btn ${data.vehicleCondition === cond ? 'vehicle-loan-condition-btn--active' : ''}`}
+                onClick={() => onChange({ vehicleCondition: cond })}
+              >
+                {cond}
+              </button>
+            ))}
           </div>
-          {errors.vehicleCondition && (
-            <span className="vehicle-loan-field-error" role="alert">{errors.vehicleCondition}</span>
-          )}
+          {errors.vehicleCondition && <span className="vehicle-loan-field-error" role="alert">{errors.vehicleCondition}</span>}
         </div>
 
-        {/* Vehicle Make & Model Dropdown */}
         <div className="vehicle-loan-form-group">
           <label className="vehicle-loan-label">
             Vehicle Make & Model <span className="vehicle-loan-label__req">*</span>
           </label>
-          <button
-            type="button"
-            className={`vehicle-loan-custom-select ${!data.vehicleMakeModel ? 'vehicle-loan-custom-select--placeholder' : ''} ${errors.vehicleMakeModel ? 'vehicle-loan-custom-select--error' : ''}`}
+          <SelectTrigger
+            value={data.vehicleMakeModel}
+            placeholder="Select Vehicle Make & Model..."
+            hasError={Boolean(errors.vehicleMakeModel)}
             onClick={() => setActiveModal('makeModel')}
-          >
-            <span>{data.vehicleMakeModel || 'Select Vehicle Make & Model...'}</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="vehicle-loan-select-arrow">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
-          {errors.vehicleMakeModel && (
-            <span className="vehicle-loan-field-error" role="alert">{errors.vehicleMakeModel}</span>
-          )}
+          />
+          {errors.vehicleMakeModel && <span className="vehicle-loan-field-error" role="alert">{errors.vehicleMakeModel}</span>}
         </div>
 
-        {/* If user selected custom vehicle model */}
         {data.vehicleMakeModel === 'Other (Specify Custom Vehicle Model)' && (
-          <div className="vehicle-loan-form-group" style={{ marginTop: '0.5rem' }}>
+          <div className="vehicle-loan-form-group vehicle-loan-form-group--mt-xs">
             <label htmlFor="custom-vehicle-model" className="vehicle-loan-label">
               Specify Custom Vehicle Make & Model <span className="vehicle-loan-label__req">*</span>
             </label>
@@ -314,7 +324,6 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
           </div>
         )}
 
-        {/* Estimated On-Road Price / Valuation */}
         <div className="vehicle-loan-form-group">
           <label htmlFor="vehicle-on-road-price" className="vehicle-loan-label">
             Estimated On-Road Price / Valuation (₹) <span className="vehicle-loan-label__req">*</span>
@@ -327,14 +336,11 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
             placeholder="Enter total on-road price / valuation (₹)"
             value={data.onRoadPrice ? loanInputHelpers.formatCurrencyString(String(data.onRoadPrice)) : ''}
             onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
-            onChange={handleOnRoadPriceChange}
+            onChange={handleCurrencyInput('onRoadPrice')}
           />
-          {errors.onRoadPrice && (
-            <span className="vehicle-loan-field-error" role="alert">{errors.onRoadPrice}</span>
-          )}
+          {errors.onRoadPrice && <span className="vehicle-loan-field-error" role="alert">{errors.onRoadPrice}</span>}
         </div>
 
-        {/* Expected Down Payment / Margin Money */}
         <div className="vehicle-loan-form-group">
           <label htmlFor="vehicle-down-payment" className="vehicle-loan-label">
             Expected Down Payment / Margin Money (₹) <span className="vehicle-loan-label__req">*</span>
@@ -347,160 +353,72 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
             placeholder="Enter expected down payment / margin amount (₹)"
             value={data.downPayment ? loanInputHelpers.formatCurrencyString(String(data.downPayment)) : ''}
             onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
-            onChange={handleDownPaymentChange}
+            onChange={handleCurrencyInput('downPayment')}
           />
-          {errors.downPayment && (
-            <span className="vehicle-loan-field-error" role="alert">{errors.downPayment}</span>
-          )}
+          {errors.downPayment && <span className="vehicle-loan-field-error" role="alert">{errors.downPayment}</span>}
         </div>
       </LoanFormSection>
 
-      {/* MODAL BOTTOM SHEETS */}
-      {/* 1. Category Modal */}
+      {/* Modals */}
       {activeModal === 'category' && (
-        <div className="vehicle-modal-overlay" onClick={() => setActiveModal(null)}>
-          <div className="vehicle-modal-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="vehicle-modal-header">
-              <h3 className="vehicle-modal-title">Select Vehicle Category / Purpose</h3>
-              <button
-                type="button"
-                className="vehicle-modal-close-btn"
-                onClick={() => setActiveModal(null)}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="vehicle-modal-list">
-              {VEHICLE_CATEGORY_OPTIONS.map((cat) => {
-                const isSelected = data.vehicleCategory === cat
-                return (
-                  <button
-                    key={cat}
-                    type="button"
-                    className={`vehicle-modal-item ${isSelected ? 'vehicle-modal-item--selected' : ''}`}
-                    onClick={() => {
-                      onChange({ vehicleCategory: cat })
-                      setActiveModal(null)
-                    }}
-                  >
-                    <span>{cat}</span>
-                    {isSelected && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="vehicle-modal-check-icon">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </div>
+        <ModalSheet title="Select Vehicle Category / Purpose" onClose={() => setActiveModal(null)}>
+          {VEHICLE_CATEGORY_OPTIONS.map((cat) => (
+            <ModalItem
+              key={cat}
+              label={cat}
+              isSelected={data.vehicleCategory === cat}
+              onClick={() => {
+                onChange({ vehicleCategory: cat })
+                setActiveModal(null)
+              }}
+            />
+          ))}
+        </ModalSheet>
       )}
 
-      {/* 2. Tenure Modal */}
       {activeModal === 'tenure' && (
-        <div className="vehicle-modal-overlay" onClick={() => setActiveModal(null)}>
-          <div className="vehicle-modal-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="vehicle-modal-header">
-              <h3 className="vehicle-modal-title">Select Repayment Tenure</h3>
-              <button
-                type="button"
-                className="vehicle-modal-close-btn"
-                onClick={() => setActiveModal(null)}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="vehicle-modal-list">
-              <div className="vehicle-modal-group-label">BELOW 1 YEAR (SHORT-TERM)</div>
-              {SHORT_TERM_TENURE_OPTIONS.map((t) => {
-                const isSelected = data.repaymentTenure === t.value
-                return (
-                  <button
-                    key={t.value}
-                    type="button"
-                    className={`vehicle-modal-item ${isSelected ? 'vehicle-modal-item--selected' : ''}`}
-                    onClick={() => {
-                      onChange({ repaymentTenure: t.value })
-                      setActiveModal(null)
-                    }}
-                  >
-                    <span>{t.value}</span>
-                    {isSelected && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="vehicle-modal-check-icon">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </button>
-                )
-              })}
-
-              <div className="vehicle-modal-group-label" style={{ marginTop: '0.75rem' }}>1 YEAR & ABOVE</div>
-              {LONG_TERM_TENURE_OPTIONS.map((t) => {
-                const isSelected = data.repaymentTenure === t.value
-                return (
-                  <button
-                    key={t.value}
-                    type="button"
-                    className={`vehicle-modal-item ${isSelected ? 'vehicle-modal-item--selected' : ''}`}
-                    onClick={() => {
-                      onChange({ repaymentTenure: t.value })
-                      setActiveModal(null)
-                    }}
-                  >
-                    <span>{t.value}</span>
-                    {isSelected && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="vehicle-modal-check-icon">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </div>
+        <ModalSheet title="Select Repayment Tenure" onClose={() => setActiveModal(null)}>
+          <div className="vehicle-modal-group-label">BELOW 1 YEAR (SHORT-TERM)</div>
+          {SHORT_TERM_TENURE_OPTIONS.map((t) => (
+            <ModalItem
+              key={t.value}
+              label={t.value}
+              isSelected={data.repaymentTenure === t.value}
+              onClick={() => {
+                onChange({ repaymentTenure: t.value })
+                setActiveModal(null)
+              }}
+            />
+          ))}
+          <div className="vehicle-modal-group-label vehicle-modal-group-label--mt-sm">1 YEAR & ABOVE</div>
+          {LONG_TERM_TENURE_OPTIONS.map((t) => (
+            <ModalItem
+              key={t.value}
+              label={t.value}
+              isSelected={data.repaymentTenure === t.value}
+              onClick={() => {
+                onChange({ repaymentTenure: t.value })
+                setActiveModal(null)
+              }}
+            />
+          ))}
+        </ModalSheet>
       )}
 
-      {/* 3. Make & Model Modal */}
       {activeModal === 'makeModel' && (
-        <div className="vehicle-modal-overlay" onClick={() => setActiveModal(null)}>
-          <div className="vehicle-modal-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="vehicle-modal-header">
-              <h3 className="vehicle-modal-title">Select Vehicle Make & Model</h3>
-              <button
-                type="button"
-                className="vehicle-modal-close-btn"
-                onClick={() => setActiveModal(null)}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="vehicle-modal-list">
-              {VEHICLE_MAKE_MODEL_OPTIONS.map((model) => {
-                const isSelected = data.vehicleMakeModel === model
-                return (
-                  <button
-                    key={model}
-                    type="button"
-                    className={`vehicle-modal-item ${isSelected ? 'vehicle-modal-item--selected' : ''}`}
-                    onClick={() => {
-                      onChange({ vehicleMakeModel: model })
-                      setActiveModal(null)
-                    }}
-                  >
-                    <span>{model}</span>
-                    {isSelected && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="vehicle-modal-check-icon">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </div>
+        <ModalSheet title="Select Vehicle Make & Model" onClose={() => setActiveModal(null)}>
+          {VEHICLE_MAKE_MODEL_OPTIONS.map((model) => (
+            <ModalItem
+              key={model}
+              label={model}
+              isSelected={data.vehicleMakeModel === model}
+              onClick={() => {
+                onChange({ vehicleMakeModel: model })
+                setActiveModal(null)
+              }}
+            />
+          ))}
+        </ModalSheet>
       )}
     </div>
   )

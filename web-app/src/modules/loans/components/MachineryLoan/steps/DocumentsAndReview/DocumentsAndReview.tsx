@@ -1,7 +1,6 @@
 import React from 'react'
-import { LoanDocumentSection } from '../../../../components/LoanDocumentSection/LoanDocumentSection'
-import { LoanReviewSection } from '../../../../components/LoanReviewSection/LoanReviewSection'
-import { loanDocumentService } from '../../../../documents/loanDocumentService'
+import { LoanDocumentSection, LoanReviewSection } from '@modules/loans/shared'
+import { loanDocumentService, createDocDef } from '../../../../documents'
 import type { LoanDocumentDefinition } from '../../../../documents/loanDocument.types'
 import type { MachineryLoanData } from '../../../../types/machineryLoan.types'
 import './DocumentsAndReview.css'
@@ -15,136 +14,64 @@ export interface DocumentsAndReviewProps {
 
 const SECTION_ICON_IDENTITY = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="machinery-loan-docs__section-icon">
-    <rect width="20" height="14" x="2" y="5" rx="2" />
-    <line x1="2" y1="10" x2="22" y2="10" />
+    <rect width="20" height="14" x="2" y="5" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
   </svg>
 )
 
 const SECTION_ICON_BANKING = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="machinery-loan-docs__section-icon">
-    <rect width="20" height="12" x="2" y="6" rx="2" />
-    <circle cx="12" cy="12" r="2" />
-    <path d="M6 12h.01M18 12h.01" />
+    <rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" />
   </svg>
 )
 
 const SECTION_ICON_BUSINESS = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="machinery-loan-docs__section-icon">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-    <polyline points="14 2 14 8 20 8" />
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
   </svg>
 )
 
 const IDENTITY_DOCS: LoanDocumentDefinition[] = [
-  {
-    id: 'pan_card',
-    title: 'PAN Card',
-    subtitle: 'Entity or Primary Applicant PAN Card copy',
-    isRequired: true,
-    category: 'identity',
-    iconBg: '#e0f2fe',
-    iconColor: '#0284c7',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect width="20" height="14" x="2" y="5" rx="2" />
-        <line x1="2" y1="10" x2="22" y2="10" />
-      </svg>
-    ),
-  },
-  {
-    id: 'aadhaar_card',
-    title: 'Aadhaar / Accepted KYC',
-    subtitle: 'Aadhaar Card or accepted KYC document of proprietor/applicant',
-    isRequired: true,
-    category: 'identity',
-    iconBg: '#f3e8ff',
-    iconColor: '#9333ea',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      </svg>
-    ),
-  },
+  createDocDef('pan_card', 'PAN Card', 'Entity or Primary Applicant PAN Card copy', 'identity', (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="14" x="2" y="5" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
+    </svg>
+  ), true, { iconBg: '#e0f2fe', iconColor: '#0284c7' }),
+  createDocDef('aadhaar_card', 'Aadhaar / Accepted KYC', 'Aadhaar Card or accepted KYC document of proprietor/applicant', 'identity', (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  ), true, { iconBg: '#f3e8ff', iconColor: '#9333ea' }),
 ]
 
 const INCOME_BANKING_DOCS: LoanDocumentDefinition[] = [
-  {
-    id: 'bank_statement',
-    title: 'Bank Statement',
-    subtitle: 'Last 6 to 12 months primary business current account statement',
-    isRequired: true,
-    category: 'income',
-    iconBg: '#fef3c7',
-    iconColor: '#d97706',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect width="20" height="12" x="2" y="6" rx="2" />
-        <circle cx="12" cy="12" r="2" />
-      </svg>
-    ),
-  },
+  createDocDef('bank_statement', 'Bank Statement', 'Last 6 to 12 months primary business current account statement', 'income', (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" />
+    </svg>
+  ), true, { iconBg: '#fef3c7', iconColor: '#d97706' }),
 ]
 
 const BUSINESS_TAX_DOCS: LoanDocumentDefinition[] = [
-  {
-    id: 'machinery_quotation',
-    title: 'Machinery Quotation',
-    subtitle: 'Proforma invoice or official quotation from OEM / Machinery supplier',
-    isRequired: true,
-    category: 'property',
-    iconBg: '#dcfce7',
-    iconColor: '#16a34a',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-      </svg>
-    ),
-  },
-  {
-    id: 'gst_certificate',
-    title: 'GST Certificate / Returns',
-    subtitle: 'GST REG-06 or GSTR-3B return copy (if GST registered)',
-    isRequired: false,
-    category: 'property',
-    iconBg: '#e0f2fe',
-    iconColor: '#0284c7',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="8" r="6" />
-        <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
-      </svg>
-    ),
-  },
-  {
-    id: 'business_reg_proof',
-    title: 'Business Registration Proof',
-    subtitle: 'Partnership Deed, MOA/COI, Trade License, or shop establishment proof',
-    isRequired: false,
-    category: 'property',
-    iconBg: '#fae8ff',
-    iconColor: '#c026d3',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect width="20" height="14" x="2" y="7" rx="2" />
-        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-      </svg>
-    ),
-  },
-  {
-    id: 'udyam_certificate',
-    title: 'Udyam Certificate',
-    subtitle: 'MSME registration certificate (optional)',
-    isRequired: false,
-    category: 'property',
-    iconBg: '#fef3c7',
-    iconColor: '#d97706',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      </svg>
-    ),
-  },
+  createDocDef('machinery_quotation', 'Machinery Quotation', 'Proforma invoice or official quotation from OEM / Machinery supplier', 'property', (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+    </svg>
+  ), true, { iconBg: '#dcfce7', iconColor: '#16a34a' }),
+  createDocDef('gst_certificate', 'GST Certificate / Returns', 'GST REG-06 or GSTR-3B return copy (if GST registered)', 'property', (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="6" /><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+    </svg>
+  ), false, { iconBg: '#e0f2fe', iconColor: '#0284c7' }),
+  createDocDef('business_reg_proof', 'Business Registration Proof', 'Partnership Deed, MOA/COI, Trade License, or shop establishment proof', 'property', (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="14" x="2" y="7" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+    </svg>
+  ), false, { iconBg: '#fae8ff', iconColor: '#c026d3' }),
+  createDocDef('udyam_certificate', 'Udyam Certificate', 'MSME registration certificate (optional)', 'property', (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  ), false, { iconBg: '#fef3c7', iconColor: '#d97706' }),
 ]
 
 const ALL_REQUIRED_DOC_IDS = ['pan_card', 'aadhaar_card', 'bank_statement', 'machinery_quotation']
@@ -163,12 +90,7 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
   const handleUpload = (id: string, file: File) => {
     try {
       const entry = loanDocumentService.createDocumentEntry(id, file)
-      onChange({
-        uploadedDocs: {
-          ...uploadedDocs,
-          [id]: entry,
-        },
-      })
+      onChange({ uploadedDocs: { ...uploadedDocs, [id]: entry } })
     } catch {
       // Fallback
     }
@@ -184,7 +106,6 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
     }
   }
 
-  // Mask account number for review display (e.g. XXXXXX6888)
   const maskedAccountNumber = data.accountNumber
     ? data.accountNumber.length > 4
       ? `XXXXXX${data.accountNumber.slice(-4)}`
@@ -193,7 +114,6 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
 
   return (
     <div className="machinery-loan-docs-review">
-      {/* 1. Required Documents Upload Header */}
       <div className="machinery-loan-section-heading">
         <h3 className="machinery-loan-section-heading__title">Required Documents</h3>
         <p className="machinery-loan-section-heading__desc">
@@ -201,7 +121,6 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
         </p>
       </div>
 
-      {/* Progress Card */}
       <div className="machinery-loan-docs__progress-card">
         <div className="machinery-loan-docs__progress-header">
           <span className="machinery-loan-docs__progress-title">Required documents</span>
@@ -210,14 +129,10 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
           </span>
         </div>
         <div className="machinery-loan-docs__progress-track">
-          <div
-            className="machinery-loan-docs__progress-fill"
-            style={{ width: `${progressPercent}%` }}
-          />
+          <div className="machinery-loan-docs__progress-fill" style={{ width: `${progressPercent}%` }} />
         </div>
       </div>
 
-      {/* Document Sections */}
       <LoanDocumentSection
         title="IDENTITY & ADDRESS"
         icon={SECTION_ICON_IDENTITY}
@@ -248,8 +163,7 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
         onRemove={handleRemove}
       />
 
-      {/* 2. Machinery Loan Dossier Review */}
-      <div className="machinery-loan-section-heading" style={{ marginTop: '1.5rem' }}>
+      <div className="machinery-loan-section-heading machinery-loan-section-heading--mt-lg">
         <h3 className="machinery-loan-section-heading__title">Machinery Loan Dossier Review</h3>
         <p className="machinery-loan-section-heading__desc">
           Review your machinery financing request, business profile, and banking details.
@@ -257,7 +171,6 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
       </div>
 
       <div className="machinery-loan-review-group">
-        {/* Loan Details Review */}
         <LoanReviewSection
           title="Loan Details"
           onEdit={() => onNavigateToStep(1)}
@@ -268,18 +181,11 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
                 ? `₹${(Number(String(data.loanAmount).replace(/\D/g, '')) || 0).toLocaleString('en-IN')}`
                 : 'Not specified',
             },
-            {
-              label: 'Equipment Type',
-              value: data.machineryType || 'Not specified',
-            },
-            {
-              label: 'Tenure',
-              value: data.repaymentTenure || 'Not specified',
-            },
+            { label: 'Equipment Type', value: data.machineryType || 'Not specified' },
+            { label: 'Tenure', value: data.repaymentTenure || 'Not specified' },
           ]}
         />
 
-        {/* Business Details Review */}
         <LoanReviewSection
           title="Business Details"
           onEdit={() => onNavigateToStep(2)}
@@ -302,7 +208,6 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
           ]}
         />
 
-        {/* Banking Review */}
         <LoanReviewSection
           title="Banking"
           onEdit={() => onNavigateToStep(3)}
@@ -312,10 +217,8 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
             { label: 'IFSC', value: data.ifscCode || '—' },
           ]}
         />
-
       </div>
 
-      {/* 3. Authorization Declaration */}
       <div className="machinery-loan-review__declaration">
         <input
           id="machinery-loan-terms-checkbox"

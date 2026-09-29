@@ -1,1 +1,1 @@
-export { LoanApplicationStatus as default } from '../components/LoanApplicationStatus/LoanApplicationStatus';
+export { LoanApplicationStatus as default } from '../shared'

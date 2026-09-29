@@ -214,3 +214,25 @@
   font-weight: 500;
   margin-top: 0.25rem;
 }
+
+.vehicle-review-doc-preview {
+  padding: 2rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.vehicle-review-doc-preview__icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.vehicle-review-doc-preview__name {
+  margin: 0;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.vehicle-review-doc-preview__desc {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.875rem;
+}

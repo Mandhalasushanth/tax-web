@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { routePaths } from '@core/config'
 import { authStorage } from '@core/auth'
 import { useAuthStore } from '@store/index'
@@ -23,7 +23,9 @@ export const SignInCard: React.FC<SignInCardProps> = ({
   initialMode = 'mobile',
 }) => {
   const navigate = useNavigate()
-  const setUser = useAuthStore((state) => state.setUser)
+  const location = useLocation()
+  const locationState = location.state as { returnTo?: string } | null
+  const signIn = useAuthStore((state) => state.signIn)
 
   const [authMode, setAuthMode] = useState<AuthMode>(initialMode)
   const [mobile, setMobile] = useState(initialMobile)
@@ -90,11 +92,12 @@ export const SignInCard: React.FC<SignInCardProps> = ({
         return
       }
 
-      // For new users: only OTP is required
+      // For new users or users with verified OTP: start persistent session
       authStorage.setTokens(session.tokens)
       authStorage.setUser(session.user)
-      setUser(session.user)
-      navigate(routePaths.dashboard)
+      signIn(session)
+      const targetPath = locationState?.returnTo || routePaths.dashboard
+      navigate(targetPath, { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid OTP. Please try again.')
     } finally {
@@ -121,8 +124,9 @@ export const SignInCard: React.FC<SignInCardProps> = ({
       })
       authStorage.setTokens(session.tokens)
       authStorage.setUser(session.user)
-      setUser(session.user)
-      navigate(routePaths.dashboard)
+      signIn(session)
+      const targetPath = locationState?.returnTo || routePaths.dashboard
+      navigate(targetPath, { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Incorrect passcode. Please try again.')
     } finally {

@@ -13,45 +13,32 @@ export const CustomerRoute = () => {
   if (isBootstrapping) return <Loader fullPage label="Checking your session" />
 
   if (!isAuthenticated || !user) {
-    return <Navigate to={routePaths.auth.login} state={{ from: location.pathname }} replace />
+    return <Navigate to={routePaths.auth.login} state={{ returnTo: location.pathname }} replace />
   }
 
   if (isStaffRole(user.role)) return <Navigate to={routePaths.staff.dashboard} replace />
 
-  // Incomplete registration: allow browsing service hubs and account pages
+  // Allow browsing service hubs, loan modules, and subpages without unwanted redirects
   const isAllowedBrowsePath =
     location.pathname === routePaths.dashboard ||
-    location.pathname === routePaths.gst.root ||
-    location.pathname === routePaths.itr.root ||
-    location.pathname === routePaths.incorporation.root ||
-    location.pathname === routePaths.business.root ||
-    location.pathname === routePaths.loans ||
-    location.pathname === routePaths.insurance ||
-    location.pathname === routePaths.applications ||
-    location.pathname === routePaths.documents ||
-    location.pathname === routePaths.payments ||
-    location.pathname === routePaths.notifications ||
-    location.pathname === routePaths.support ||
-    location.pathname === routePaths.profile ||
-    location.pathname === routePaths.auth.register ||
+    location.pathname.startsWith('/loans') ||
+    location.pathname.startsWith('/gst') ||
+    location.pathname.startsWith('/itr') ||
+    location.pathname.startsWith('/incorporation') ||
+    location.pathname.startsWith('/business') ||
+    location.pathname.startsWith('/insurance') ||
+    location.pathname.startsWith('/applications') ||
+    location.pathname.startsWith('/documents') ||
+    location.pathname.startsWith('/payments') ||
+    location.pathname.startsWith('/notifications') ||
+    location.pathname.startsWith('/support') ||
+    location.pathname.startsWith('/profile') ||
+    location.pathname.startsWith('/auth') ||
     location.pathname === routePaths.registration ||
-    location.pathname === routePaths.auth.createProfile ||
     location.pathname === routePaths.customerType
 
   if (!user.isProfileComplete && !isAllowedBrowsePath) {
-    const fallbackHub = location.pathname.startsWith('/gst')
-      ? routePaths.gst.root
-      : location.pathname.startsWith('/itr')
-      ? routePaths.itr.root
-      : routePaths.dashboard
-
-    return (
-      <Navigate
-        to={fallbackHub}
-        state={{ returnTo: location.pathname, openProfileModal: true }}
-        replace
-      />
-    )
+    return <Outlet />
   }
 
   return <Outlet />

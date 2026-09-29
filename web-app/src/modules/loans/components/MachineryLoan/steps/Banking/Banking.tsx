@@ -1,22 +1,14 @@
 import React from 'react'
-import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
+import { LoanFormSection } from '@modules/loans/shared'
 import type { MachineryLoanData } from '../../../../types/machineryLoan.types'
 import { loanInputHelpers } from '../../../../validation/machineryLoanValidation'
+import { resolveIfscBranch } from '../../../../utils/loanInputFormatters'
 import './Banking.css'
 
 export interface BankingProps {
   data: MachineryLoanData
   onChange: (fields: Partial<MachineryLoanData>) => void
   errors?: Record<string, string>
-}
-
-// Map known IFSC prefixes to sample branch names for real-time detection
-const SAMPLE_IFSC_BRANCH_MAP: Record<string, string> = {
-  BKID0008832: 'GURUNANAK TIMBER MARKET',
-  HDFC0001234: 'CONNAUGHT PLACE BRANCH',
-  SBIN0001234: 'MAIN BRANCH NEW DELHI',
-  ICIC0001234: 'NARIMAN POINT MUMBAI',
-  UTIB0001234: 'MG ROAD BENGALURU',
 }
 
 export const Banking: React.FC<BankingProps> = ({
@@ -44,17 +36,16 @@ export const Banking: React.FC<BankingProps> = ({
   const handleIfscChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const clean = loanInputHelpers.cleanIfsc(e.target.value)
-      const detectedBranch = SAMPLE_IFSC_BRANCH_MAP[clean] || (clean.length === 11 ? 'VERIFIED BANK BRANCH' : '')
       onChange({
         ifscCode: clean,
-        branchName: detectedBranch,
+        branchName: resolveIfscBranch(clean),
       })
     } catch {
       onChange({ ifscCode: e.target.value })
     }
   }
 
-  const resolvedBranch = data.branchName || (data.ifscCode ? SAMPLE_IFSC_BRANCH_MAP[data.ifscCode.toUpperCase()] : '')
+  const resolvedBranch = data.branchName || resolveIfscBranch(data.ifscCode)
 
   return (
     <div className="machinery-loan-banking">

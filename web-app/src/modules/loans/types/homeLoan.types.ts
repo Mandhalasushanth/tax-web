@@ -6,6 +6,7 @@ export interface HomeLoanData {
   // Step 1: Requirements
   loanAmount: number | string
   propertyIntent: string
+  customPropertyIntent?: string
   repaymentTenureYears: number
   propertyStage?: string
   estimatedPropertyCost?: string

@@ -1,0 +1,96 @@
+/**
+ * Shared LoanFormSection Component Styles
+ * Standardized to match Business Loan executive card aesthetic
+ */
+
+.loan-form-section {
+  background: #ffffff;
+  border: 1.5px solid #edf2f7;
+  border-radius: 16px;
+  padding: clamp(1.15rem, 2.2vw, 1.5rem) clamp(1.25rem, 2.5vw, 2rem);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.85rem, 1.5vw, 1.15rem);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.loan-form-section:hover {
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.loan-form-section__header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 0.25rem;
+  width: 100%;
+}
+
+.loan-form-section__header--has-subtitle {
+  align-items: flex-start;
+}
+
+.loan-form-section__header--has-subtitle .loan-form-section__icon-box {
+  margin-top: 2px;
+}
+
+.loan-form-section__icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background-color: #fff7ed;
+  border: 1px solid #ffedd5;
+  color: #ea580c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.loan-form-section__icon-box svg {
+  width: 20px;
+  height: 20px;
+  stroke: #ea580c;
+}
+
+.loan-form-section__titles {
+  flex: 1;
+}
+
+.loan-form-section__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.loan-form-section__subtitle {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.loan-form-section__content,
+.loan-form-section__body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .loan-form-section {
+    padding: 1.15rem 1.25rem;
+    border-radius: 14px;
+    gap: 0.85rem;
+  }
+}

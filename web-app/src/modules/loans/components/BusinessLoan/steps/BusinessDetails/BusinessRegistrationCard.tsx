@@ -4,7 +4,7 @@ import type {
   UdyamOptionType,
 } from '../../../../types/businessLoan.types'
 import { useDropdown } from '../../../../hooks/useDropdown'
-import { LoanDropdownOption } from '../../../../shared/LoanDropdownOption'
+import { LoanDropdownOption } from '../LoanDropdownOption'
 import {
   formatUdyamNumber,
   LOAN_FIELD_LIMITS,

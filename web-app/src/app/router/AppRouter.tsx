@@ -1,6 +1,6 @@
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
-import { useAppStore } from '@store/index'
+import { useAppStore, useAuthStore } from '@store/index'
 import { Loader } from '@shared/components'
 
 import { routeConfig } from './routeConfig'
@@ -16,8 +16,17 @@ router.subscribe((state) => {
   }
 })
 
-export const AppRouter = () => (
-  <Suspense fallback={<Loader fullPage />}>
-    <RouterProvider router={router} />
-  </Suspense>
-)
+export const AppRouter = () => {
+  const bootstrap = useAuthStore((s) => s.bootstrap)
+
+  // Re-hydrate auth state from localStorage on every mount (page refresh)
+  useEffect(() => {
+    bootstrap()
+  }, [bootstrap])
+
+  return (
+    <Suspense fallback={<Loader fullPage />}>
+      <RouterProvider router={router} />
+    </Suspense>
+  )
+}

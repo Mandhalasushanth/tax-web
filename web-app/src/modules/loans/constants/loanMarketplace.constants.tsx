@@ -184,16 +184,6 @@ export const LOAN_MARKETPLACE_ITEMS: LoanMarketplaceItem[] = [
     icon: <BusinessGearsIcon />,
   },
   {
-    id: 'personal-loan',
-    title: 'Personal Loan',
-    desc: 'Quick personal funds up to ₹25 Lakhs',
-    rate: 'From 10.5% p.a.',
-    applyPath: routePaths.loansPersonalLoan,
-    tileBg: '#FEF6EE',
-    tileBorder: '#FED7AA',
-    icon: <StorefrontIcon />,
-  },
-  {
     id: 'home-loan',
     title: 'Home Loan',
     desc: 'Lowest interest rate for home purchase & renovation',
@@ -202,16 +192,6 @@ export const LOAN_MARKETPLACE_ITEMS: LoanMarketplaceItem[] = [
     tileBg: '#F0FDF4',
     tileBorder: '#BBF7D0',
     icon: <HouseGardenIcon />,
-  },
-  {
-    id: 'property-loan',
-    title: 'Property Loan',
-    desc: 'Loan against commercial or residential property',
-    rate: 'From 9.5% p.a.',
-    applyPath: routePaths.loansPropertyLoan,
-    tileBg: '#FDF2F8',
-    tileBorder: '#FBCFE8',
-    icon: <PropertyVillaIcon />,
   },
   {
     id: 'vehicle-loan',

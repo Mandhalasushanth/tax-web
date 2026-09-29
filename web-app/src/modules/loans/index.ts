@@ -28,8 +28,6 @@ export {
   BusinessLoan,
   MSMELoan,
   ProjectFinance,
-  PersonalLoan,
-  PropertyLoan,
   Loans,
   LoanMarketplace,
 } from './components'

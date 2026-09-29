@@ -1,0 +1,104 @@
+.pf-submit-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: pfModalFadeIn 0.2s ease-out;
+  box-sizing: border-box;
+}
+
+.pf-submit-modal-card {
+  width: 100%;
+  max-width: 400px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2.25rem 1.75rem 1.75rem 1.75rem;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: pfModalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.pf-submit-modal-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: #dcfce7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.pf-submit-modal-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.pf-submit-modal-id-pill {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.pf-submit-modal-desc {
+  margin: 0 0 1.75rem 0;
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.55;
+  padding: 0 0.5rem;
+}
+
+.pf-submit-modal-btn {
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(135deg, #ff7a00 0%, #ff5500 100%);
+  border: none;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(255, 122, 0, 0.35);
+}
+
+.pf-submit-modal-btn:hover {
+  background: linear-gradient(135deg, #ea6c00 0%, #e64a00 100%);
+  transform: translateY(-1px);
+}
+
+.pf-submit-modal-btn:active {
+  transform: translateY(1px);
+}
+
+@keyframes pfModalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pfModalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

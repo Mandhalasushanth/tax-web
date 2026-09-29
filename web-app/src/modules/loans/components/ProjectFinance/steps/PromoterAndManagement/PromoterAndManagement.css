@@ -1,0 +1,34 @@
+.loan-requirement-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.pf-custom-input--readonly {
+  background-color: #f1f5f9 !important;
+  color: #1e293b !important;
+  cursor: default;
+  border-color: #cbd5e1 !important;
+}
+
+.pf-input-with-suffix {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.pf-input-with-suffix .pf-custom-input {
+  padding-right: 2.5rem;
+}
+
+.pf-input-suffix {
+  position: absolute;
+  right: 1rem;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+

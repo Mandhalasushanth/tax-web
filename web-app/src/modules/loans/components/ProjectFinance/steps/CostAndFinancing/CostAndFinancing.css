@@ -1,0 +1,24 @@
+.cost-and-financing-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.pf-field-error-msg {
+  color: #ef4444;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.pf-date-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.pf-date-input-wrapper input[type='date'] {
+  color: #041d3e;
+  font-family: inherit;
+  font-size: 0.95rem;
+}

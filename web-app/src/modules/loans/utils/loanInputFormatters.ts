@@ -95,6 +95,7 @@ export function handleAlphanumericKeyDown(e: React.KeyboardEvent<HTMLInputElemen
  * Centralized known IFSC prefixes to sample branch names for real-time detection
  */
 export const SAMPLE_IFSC_BRANCH_MAP: Record<string, string> = {
+  HDFC0000123: 'HDFC Bank - MADURAI - TAMIL NADU',
   BKID0008832: 'GURUNANAK TIMBER MARKET',
   HDFC0001234: 'CONNAUGHT PLACE BRANCH',
   SBIN0001234: 'MAIN BRANCH NEW DELHI',

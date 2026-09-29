@@ -1,0 +1,192 @@
+.personal-review-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.personal-review-header__title {
+  margin: 0 0 0.35rem 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.personal-review-header__subtitle {
+  margin: 0 0 1rem 0;
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.personal-review-cards-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .personal-review-cards-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.personal-review-card {
+  background: #ffffff;
+  border: 1.5px solid #edf2f7;
+  border-radius: 14px;
+  padding: 1.25rem 1.4rem;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.personal-review-card--consent {
+  border-color: #e0e7ff;
+  background: #f8faff;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.personal-review-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.personal-review-card__title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.personal-review-card__icon {
+  font-size: 1.15rem;
+}
+
+.personal-review-card__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.personal-review-card__edit-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.personal-review-card__edit-btn:hover {
+  background: #eff6ff;
+}
+
+.personal-review-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem 1.5rem;
+}
+
+.personal-review-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.personal-review-item--full {
+  grid-column: 1 / -1;
+}
+
+.personal-review-item__label {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.personal-review-item__value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* Document Dossier Summary */
+.personal-review-docs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.personal-review-doc-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.65rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.personal-review-doc-item__title {
+  font-weight: 600;
+  color: #334155;
+}
+
+.personal-review-doc-item__status--ok {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.personal-review-doc-item__status--missing {
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+/* Consents */
+.personal-consent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.personal-consent-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  cursor: pointer;
+}
+
+.personal-consent-checkbox {
+  margin-top: 0.2rem;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #2563eb;
+  flex-shrink: 0;
+}
+
+.personal-consent-text {
+  font-size: 0.84rem;
+  color: #334155;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .personal-review-grid {
+    grid-template-columns: 1fr;
+  }
+}

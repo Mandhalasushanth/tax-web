@@ -5,4 +5,7 @@ export * from './loanMarketplace.types'
 export * from './machineryLoan.types'
 export * from './workingCapitalLoan.types'
 export * from './vehicleLoan.types'
-
+export * from './msmeLoan.types'
+export * from './projectFinance.types'
+export * from './personalLoan.types'
+export * from './propertyLoan.types'

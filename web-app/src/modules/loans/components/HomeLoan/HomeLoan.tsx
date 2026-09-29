@@ -2,10 +2,12 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StepActionBar, DraftConfirmModal, FlowStepper } from '@shared/components'
 import type { FlowStepItem } from '@shared/components'
+import { LoanSubmitSuccessModal } from '../../shared'
 
 import { useLoanApplication } from '../../hooks/useLoanApplication'
 import { loanApplicationService } from '../../services/loanApplicationService'
 import type { HomeLoanData } from '../../types/homeLoan.types'
+import type { LoanApplicationBase } from '../../types/loanApplication.types'
 import { homeLoanValidation } from '../../validation/homeLoanValidation'
 
 import {
@@ -65,6 +67,8 @@ export const HomeLoan: React.FC = () => {
   const navigate = useNavigate()
   const [stepError, setStepError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [submittedRef, setSubmittedRef] = useState<string | null>(null)
+  const [submittedApp, setSubmittedApp] = useState<LoanApplicationBase | null>(null)
 
   const {
     formData,
@@ -80,6 +84,7 @@ export const HomeLoan: React.FC = () => {
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
+    markSubmitted,
   } = useLoanApplication<HomeLoanData>(
     'home_loan',
     INITIAL_HOME_LOAN_DATA,
@@ -143,13 +148,13 @@ export const HomeLoan: React.FC = () => {
           loanType: 'home_loan',
           title: 'Home Loan Application',
           category: 'Capital & Financing',
-          requestedAmount: Number(String(formData.loanAmount).replace(/\D/g, '')),
+          requestedAmount: Number(String(formData.loanAmount || 0).replace(/\D/g, '')) || 0,
           tenureMonths: Number(formData.repaymentTenureYears || 0) * 12,
           details: formData,
         })
-        navigate(`/loans/status/${app.referenceNumber}`, {
-          state: { formData, refNumber: app.referenceNumber, application: app, loanTitle: 'Home Loan' },
-        })
+        markSubmitted()
+        setSubmittedApp(app)
+        setSubmittedRef(app.referenceNumber || app.id || '')
       } catch (err: unknown) {
         setStepError(err instanceof Error ? err.message : 'Submission failed. Please try again.')
       } finally {
@@ -237,6 +242,19 @@ export const HomeLoan: React.FC = () => {
         onSaveAndExit={handleSaveAndExit}
         onDiscardAndExit={handleDiscardAndExit}
         onKeepEditing={handleKeepEditing}
+      />
+
+      <LoanSubmitSuccessModal
+        isOpen={Boolean(submittedRef)}
+        title="Home Loan Submitted"
+        referenceNumber={submittedRef || ''}
+        message="Your Home Loan application has been successfully received. A TaxEdge Loan Advisor will review your documents and contact you shortly."
+        onTrackStatus={() => {
+          const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || ''
+          navigate(`/loans/status/${ref}`, {
+            state: { formData, refNumber: ref, application: submittedApp, loanTitle: 'Home Loan' },
+          })
+        }}
       />
     </div>
   )

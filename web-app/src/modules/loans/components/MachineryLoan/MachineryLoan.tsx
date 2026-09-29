@@ -63,6 +63,7 @@ export const MachineryLoan: React.FC = () => {
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
+    markSubmitted,
   } = useLoanApplication<MachineryLoanData>(
     'machinery_loan',
     INITIAL_MACHINERY_LOAN_DATA,
@@ -121,16 +122,17 @@ export const MachineryLoan: React.FC = () => {
     } else {
       setIsSubmitting(true)
       try {
-        const tenureNumber = Number(String(formData.repaymentTenure).replace(/\D/g, '')) || 60
+        const tenureNumber = Number(String(formData.repaymentTenure || 0).replace(/\D/g, '')) || 0
         const app = await loanApplicationService.submitApplication('machinery_loan', {
           loanType: 'machinery_loan',
           title: 'Machinery Loan Application',
           category: 'Capital & Financing',
-          requestedAmount: Number(String(formData.loanAmount).replace(/\D/g, '')) || 5000000,
+          requestedAmount: Number(String(formData.loanAmount || 0).replace(/\D/g, '')) || 0,
           tenureMonths: tenureNumber,
           details: formData,
         })
-        setSubmittedRef(app.referenceNumber || 'TXE-LN-76084608')
+        markSubmitted()
+        setSubmittedRef(app.referenceNumber || app.id || '')
         setSubmittedApp(app)
       } catch (err: unknown) {
         const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
@@ -236,8 +238,9 @@ export const MachineryLoan: React.FC = () => {
         isOpen={Boolean(submittedRef)}
         title="Machinery Loan Submitted"
         referenceNumber={submittedRef || ''}
+        message="Your Machinery Loan application has been successfully received. A TaxEdge Loan Advisor will review your equipment quotation and financial records and contact you shortly."
         onTrackStatus={() => {
-          const ref = submittedRef || 'TXE-LN-76084608'
+          const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || ''
           navigate(`/loans/status/${ref}`, {
             state: { application: submittedApp, formData, refNumber: ref, loanTitle: 'Machinery Loan' },
           })

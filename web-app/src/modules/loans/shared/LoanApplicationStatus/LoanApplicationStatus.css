@@ -26,7 +26,25 @@
 .loan-status-header__left {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+}
+
+.loan-status-back-btn {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: #041d3e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.loan-status-back-btn:hover {
+  background-color: #f1f5f9;
+  transform: translateX(-2px);
 }
 
 .loan-status-header__title {

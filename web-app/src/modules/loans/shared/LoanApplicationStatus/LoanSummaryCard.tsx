@@ -27,15 +27,15 @@ export const LoanSummaryCard: React.FC<LoanSummaryCardProps> = ({
   primaryDetailLabel,
   primaryDetailValue,
   primaryDetailIcon,
-  equipment = 'General Purpose',
+  equipment = '—',
   tenure,
   disbursementBank,
   loanAgent,
   isCopied,
   onCopyRef,
 }) => {
-  const formattedAmount = `₹${loanAmount.toLocaleString('en-IN')}`
-  const label = primaryDetailLabel || 'Equipment'
+  const formattedAmount = loanAmount > 0 ? `₹${loanAmount.toLocaleString('en-IN')}` : '—'
+  const label = primaryDetailLabel || 'Detail'
   const value = primaryDetailValue || equipment
 
   return (
@@ -115,7 +115,7 @@ export const LoanSummaryCard: React.FC<LoanSummaryCardProps> = ({
           </div>
           <div className="loan-status-meta-info">
             <span className="loan-status-meta-label">Tenure</span>
-            <span className="loan-status-meta-value">{tenure}</span>
+            <span className="loan-status-meta-value">{tenure || '—'}</span>
           </div>
         </div>
 
@@ -132,7 +132,7 @@ export const LoanSummaryCard: React.FC<LoanSummaryCardProps> = ({
           </div>
           <div className="loan-status-meta-info">
             <span className="loan-status-meta-label">Disbursement Bank</span>
-            <span className="loan-status-meta-value">{disbursementBank}</span>
+            <span className="loan-status-meta-value">{disbursementBank || '—'}</span>
           </div>
         </div>
 
@@ -149,7 +149,7 @@ export const LoanSummaryCard: React.FC<LoanSummaryCardProps> = ({
           </div>
           <div className="loan-status-meta-info">
             <span className="loan-status-meta-label">Loan Agent</span>
-            <span className="loan-status-meta-value">{loanAgent}</span>
+            <span className="loan-status-meta-value">{loanAgent || 'Assigned on Verification'}</span>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import React from 'react'
-import { LoanDocumentSection, LoanReviewSection } from '@modules/loans/shared'
+import { DocumentSection, UploadDocument } from '@shared/components'
+import { LoanReviewSection } from '@modules/loans/shared'
 import { loanDocumentService, createDocDef } from '../../../../documents'
 import type { LoanDocumentDefinition } from '../../../../documents/loanDocument.types'
 import type { MachineryLoanData } from '../../../../types/machineryLoan.types'
@@ -133,35 +134,68 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
         </div>
       </div>
 
-      <LoanDocumentSection
-        title="IDENTITY & ADDRESS"
-        icon={SECTION_ICON_IDENTITY}
-        documents={IDENTITY_DOCS}
-        uploadedDocs={uploadedDocs}
-        errors={errors}
-        onUpload={handleUpload}
-        onRemove={handleRemove}
-      />
+      {(() => {
+        const renderDocCard = (doc: LoanDocumentDefinition) => {
+          const uploaded = uploadedDocs[doc.id]
+          const isMissingRequired = !uploaded && Boolean(errors[doc.id])
+          const showOptionalBadge = !doc.isRequired && !doc.hideOptionalBadge && doc.badgeLabel !== ''
+          const badge = showOptionalBadge ? (
+            <span className="loan-doc-item__badge loan-doc-item__badge--optional">
+              {doc.badgeLabel || 'Optional'}
+            </span>
+          ) : isMissingRequired ? (
+            <span className="loan-doc-item__badge loan-doc-item__badge--error">
+              Required Document Missing
+            </span>
+          ) : undefined
 
-      <LoanDocumentSection
-        title="INCOME & BANKING"
-        icon={SECTION_ICON_BANKING}
-        documents={INCOME_BANKING_DOCS}
-        uploadedDocs={uploadedDocs}
-        errors={errors}
-        onUpload={handleUpload}
-        onRemove={handleRemove}
-      />
+          return (
+            <UploadDocument
+              key={doc.id}
+              id={doc.id}
+              title={doc.title}
+              subtitle={doc.subtitle}
+              isRequired={doc.isRequired}
+              badge={badge}
+              isUploaded={Boolean(uploaded)}
+              fileName={uploaded?.name}
+              fileSize={uploaded?.size}
+              file={uploaded?.file}
+              icon={doc.icon}
+              iconBg={doc.iconBg || '#fff7ed'}
+              iconColor={doc.iconColor || '#ea580c'}
+              className={isMissingRequired ? 'loan-doc-item--error' : ''}
+              onUpload={handleUpload}
+              onRemove={handleRemove}
+            />
+          )
+        }
 
-      <LoanDocumentSection
-        title="BUSINESS & TAX"
-        icon={SECTION_ICON_BUSINESS}
-        documents={BUSINESS_TAX_DOCS}
-        uploadedDocs={uploadedDocs}
-        errors={errors}
-        onUpload={handleUpload}
-        onRemove={handleRemove}
-      />
+        return (
+          <>
+            <DocumentSection
+              title="IDENTITY & ADDRESS"
+              icon={SECTION_ICON_IDENTITY}
+            >
+              {IDENTITY_DOCS.map(renderDocCard)}
+            </DocumentSection>
+
+            <DocumentSection
+              title="INCOME & BANKING"
+              icon={SECTION_ICON_BANKING}
+            >
+              {INCOME_BANKING_DOCS.map(renderDocCard)}
+            </DocumentSection>
+
+            <DocumentSection
+              title="BUSINESS & TAX"
+              icon={SECTION_ICON_BUSINESS}
+            >
+              {BUSINESS_TAX_DOCS.map(renderDocCard)}
+            </DocumentSection>
+          </>
+        )
+      })()}
 
       <div className="machinery-loan-section-heading machinery-loan-section-heading--mt-lg">
         <h3 className="machinery-loan-section-heading__title">Machinery Loan Dossier Review</h3>

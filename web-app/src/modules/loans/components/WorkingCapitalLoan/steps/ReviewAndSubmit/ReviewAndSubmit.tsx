@@ -1,4 +1,5 @@
 import React from 'react'
+import { useAuthStore } from '@store/index'
 import type { WorkingCapitalLoanData } from '../../../../types/workingCapitalLoan.types'
 import { WORKING_CAPITAL_DOCUMENT_CONFIGS } from '../../../../validation/workingCapitalLoanValidation'
 import './ReviewAndSubmit.css'
@@ -32,36 +33,37 @@ export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
   onNavigateToStep,
   errors = {},
 }) => {
+  const user = useAuthStore.getState().user
   const maskedAccountNumber = data.currentAccountNumber && data.currentAccountNumber.length > 4
     ? `XXXXXX${data.currentAccountNumber.slice(-4)}`
-    : (data.currentAccountNumber || 'Not specified')
+    : (data.currentAccountNumber || '—')
 
   const uploadedDocEntries = Object.keys(data.uploadedDocs || {})
 
   const promoterItems = [
-    { label: 'Applicant Name', value: 'Sushanth Mandhala' },
-    { label: 'Mobile', value: '9030045048' },
-    { label: 'PAN', value: 'PFMPS0972B' },
+    { label: 'Applicant Name', value: user?.fullName || '—' },
+    { label: 'Mobile', value: user?.mobile || '—' },
+    { label: 'PAN', value: user?.pan || '—' },
   ]
 
   const termsItems = [
-    { label: 'Requested Limit', value: `₹${(Number(String(data.requiredCreditLimit || 5000000).replace(/\D/g, '')) || 5000000).toLocaleString('en-IN')}`, highlight: true },
-    { label: 'Facility Type', value: data.creditPurpose || data.preferredFacilityType || 'Supplier Payments' },
+    { label: 'Requested Limit', value: data.requiredCreditLimit ? `₹${(Number(String(data.requiredCreditLimit).replace(/\D/g, '')) || 0).toLocaleString('en-IN')}` : '—', highlight: true },
+    { label: 'Facility Type', value: data.creditPurpose || data.preferredFacilityType || '—' },
     { label: 'Sanction Period', value: '12 Months' },
   ]
 
   const enterpriseItems = [
-    { label: 'Enterprise Name', value: data.registeredBusinessName || 'Zenith Trading Co' },
-    { label: 'GSTIN', value: data.gstinNumber || '29AAAAA0000A1Z5' },
-    { label: 'Vintage', value: data.operationalTrackRecord || '2 Years' },
-    { label: 'Turnover', value: data.annualAuditedTurnover ? `₹${data.annualAuditedTurnover}` : '₹6,86,995' },
-    { label: 'Net Profit', value: data.annualNetProfitBeforeTax ? `₹${data.annualNetProfitBeforeTax}` : '₹6,599' },
+    { label: 'Enterprise Name', value: data.registeredBusinessName || '—' },
+    { label: 'GSTIN', value: data.gstinNumber || '—' },
+    { label: 'Vintage', value: data.operationalTrackRecord || '—' },
+    { label: 'Turnover', value: data.annualAuditedTurnover ? `₹${data.annualAuditedTurnover}` : '—' },
+    { label: 'Net Profit', value: data.annualNetProfitBeforeTax ? `₹${data.annualNetProfitBeforeTax}` : '—' },
   ]
 
   const accountItems = [
-    { label: 'Bank', value: data.currentAccountBankName || 'State Bank of India' },
-    { label: 'Account Number', value: maskedAccountNumber !== 'Not specified' ? maskedAccountNumber : 'XXXXXX5568' },
-    { label: 'IFSC Code', value: data.bankIfscCode || 'SBIN0008887' },
+    { label: 'Bank', value: data.currentAccountBankName || '—' },
+    { label: 'Account Number', value: maskedAccountNumber },
+    { label: 'IFSC Code', value: data.bankIfscCode || '—' },
   ]
 
   return (

@@ -1,5 +1,5 @@
 import React from 'react'
-import { LoanDocumentSection } from '@modules/loans/shared'
+import { DocumentSection, UploadDocument } from '@shared/components'
 import { loanDocumentService } from '../../../../documents/loanDocumentService'
 import type { LoanDocumentDefinition } from '../../../../documents/loanDocument.types'
 import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
@@ -169,32 +169,53 @@ export const ProjectDocuments: React.FC<ProjectDocumentsProps> = ({
     }
   }
 
+  const renderDocCard = (doc: LoanDocumentDefinition) => {
+    const uploaded = uploadedDocs[doc.id]
+    const isMissingRequired = !uploaded && Boolean(errors[doc.id])
+    const showOptionalBadge = !doc.isRequired && !doc.hideOptionalBadge && doc.badgeLabel !== ''
+    const badge = showOptionalBadge ? (
+      <span className="loan-doc-item__badge loan-doc-item__badge--optional">
+        {doc.badgeLabel || 'Optional'}
+      </span>
+    ) : isMissingRequired ? (
+      <span className="loan-doc-item__badge loan-doc-item__badge--error">
+        Required Document Missing
+      </span>
+    ) : undefined
+
+    return (
+      <UploadDocument
+        key={doc.id}
+        id={doc.id}
+        title={doc.title}
+        subtitle={doc.subtitle}
+        isRequired={doc.isRequired}
+        badge={badge}
+        isUploaded={Boolean(uploaded)}
+        fileName={uploaded?.name}
+        fileSize={uploaded?.size}
+        file={uploaded?.file}
+        icon={doc.icon}
+        iconBg={doc.iconBg || '#eff6ff'}
+        iconColor={doc.iconColor || '#2563eb'}
+        className={isMissingRequired ? 'loan-doc-item--error' : ''}
+        onUpload={handleUpload}
+        onRemove={handleRemove}
+      />
+    )
+  }
+
   return (
     <div className="pf-documents-step">
-      <LoanDocumentSection
-        title="IDENTITY & KYC"
-        documents={IDENTITY_DOCS}
-        uploadedDocs={uploadedDocs}
-        errors={errors}
-        onUpload={handleUpload}
-        onRemove={handleRemove}
-      />
-      <LoanDocumentSection
-        title="PROJECT DOCUMENTS"
-        documents={PROJECT_DOCS}
-        uploadedDocs={uploadedDocs}
-        errors={errors}
-        onUpload={handleUpload}
-        onRemove={handleRemove}
-      />
-      <LoanDocumentSection
-        title="FINANCIAL RECORDS"
-        documents={FINANCIAL_DOCS}
-        uploadedDocs={uploadedDocs}
-        errors={errors}
-        onUpload={handleUpload}
-        onRemove={handleRemove}
-      />
+      <DocumentSection title="IDENTITY & KYC">
+        {IDENTITY_DOCS.map(renderDocCard)}
+      </DocumentSection>
+      <DocumentSection title="PROJECT DOCUMENTS">
+        {PROJECT_DOCS.map(renderDocCard)}
+      </DocumentSection>
+      <DocumentSection title="FINANCIAL RECORDS">
+        {FINANCIAL_DOCS.map(renderDocCard)}
+      </DocumentSection>
     </div>
   )
 }

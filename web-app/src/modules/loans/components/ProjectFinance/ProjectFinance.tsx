@@ -70,6 +70,7 @@ export const ProjectFinance: React.FC = () => {
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
+    markSubmitted,
   } = useLoanApplication<ProjectFinanceData>(
     'project_finance',
     INITIAL_PROJECT_FINANCE_DATA,
@@ -122,16 +123,17 @@ export const ProjectFinance: React.FC = () => {
     } else {
       setIsSubmitting(true)
       try {
-        const tenureMonths = Number(String(formData.repaymentTenure).replace(/\D/g, '')) || 60
+        const tenureMonths = Number(String(formData.repaymentTenure).replace(/\D/g, '')) || 0
         const app = await loanApplicationService.submitApplication('project_finance', {
           loanType: 'project_finance',
           title: 'Project Finance Application',
           category: 'Structured Project Finance',
-          requestedAmount: Number(String(formData.debtFundingRequired).replace(/\D/g, '')) || 10000000,
+          requestedAmount: Number(String(formData.debtFundingRequired).replace(/\D/g, '')) || 0,
           tenureMonths,
           details: formData,
         })
-        setSubmittedRef(app.referenceNumber || 'TXE-LN-PF-001')
+        markSubmitted()
+        setSubmittedRef(app.referenceNumber || app.id || '')
         setSubmittedApp(app)
       } catch (err: unknown) {
         const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
@@ -238,7 +240,7 @@ export const ProjectFinance: React.FC = () => {
         referenceNumber={submittedRef || ''}
         message="Your Project Finance application has been received. A Senior TaxEdge Finance Advisor will conduct a preliminary appraisal and reach out within 2–3 business days."
         onTrackStatus={() => {
-          const ref = submittedRef || 'TXE-LN-PF-001'
+          const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || ''
           navigate(`/loans/status/${ref}`, {
             state: { application: submittedApp, formData, refNumber: ref, loanTitle: 'Project Finance' },
           })

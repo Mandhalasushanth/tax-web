@@ -75,14 +75,16 @@ export const loanApplicationService = {
           rawForm.loanAmount ||
           innerDetails.loanAmount ||
           innerDetails.requiredLoanAmount ||
+          innerDetails.requiredAmount ||
           innerDetails.requiredCreditLimit ||
           ''
         ).replace(/\D/g, '')
-      ) || 1500000
+      ) || 0
 
     const tenureYearsNum =
       Number(innerDetails.repaymentTenureYears) ||
       Number(rawForm.repaymentTenureYears) ||
+      Number(innerDetails.tenureYears) ||
       (rawForm.tenureMonths ? Math.round(Number(rawForm.tenureMonths) / 12) : 0) ||
       (innerDetails.repaymentTenure ? (String(innerDetails.repaymentTenure).match(/\d+/) ? Number(String(innerDetails.repaymentTenure).match(/\d+/)![0]) : 0) : 0)
 
@@ -97,23 +99,25 @@ export const loanApplicationService = {
         ? `${tenureYearsNum} Years (${tenureMonthsNum > 0 ? tenureMonthsNum : tenureYearsNum * 12} Mos)`
         : tenureMonthsNum > 0
         ? `${tenureMonthsNum} Months`
-        : '20 Years'
+        : '—'
 
     const equipmentVal = String(
       innerDetails.customPropertyIntent ||
       innerDetails.propertyIntent ||
+      innerDetails.vehicleMakeModel ||
       innerDetails.vehicleModel ||
       innerDetails.vehicleCategory ||
-      innerDetails.machineryType ||
       innerDetails.machineryName ||
+      innerDetails.machineryType ||
       innerDetails.creditPurpose ||
       innerDetails.preferredFacilityType ||
-      innerDetails.projectSector ||
       innerDetails.projectName ||
+      innerDetails.projectSector ||
       innerDetails.msmePurpose ||
       innerDetails.purposeOfLoan ||
+      innerDetails.loanPurpose ||
       rawForm.title ||
-      'General Purpose'
+      '—'
     )
 
     const bankName = String(
@@ -121,8 +125,9 @@ export const loanApplicationService = {
       innerDetails.operatingBank ||
       innerDetails.primaryOperatingBankName ||
       innerDetails.currentAccountBankName ||
+      innerDetails.primaryBankName ||
       rawForm.disbursementBank ||
-      'Primary Bank Account'
+      '—'
     )
     const accNumber = String(innerDetails.accountNumber || '')
     const disbursementBankVal =

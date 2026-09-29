@@ -76,6 +76,7 @@ export const VehicleLoan: React.FC = () => {
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
+    markSubmitted,
   } = useLoanApplication<VehicleLoanData>(
     'vehicle_loan',
     INITIAL_VEHICLE_LOAN_DATA,
@@ -142,16 +143,17 @@ export const VehicleLoan: React.FC = () => {
       setIsSubmitting(true)
       try {
         const tenureMatch = String(formData.repaymentTenure).match(/\d+/)
-        const tenureMonths = tenureMatch ? Number(tenureMatch[0]) * (String(formData.repaymentTenure).includes('Year') || String(formData.repaymentTenure).includes('Yr') ? 12 : 1) : 60
+        const tenureMonths = tenureMatch ? Number(tenureMatch[0]) * (String(formData.repaymentTenure).includes('Year') || String(formData.repaymentTenure).includes('Yr') ? 12 : 1) : 0
         const app = await loanApplicationService.submitApplication('vehicle_loan', {
           loanType: 'vehicle_loan',
           title: 'Vehicle Loan Application',
           category: 'Vehicle & Auto Finance',
-          requestedAmount: Number(String(formData.loanAmount).replace(/\D/g, '')) || 1000000,
+          requestedAmount: Number(String(formData.loanAmount).replace(/\D/g, '')) || 0,
           tenureMonths,
           details: formData,
         })
-        setSubmittedRef(app.referenceNumber || 'TXE-LN-93820124')
+        markSubmitted()
+        setSubmittedRef(app.referenceNumber || app.id || '')
         setSubmittedApp(app)
       } catch (err: unknown) {
         const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
@@ -265,8 +267,9 @@ export const VehicleLoan: React.FC = () => {
         isOpen={Boolean(submittedRef)}
         title="Vehicle Loan Submitted"
         referenceNumber={submittedRef || ''}
+        message="Your Vehicle Loan application has been successfully received. A TaxEdge Loan Advisor will review your vehicle quotation and contact you shortly."
         onTrackStatus={() => {
-          const ref = submittedRef || 'TXE-LN-93820124'
+          const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || ''
           navigate(`/loans/status/${ref}`, {
             state: { application: submittedApp, formData, refNumber: ref, loanTitle: 'Vehicle Loan' },
           })

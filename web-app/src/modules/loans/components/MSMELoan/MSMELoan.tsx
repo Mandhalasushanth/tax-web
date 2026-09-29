@@ -68,6 +68,7 @@ export const MSMELoan: React.FC = () => {
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
+    markSubmitted,
   } = useLoanApplication<MsmeLoanData>(
     'msme_loan',
     INITIAL_MSME_LOAN_DATA,
@@ -120,16 +121,17 @@ export const MSMELoan: React.FC = () => {
     } else {
       setIsSubmitting(true)
       try {
-        const tenureMonths = Number(String(formData.repaymentTenure).replace(/\D/g, '')) || 36
+        const tenureMonths = Number(String(formData.repaymentTenure || 0).replace(/\D/g, '')) || 0
         const app = await loanApplicationService.submitApplication('msme_loan', {
           loanType: 'msme_loan',
           title: 'MSME Loan Application',
           category: 'MSME & SME Finance',
-          requestedAmount: Number(String(formData.requiredLoanAmount).replace(/\D/g, '')) || 2500000,
+          requestedAmount: Number(String(formData.requiredLoanAmount || 0).replace(/\D/g, '')) || 0,
           tenureMonths,
           details: formData,
         })
-        setSubmittedRef(app.referenceNumber || 'TXE-LN-MSME-001')
+        markSubmitted()
+        setSubmittedRef(app.referenceNumber || app.id || '')
         setSubmittedApp(app)
       } catch (err: unknown) {
         const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
@@ -236,7 +238,7 @@ export const MSMELoan: React.FC = () => {
         referenceNumber={submittedRef || ''}
         message="Your MSME Loan application has been successfully received. A TaxEdge MSME Finance Advisor will review your dossier and contact you shortly."
         onTrackStatus={() => {
-          const ref = submittedRef || 'TXE-LN-MSME-001'
+          const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || ''
           navigate(`/loans/status/${ref}`, {
             state: { application: submittedApp, formData, refNumber: ref, loanTitle: 'MSME Loan' },
           })

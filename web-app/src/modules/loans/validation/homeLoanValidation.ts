@@ -1,4 +1,3 @@
-import React from 'react'
 import { commonLoanValidation } from './commonLoanValidation'
 import type { HomeLoanData } from '../types/homeLoan.types'
 
@@ -21,39 +20,7 @@ export const REQUIRED_DOCUMENT_IDS = [
   { id: 'title_deed', name: 'Title Deed / Chain of Deeds' },
 ]
 
-export const loanInputHelpers = {
-  allowOnlyNumbersKeyDown: (e: React.KeyboardEvent<HTMLInputElement>): void => {
-    const isControlKey =
-      ['Backspace', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter'].includes(e.key) ||
-      e.ctrlKey ||
-      e.metaKey
-    const isDigit = /^\d$/.test(e.key)
-    !isControlKey && !isDigit ? e.preventDefault() : undefined
-  },
-
-  allowOnlyAlphanumericKeyDown: (e: React.KeyboardEvent<HTMLInputElement>): void => {
-    const isControlKey =
-      ['Backspace', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter'].includes(e.key) ||
-      e.ctrlKey ||
-      e.metaKey
-    const isAlphanumeric = /^[a-zA-Z0-9]$/.test(e.key)
-    !isControlKey && !isAlphanumeric ? e.preventDefault() : undefined
-  },
-
-  formatCurrencyString: (val: string): string => {
-    const digits = val.replace(/\D/g, '')
-    return !digits ? '' : Number(digits).toLocaleString('en-IN')
-  },
-
-  digitsOnly: (val: string, maxLen?: number): string => {
-    const digits = val.replace(/\D/g, '')
-    return maxLen ? digits.slice(0, maxLen) : digits
-  },
-
-  cleanIfsc: (val: string): string => {
-    return val.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11)
-  },
-}
+export { loanInputHelpers } from './commonLoanValidation'
 
 export const homeLoanValidation = {
   validateStep1: (data: HomeLoanData): StepValidationResult => {

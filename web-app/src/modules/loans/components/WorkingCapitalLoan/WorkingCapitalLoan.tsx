@@ -66,6 +66,7 @@ export const WorkingCapitalLoan: React.FC = () => {
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
+    markSubmitted,
   } = useLoanApplication<WorkingCapitalLoanData>(
     'working_capital_loan',
     INITIAL_WORKING_CAPITAL_LOAN_DATA,
@@ -128,11 +129,12 @@ export const WorkingCapitalLoan: React.FC = () => {
           loanType: 'working_capital_loan',
           title: 'Working Capital Loan Application',
           category: 'Working Capital & Credit Lines',
-          requestedAmount: Number(String(formData.requiredCreditLimit).replace(/\D/g, '')) || 2500000,
+          requestedAmount: Number(String(formData.requiredCreditLimit || 0).replace(/\D/g, '')) || 0,
           tenureMonths: 12,
           details: formData,
         })
-        setSubmittedRef(app.referenceNumber || 'TXE-LN-84920184')
+        markSubmitted()
+        setSubmittedRef(app.referenceNumber || app.id || '')
         setSubmittedApp(app)
       } catch (err: unknown) {
         const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
@@ -156,7 +158,7 @@ export const WorkingCapitalLoan: React.FC = () => {
   }
 
   const handleTrackStatus = () => {
-    const ref = submittedRef || 'TXE-LN-499927'
+    const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || ''
     const app = submittedApp
     setSubmittedRef(null)
     navigate(`/loans/status/${ref}`, {
@@ -254,6 +256,7 @@ export const WorkingCapitalLoan: React.FC = () => {
         isOpen={Boolean(submittedRef)}
         title="Working Capital Loan Submitted"
         referenceNumber={submittedRef || ''}
+        message="Your Working Capital Loan application has been successfully received. A TaxEdge Loan Advisor will review your business records and contact you shortly."
         onTrackStatus={handleTrackStatus}
       />
     </div>

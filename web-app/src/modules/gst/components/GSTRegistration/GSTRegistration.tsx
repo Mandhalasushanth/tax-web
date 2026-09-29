@@ -5,7 +5,7 @@ import { GSTStepDocuments } from './GSTStepDocuments/GSTStepDocuments'
 import { GSTStepReview } from './GSTStepReview/GSTStepReview'
 import { GSTStepPayment } from './GSTStepPayment/GSTStepPayment'
 import { GSTPaymentSuccess } from './GSTPaymentSuccess/GSTPaymentSuccess'
-import { GSTRegistrationStepper } from '../GSTRegistrationStepper/GSTRegistrationStepper'
+import { GSTRegistrationStepper } from '../../shared/GSTRegistrationStepper/GSTRegistrationStepper'
 import { useGstRegistrationState } from '../../hooks/useGstRegistrationState'
 import './GSTRegistration.css'
 

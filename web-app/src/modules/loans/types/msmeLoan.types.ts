@@ -1,69 +1,159 @@
 import type { UploadedLoanDocument } from '../documents/loanDocument.types'
 
-export type MsmeLoanConstitution =
+/**
+ * Employment and business profile types
+ */
+export type MsmeEmploymentProfileType = 'salaried' | 'self-employed' | 'business-owner' | ''
+
+/**
+ * Existing loans choice type
+ */
+export type MsmeExistingLoansType = 'none' | 'active' | ''
+
+/**
+ * Applicant profile information pulled securely from account
+ */
+export interface MsmeApplicantIdentityProfile {
+  name: string
+  mobile: string
+  email: string
+  pan: string
+  aadhaar: string
+  dob: string
+  address: string
+  isVerified: boolean
+}
+
+/**
+ * Business constitution options
+ */
+export type MsmeBusinessConstitutionType =
   | 'Proprietorship'
   | 'Partnership'
   | 'LLP'
   | 'Private Limited'
   | 'Public Limited'
   | 'Others'
-  | ''
 
-export type MsmeBusinessVintage =
+/**
+ * Business vintage options
+ */
+export type MsmeBusinessVintageType =
   | '< 1 Year'
   | '1–2 Years'
   | '3–5 Years'
   | '5–10 Years'
   | '10+ Years'
-  | ''
 
-export type MsmeLoanPurpose =
-  | 'Working Capital'
-  | 'Capital Expenditure'
-  | 'Machinery Purchase'
-  | 'Expansion / Diversification'
-  | 'Export Finance'
-  | 'Technology Upgrade'
-  | 'Other'
-  | ''
+/**
+ * Udyam registration choice
+ */
+export type MsmeUdyamOptionType = 'yes' | 'no' | ''
 
-export type MsmeLoanTenure =
-  | '12 Months'
-  | '24 Months'
-  | '36 Months'
-  | '48 Months'
-  | '60 Months'
-  | '72 Months'
-  | '84 Months'
-  | ''
-
-export type MsmeUdyamOption = 'yes' | 'no' | ''
-export type MsmeItrStatus = 'Filed' | 'Not Filed' | 'Exempt' | ''
-
-export interface MsmeLoanData {
-  // Step 1: MSME Profile & Loan
+/**
+ * Form data model for MSME Loan application (matching Business Loan architecture)
+ */
+export interface MsmeLoanFormData {
+  // Step 1: Loan & Applicant
+  employmentProfile: MsmeEmploymentProfileType
   requiredLoanAmount: string
-  loanPurpose: MsmeLoanPurpose
-  repaymentTenure: MsmeLoanTenure
-  hasActiveBorrowings: boolean
-  totalExistingEmiOutgo: string
+  preferredTenureMonths: string
+  purposeOfLoan: string
+  revenueOrTurnover: string
+  existingLoans: MsmeExistingLoansType
 
-  // Step 2: Business & Banking
+  // Step 2: Business Details
   registeredBusinessName: string
-  businessConstitution: MsmeLoanConstitution
+  businessConstitution: string
   gstin: string
-  hasUdyam: MsmeUdyamOption
+  hasUdyam: MsmeUdyamOptionType
   udyamRegistrationNumber: string
-  businessVintage: MsmeBusinessVintage
+  businessVintage: string
   annualTurnover: string
   annualNetProfit: string
-  primaryBankName: string
+  signatoryName: string
+  signatoryDesignation: string
+  signatoryEmail: string
+
+  // Step 3: Banking & Tax Records
+  primaryOperatingBankName: string
   currentAccountNumber: string
   bankIfscCode: string
-  itrFilingStatus: MsmeItrStatus
+  currentLenderBank: string
+  totalActiveLoanLimit: string
   itrAcknowledgementNumber: string
+  grossTotalIncomeItr: string
 
-  // Step 3 / 4: Documents & Review
-  uploadedDocs: Record<string, UploadedLoanDocument>
-  termsAccepted: boolean
+  // Legacy/Compatibility fields
+  loanPurpose?: string
+  repaymentTenure?: string
+  hasActiveBorrowings?: boolean
+  totalExistingEmiOutgo?: string
+  primaryBankName?: string
+  itrFilingStatus?: string
+
+  // Step 4: Documents
+  uploadedDocs?: Record<string, UploadedLoanDocument>
+
+  // Step 5: Terms & Review
+  termsAccepted?: boolean
+}
+
+/**
+ * Validation result for MSME Loan steps
+ */
+export interface MsmeLoanValidationResult {
+  isValid: boolean
+  errors: Record<string, string>
+  generalError?: string
+}
+
+/**
+ * Props for Step 1: Loan & Applicant component
+ */
+export interface MsmeLoanAndApplicantProps {
+  data: MsmeLoanFormData
+  applicant: MsmeApplicantIdentityProfile
+  onChange: (fields: Partial<MsmeLoanFormData>) => void
+  errors?: Record<string, string>
+}
+
+/**
+ * Props for Step 2: Business Details component
+ */
+export interface MsmeBusinessDetailsProps {
+  data: MsmeLoanFormData
+  onChange: (fields: Partial<MsmeLoanFormData>) => void
+  errors?: Record<string, string>
+}
+
+/**
+ * Props for Step 3: Banking component
+ */
+export interface MsmeBankingProps {
+  data: MsmeLoanFormData
+  onChange: (fields: Partial<MsmeLoanFormData>) => void
+  errors?: Record<string, string>
+}
+
+/**
+ * Props for Step 4: Document Verification component
+ */
+export interface MsmeDocumentVerificationProps {
+  data: MsmeLoanFormData
+  onChange: (fields: Partial<MsmeLoanFormData>) => void
+  errors?: Record<string, string>
+}
+
+/**
+ * Props for Step 5: Review & Submit component
+ */
+export interface MsmeReviewAndSubmitProps {
+  data: MsmeLoanFormData
+  applicant: MsmeApplicantIdentityProfile
+  onChange: (fields: Partial<MsmeLoanFormData>) => void
+  onNavigateToStep: (stepNumber: number) => void
+  onSubmit: () => void
+  isSubmitting?: boolean
+  errors?: Record<string, string>
 }

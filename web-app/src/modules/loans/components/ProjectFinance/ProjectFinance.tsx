@@ -1,60 +1,33 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StepActionBar, DraftConfirmModal, FlowStepper } from '@shared/components'
-import type { FlowStepItem } from '@shared/components'
 
 import { useLoanApplication } from '../../hooks/useLoanApplication'
 import { loanApplicationService } from '../../services/loanApplicationService'
-import type { LoanApplicationBase } from '../../types/loanApplication.types'
 import type { ProjectFinanceData } from '../../types/projectFinance.types'
 import { projectFinanceValidation } from '../../validation/projectFinanceValidation'
+import { PROJECT_FINANCE_STEPS, INITIAL_PROJECT_FINANCE_DATA } from './projectFinance.constants'
 
-import { ProjectDetails } from './steps/ProjectDetails/ProjectDetails'
-import { PromoterAndCollateral } from './steps/PromoterAndCollateral/PromoterAndCollateral'
-import { ProjectDocuments } from './steps/ProjectDocuments/ProjectDocuments'
-import { ProjectReview } from './steps/ProjectReview/ProjectReview'
-import { LoanSubmitSuccessModal } from '../../shared'
+import {
+  ApplicantAndProject,
+  LocationLandTechnical,
+  CostAndFinancing,
+  FinancialProjections,
+  PromoterAndManagement,
+  DocumentDossier,
+  ReviewAndSubmit,
+} from './steps'
+import { ProjectFinanceSubmitModal } from './steps/ReviewAndSubmit/ProjectFinanceSubmitModal'
 
 import './ProjectFinance.css'
 
-const PROJECT_FINANCE_STEPS: FlowStepItem[] = [
-  { stepNumber: 1, title: 'Project Details', shortLabel: 'Project' },
-  { stepNumber: 2, title: 'Promoter & Collateral', shortLabel: 'Promoter' },
-  { stepNumber: 3, title: 'Document Dossier', shortLabel: 'Documents' },
-  { stepNumber: 4, title: 'Review & Submit', shortLabel: 'Review' },
-]
-
-const INITIAL_PROJECT_FINANCE_DATA: ProjectFinanceData = {
-  projectName: '',
-  projectSector: '',
-  projectLocation: '',
-  projectDescription: '',
-  totalProjectCost: '',
-  debtFundingRequired: '',
-  equityContribution: '',
-  preferredFinanceType: '',
-  repaymentTenure: '',
-  promoterEntityName: '',
-  promoterConstitution: '',
-  promoterPan: '',
-  promoterCibilScore: '',
-  promoterNetWorth: '',
-  priorProjectExperience: '',
-  collateralType: '',
-  collateralDescription: '',
-  disbursementBankName: '',
-  disbursementAccountNumber: '',
-  disbursementIfscCode: '',
-  uploadedDocs: {},
-  termsAccepted: false,
-}
+export { PROJECT_FINANCE_STEPS, INITIAL_PROJECT_FINANCE_DATA }
 
 export const ProjectFinance: React.FC = () => {
   const navigate = useNavigate()
   const [stepError, setStepError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [submittedRef, setSubmittedRef] = useState<string | null>(null)
-  const [submittedApp, setSubmittedApp] = useState<LoanApplicationBase | null>(null)
 
   const {
     formData,
@@ -75,8 +48,16 @@ export const ProjectFinance: React.FC = () => {
     INITIAL_PROJECT_FINANCE_DATA,
     {
       serviceTitle: 'Project Finance',
-      totalSteps: 4,
-      stepLabels: ['Project Details', 'Promoter & Collateral', 'Document Dossier', 'Review & Submit'],
+      totalSteps: 7,
+      stepLabels: [
+        'Applicant & Project',
+        'Location, Land & Technical',
+        'Cost & Financing',
+        'Market & Financials',
+        'Promoter & Management',
+        'Document Dossier',
+        'Review & Submit',
+      ],
       resumeRoute: '/loans/project-finance',
     }
   )
@@ -99,17 +80,55 @@ export const ProjectFinance: React.FC = () => {
   const validateCurrentStep = (): boolean => {
     setStepError(null)
     setFieldErrors({})
-    const validators = [
-      () => projectFinanceValidation.validateStep1(formData),
-      () => projectFinanceValidation.validateStep2(formData),
-      () => projectFinanceValidation.validateStep3(formData),
-      () => projectFinanceValidation.validateStep4(formData),
-    ]
-    const res = validators[currentStep - 1]?.()
-    if (res && !res.isValid) {
-      setStepError(res.error || 'Please fill in all required fields.')
-      setFieldErrors(res.errors)
-      return false
+    if (currentStep === 1) {
+      const res = projectFinanceValidation.validateStep1(formData)
+      if (!res.isValid) {
+        setStepError(res.error || 'Please fill in all required fields.')
+        setFieldErrors(res.errors)
+        return false
+      }
+    } else if (currentStep === 2) {
+      const res = projectFinanceValidation.validateStep2(formData)
+      if (!res.isValid) {
+        setStepError(res.error || 'Please fill in all required fields.')
+        setFieldErrors(res.errors)
+        return false
+      }
+    } else if (currentStep === 3) {
+      const res = projectFinanceValidation.validateStep3(formData)
+      if (!res.isValid) {
+        setStepError(res.error || 'Please fill in all required fields.')
+        setFieldErrors(res.errors)
+        return false
+      }
+    } else if (currentStep === 4) {
+      const res = projectFinanceValidation.validateStep4(formData)
+      if (!res.isValid) {
+        setStepError(res.error || 'Please fill in all required fields.')
+        setFieldErrors(res.errors)
+        return false
+      }
+    } else if (currentStep === 5) {
+      const res = projectFinanceValidation.validateStep5(formData)
+      if (!res.isValid) {
+        setStepError(res.error || 'Please fill in all required fields.')
+        setFieldErrors(res.errors)
+        return false
+      }
+    } else if (currentStep === 6) {
+      const res = projectFinanceValidation.validateStep6(formData)
+      if (!res.isValid) {
+        setStepError(res.error || 'Please fill in all required fields.')
+        setFieldErrors(res.errors)
+        return false
+      }
+    } else if (currentStep === 7) {
+      const res = projectFinanceValidation.validateStep7(formData)
+      if (!res.isValid) {
+        setStepError(res.error || 'Please accept the declaration before submitting.')
+        setFieldErrors(res.errors)
+        return false
+      }
     }
     return true
   }
@@ -117,22 +136,22 @@ export const ProjectFinance: React.FC = () => {
   const handleNext = async () => {
     if (!validateCurrentStep()) return
 
-    if (currentStep < 4) {
+    if (currentStep < 7) {
+      setStepError(null)
+      setFieldErrors({})
       nextStep()
     } else {
       setIsSubmitting(true)
       try {
-        const tenureMonths = Number(String(formData.repaymentTenure).replace(/\D/g, '')) || 60
         const app = await loanApplicationService.submitApplication('project_finance', {
           loanType: 'project_finance',
           title: 'Project Finance Application',
           category: 'Structured Project Finance',
-          requestedAmount: Number(String(formData.debtFundingRequired).replace(/\D/g, '')) || 10000000,
-          tenureMonths,
+          requestedAmount: Number(String(formData.debtFundingRequired || formData.debtTermLoanRequested || formData.loanRequiredAmount).replace(/\D/g, '')) || 10000000,
+          tenureMonths: 60,
           details: formData,
         })
-        setSubmittedRef(app.referenceNumber || 'TXE-LN-PF-001')
-        setSubmittedApp(app)
+        setSubmittedRef(app.referenceNumber || 'PF-2026-9842')
       } catch (err: unknown) {
         const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
         setStepError(errorMsg)
@@ -173,33 +192,54 @@ export const ProjectFinance: React.FC = () => {
         </div>
       )}
 
-      <div className="project-finance-page__card">
+      <div className="project-finance-page__content">
         {currentStep === 1 && (
-          <ProjectDetails
+          <ApplicantAndProject
             data={formData}
             onChange={handleFieldChange}
             errors={fieldErrors}
           />
         )}
         {currentStep === 2 && (
-          <PromoterAndCollateral
+          <LocationLandTechnical
             data={formData}
             onChange={handleFieldChange}
             errors={fieldErrors}
           />
         )}
         {currentStep === 3 && (
-          <ProjectDocuments
+          <CostAndFinancing
             data={formData}
             onChange={handleFieldChange}
             errors={fieldErrors}
           />
         )}
         {currentStep === 4 && (
-          <ProjectReview
+          <FinancialProjections
             data={formData}
             onChange={handleFieldChange}
-            onNavigateToStep={(step) => {
+            errors={fieldErrors}
+          />
+        )}
+        {currentStep === 5 && (
+          <PromoterAndManagement
+            data={formData}
+            onChange={handleFieldChange}
+            errors={fieldErrors}
+          />
+        )}
+        {currentStep === 6 && (
+          <DocumentDossier
+            data={formData}
+            onChange={handleFieldChange}
+            errors={fieldErrors}
+          />
+        )}
+        {currentStep === 7 && (
+          <ReviewAndSubmit
+            data={formData}
+            onChange={handleFieldChange}
+            onNavigateToStep={(step: number) => {
               setStepError(null)
               setFieldErrors({})
               goToStep(step)
@@ -219,9 +259,9 @@ export const ProjectFinance: React.FC = () => {
         onNext={handleNext}
         onSaveDraft={() => setIsDraftModalOpen(true)}
         saveDraftLabel="Save Draft & Exit"
-        nextLabel={currentStep === 4 ? (isSubmitting ? 'Submitting...' : 'Submit Application') : 'Continue'}
+        nextLabel={currentStep === 7 ? (isSubmitting ? 'Submitting...' : 'Submit Application') : 'Save & Continue'}
         nextDisabled={isSubmitting}
-        nextTestId={currentStep === 4 ? 'pf-submit-application-btn' : 'pf-step-continue-btn'}
+        nextTestId={currentStep === 7 ? 'pf-submit-application-btn' : 'pf-step-continue-btn'}
       />
 
       <DraftConfirmModal
@@ -232,16 +272,11 @@ export const ProjectFinance: React.FC = () => {
         onKeepEditing={handleKeepEditing}
       />
 
-      <LoanSubmitSuccessModal
+      <ProjectFinanceSubmitModal
         isOpen={Boolean(submittedRef)}
-        title="Project Finance Submitted"
-        referenceNumber={submittedRef || ''}
-        message="Your Project Finance application has been received. A Senior TaxEdge Finance Advisor will conduct a preliminary appraisal and reach out within 2–3 business days."
-        onTrackStatus={() => {
-          const ref = submittedRef || 'TXE-LN-PF-001'
-          navigate(`/loans/status/${ref}`, {
-            state: { application: submittedApp, formData, refNumber: ref, loanTitle: 'Project Finance' },
-          })
+        applicationId={submittedRef || 'PF-2026-9842'}
+        onDone={() => {
+          navigate('/loans')
         }}
       />
     </div>

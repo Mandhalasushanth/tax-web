@@ -1,0 +1,336 @@
+import React, { useState, useRef } from 'react'
+import type { UploadedLoanDocument } from '../../../../documents/loanDocument.types'
+import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import { PROJECT_FINANCE_DOC_LIST, type UploadDocItem } from './reviewSubmitConstants'
+
+export interface UploadDocumentsSectionProps {
+  data: ProjectFinanceData
+  onChange: (fields: Partial<ProjectFinanceData>) => void
+  isOpen: boolean
+  onToggle: () => void
+  errors?: Record<string, string>
+}
+
+const FileTextSvg: React.FC = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" />
+    <line x1="16" y1="17" x2="8" y2="17" />
+    <polyline points="10 9 9 9 8 9" />
+  </svg>
+)
+
+const ChevronSvg: React.FC<{ isOpen: boolean }> = ({ isOpen }) => (
+  <span className={`pf-chevron ${isOpen ? 'pf-chevron--open' : ''}`}>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  </span>
+)
+
+const RenderDocIcon: React.FC<{ type: UploadDocItem['iconType'] }> = ({ type }) => {
+  switch (type) {
+    case 'user':
+      return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      )
+    case 'building':
+      return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+          <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+          <line x1="9" y1="22" x2="9" y2="22.01" />
+          <line x1="15" y1="22" x2="15" y2="22.01" />
+          <line x1="9" y1="6" x2="9" y2="6.01" />
+          <line x1="15" y1="6" x2="15" y2="6.01" />
+          <line x1="9" y1="10" x2="9" y2="10.01" />
+          <line x1="15" y1="10" x2="15" y2="10.01" />
+          <line x1="9" y1="14" x2="9" y2="14.01" />
+          <line x1="15" y1="14" x2="15" y2="14.01" />
+        </svg>
+      )
+    case 'chart':
+      return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      )
+    case 'money':
+      return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+          <rect x="2" y="6" width="20" height="12" rx="2" />
+          <circle cx="12" cy="12" r="2" />
+          <path d="M6 12h.01M18 12h.01" />
+        </svg>
+      )
+    case 'attachment':
+      return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+        </svg>
+      )
+    default:
+      return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+        </svg>
+      )
+  }
+}
+
+const UploadCloudSvg: React.FC = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+    <polyline points="12 12 12 16" />
+    <polyline points="9 13 12 10 15 13" />
+  </svg>
+)
+
+export const UploadDocumentsSection: React.FC<UploadDocumentsSectionProps> = ({
+  data,
+  onChange,
+  isOpen,
+  onToggle,
+  errors = {},
+}) => {
+  const [activeCategory, setActiveCategory] = useState<'All' | 'Applicant' | 'Project' | 'Financial'>('All')
+  const fileInputsRef = useRef<Record<string, HTMLInputElement | null>>({})
+
+  const handleFileUpload = (docId: string, file: File | null) => {
+    if (!file) return
+    const uploadedDoc: UploadedLoanDocument = {
+      id: docId,
+      name: file.name,
+      size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+      file,
+      uploadedAt: new Date().toISOString(),
+    }
+    const updatedDocs = {
+      ...(data.uploadedDocs || {}),
+      [docId]: uploadedDoc,
+    }
+    onChange({ uploadedDocs: updatedDocs })
+  }
+
+  const handleRemoveDoc = (docId: string) => {
+    try {
+      const nextDocs = { ...(data.uploadedDocs || {}) }
+      delete nextDocs[docId]
+      onChange({ uploadedDocs: nextDocs })
+    } catch (err) {
+      console.error('Error removing document:', err)
+    }
+  }
+
+  const handleViewDoc = (docId: string, title: string) => {
+    try {
+      const rawDoc = data.uploadedDocs?.[docId]
+      const fileObj = rawDoc instanceof File ? rawDoc : rawDoc?.file
+      if (fileObj) {
+        const url = URL.createObjectURL(fileObj)
+        window.open(url, '_blank')
+      } else {
+        const name = (rawDoc && 'name' in rawDoc) ? rawDoc.name : title
+        alert(`Viewing: ${name}`)
+      }
+    } catch (err) {
+      console.error('Error viewing document:', err)
+    }
+  }
+
+  const filteredDocs = PROJECT_FINANCE_DOC_LIST.filter((doc) => {
+    if (activeCategory === 'All') return true
+    return doc.category === activeCategory
+  })
+
+  return (
+    <div className="pf-collapsible-card">
+      <div className="pf-collapsible-header" onClick={onToggle}>
+        <div className="pf-collapsible-header__left">
+          <div className="pf-section-icon-tile pf-section-icon-tile--orange">
+            <FileTextSvg />
+          </div>
+          <h2 className="pf-collapsible-title">1. Upload Documents</h2>
+        </div>
+        <ChevronSvg isOpen={isOpen} />
+      </div>
+
+      {isOpen && (
+        <div className="pf-collapsible-body">
+          <p className="pf-section-intro-desc">
+            Upload the required documents for your project finance application.
+          </p>
+
+          {/* Category Tabs */}
+          <div className="pf-doc-tabs-row">
+            <button
+              type="button"
+              className={`pf-doc-tab-pill ${activeCategory === 'All' ? 'pf-doc-tab-pill--active' : ''}`}
+              onClick={() => setActiveCategory('All')}
+            >
+              All Documents
+            </button>
+            <button
+              type="button"
+              className={`pf-doc-tab-pill ${activeCategory === 'Applicant' ? 'pf-doc-tab-pill--active' : ''}`}
+              onClick={() => setActiveCategory('Applicant')}
+            >
+              Applicant
+            </button>
+            <button
+              type="button"
+              className={`pf-doc-tab-pill ${activeCategory === 'Project' ? 'pf-doc-tab-pill--active' : ''}`}
+              onClick={() => setActiveCategory('Project')}
+            >
+              Project
+            </button>
+            <button
+              type="button"
+              className={`pf-doc-tab-pill ${activeCategory === 'Financial' ? 'pf-doc-tab-pill--active' : ''}`}
+              onClick={() => setActiveCategory('Financial')}
+            >
+              Financial
+            </button>
+          </div>
+
+          {/* Document Upload Items */}
+          <div className="pf-doc-upload-items-list">
+            {filteredDocs.map((doc) => {
+              const rawDoc = data.uploadedDocs?.[doc.id]
+              const isUploaded = Boolean(rawDoc)
+              const fileName = rawDoc instanceof File ? rawDoc.name : rawDoc?.name
+              const fileSize = (rawDoc && !(rawDoc instanceof File)) ? rawDoc.size : ''
+
+              return (
+                <div
+                  key={doc.id}
+                  className={`pf-doc-upload-card ${isUploaded ? 'pf-doc-upload-card--uploaded' : ''}`}
+                >
+                  <input
+                    ref={(el) => {
+                      fileInputsRef.current[doc.id] = el
+                    }}
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="pf-doc-file-input-hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null
+                      handleFileUpload(doc.id, file)
+                      e.target.value = ''
+                    }}
+                  />
+
+                  {/* Main Row */}
+                  <div className="pf-doc-card-main-row">
+                    <div className="pf-doc-card-left">
+                      <div className="pf-doc-icon-tile">
+                        <RenderDocIcon type={doc.iconType} />
+                      </div>
+
+                      <div className="pf-doc-row-details">
+                        <span className="pf-doc-row-title">
+                          {doc.title} {doc.required && <span className="pf-required-star">*</span>}
+                        </span>
+                        {isUploaded ? (
+                          <span className="pf-doc-uploaded-filename">
+                            {fileName} {fileSize ? `(${fileSize})` : ''}
+                          </span>
+                        ) : (
+                          <span className="pf-doc-row-sub">{doc.subtitle}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Right side status / button */}
+                    {isUploaded ? (
+                      <div className="pf-doc-uploaded-badge">
+                        <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor">
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <span>Uploaded</span>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="pf-doc-upload-btn-outline"
+                        onClick={() => fileInputsRef.current[doc.id]?.click()}
+                      >
+                        <UploadCloudSvg />
+                        <span>Upload File</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Uploaded Actions Footer Bar: View Document | Replace | Delete */}
+                  {isUploaded && (
+                    <>
+                      <div className="pf-doc-card-divider" />
+                      <div className="pf-doc-card-actions-bar">
+                        <button
+                          type="button"
+                          className="pf-doc-action-btn pf-doc-action-btn--view"
+                          onClick={() => handleViewDoc(doc.id, doc.title)}
+                        >
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg>
+                          <span>View Document</span>
+                        </button>
+
+                        <span className="pf-doc-actions-separator" aria-hidden="true" />
+
+                        <button
+                          type="button"
+                          className="pf-doc-action-btn pf-doc-action-btn--replace"
+                          onClick={() => fileInputsRef.current[doc.id]?.click()}
+                        >
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="23 4 23 10 17 10" />
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                          </svg>
+                          <span>Replace</span>
+                        </button>
+
+                        <span className="pf-doc-actions-separator" aria-hidden="true" />
+
+                        <button
+                          type="button"
+                          className="pf-doc-action-btn pf-doc-action-btn--delete"
+                          onClick={() => handleRemoveDoc(doc.id)}
+                          title="Delete document"
+                        >
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            <line x1="10" y1="11" x2="10" y2="17" />
+                            <line x1="14" y1="11" x2="14" y2="17" />
+                          </svg>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {errors.documents && (
+            <span className="pf-field-error-msg">{errors.documents}</span>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+

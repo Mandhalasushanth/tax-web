@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 0.5rem 0 1.5rem 0;
+  padding: 0.5rem 0 1.25rem 0;
   background: transparent;
   border: none;
   box-shadow: none;
@@ -18,22 +18,26 @@
 
 .flow-stepper-track {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   width: 100%;
-  max-width: 720px;
+  max-width: 980px;
   margin: 0 auto;
   box-sizing: border-box;
+  position: relative;
 }
 
 .flow-step-item-wrapper {
   display: flex;
-  align-items: center;
-  flex: 1;
+  align-items: flex-start;
+  flex: 1 1 0;
+  min-width: 0;
+  position: relative;
 }
 
 .flow-step-item-wrapper:last-child {
   flex: 0 0 auto;
+  min-width: 90px;
 }
 
 /* Button & Circle */
@@ -41,7 +45,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.5rem;
   background: transparent;
   border: none;
@@ -52,7 +56,9 @@
   user-select: none;
   outline: none;
   font-family: inherit;
-  transition: transform 0.2s ease;
+  width: 100%;
+  max-width: 110px;
+  margin: 0 auto;
 }
 
 .flow-step-button--completed,
@@ -61,59 +67,60 @@
 }
 
 .flow-step-button:focus-visible .flow-step-circle {
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.4);
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.35);
 }
 
 .flow-step-circle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 700;
   flex-shrink: 0;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   user-select: none;
+  box-sizing: border-box;
 }
 
 /* 1. Upcoming / Pending State */
 .flow-step-button--upcoming .flow-step-circle {
   background-color: #ffffff;
-  color: #94a3b8;
-  border: 2px solid #cbd5e1;
+  color: #8da4be;
+  border: 1.5px solid #d0dbe7;
 }
 
 .flow-step-button--upcoming .flow-step-label {
-  color: #64748b;
-  font-weight: 600;
+  color: #5a6f87;
+  font-weight: 500;
 }
 
 /* 2. Active State (Orange) */
 .flow-step-button--active .flow-step-circle {
-  background-color: #f97316;
+  background-color: #ff7a00;
   color: #ffffff;
-  border: 2.5px solid #f97316;
-  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.42);
-  transform: scale(1.06);
+  border: 2px solid #ff7a00;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.4);
+  transform: scale(1.04);
 }
 
 .flow-step-button--active .flow-step-label {
-  color: #f97316;
+  color: #ff7a00;
   font-weight: 700;
 }
 
 /* 3. Completed State (Navy Blue) */
 .flow-step-button--completed .flow-step-circle {
-  background-color: #083b75;
+  background-color: #1a237e;
   color: #ffffff;
-  border: 2.5px solid #083b75;
-  box-shadow: 0 4px 14px rgba(8, 59, 117, 0.35);
+  border: 2px solid #1a237e;
+  box-shadow: 0 3px 10px rgba(26, 35, 126, 0.28);
 }
 
 .flow-step-button--completed .flow-step-label {
-  color: #083b75;
+  color: #1a237e;
   font-weight: 600;
 }
 
@@ -121,7 +128,7 @@
   width: 16px;
   height: 16px;
   stroke: #ffffff;
-  stroke-width: 3;
+  stroke-width: 2.8;
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -129,27 +136,31 @@
 
 /* Label */
 .flow-step-label {
-  font-size: 0.8125rem;
+  font-size: 0.775rem;
+  line-height: 1.25;
   font-weight: 600;
-  white-space: nowrap;
+  white-space: normal;
   text-align: center;
   letter-spacing: -0.01em;
   transition: color 0.2s ease;
+  word-break: normal;
+  overflow-wrap: break-word;
+  max-width: 100px;
+  padding: 0 2px;
 }
 
 /* Connecting Line between steps */
 .flow-step-line {
-  flex: 1;
-  height: 2.5px;
+  flex: 1 1 auto;
+  height: 2px;
   background-color: #e2e8f0;
-  margin: 0 0.75rem;
-  margin-bottom: 1.45rem; /* Vertically aligned with center of 40px circle */
+  margin: 18px 0.25rem 0 0.25rem; /* Centered with 38px circle */
   transition: background-color 0.3s ease;
   z-index: 1;
 }
 
 .flow-step-line--completed {
-  background-color: #083b75;
+  background-color: #1a237e;
 }
 
 /* Interactive Hover */
@@ -158,20 +169,35 @@
 }
 
 .flow-step-button--active:hover .flow-step-circle {
-  transform: scale(1.06) translateY(-2px);
+  transform: scale(1.04) translateY(-2px);
 }
 
 /* Mobile Responsiveness */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .flow-stepper-track {
     max-width: 100%;
     overflow-x: auto;
     justify-content: flex-start;
-    gap: 1.25rem;
-    padding-bottom: 0.5rem;
+    padding: 0.25rem 0.5rem 0.75rem 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .flow-stepper-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .flow-step-item-wrapper {
+    flex: 0 0 auto;
+    min-width: 96px;
+  }
+
+  .flow-step-item-wrapper:last-child {
+    min-width: 96px;
   }
 
   .flow-step-line {
-    display: none;
+    min-width: 20px;
+    margin: 18px 0.25rem 0 0.25rem;
   }
 }

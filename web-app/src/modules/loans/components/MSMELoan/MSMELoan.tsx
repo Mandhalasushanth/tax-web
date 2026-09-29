@@ -1,35 +1,80 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StepActionBar, DraftConfirmModal, FlowStepper } from '@shared/components'
 import type { FlowStepItem } from '@shared/components'
-
-import { useLoanApplication } from '../../hooks/useLoanApplication'
+import {
+  LoanAndApplicant,
+  BusinessDetails,
+  Banking,
+  DocumentVerification,
+  ReviewAndSubmit,
+} from '../BusinessLoan/steps'
+import { getApplicantIdentityDetails } from '../../services/applicantDetailsService'
+import {
+  validateStep1LoanAndApplicant,
+  validateStep2BusinessDetails,
+  validateStep3Banking,
+  validateStep4Documents,
+  validateStep5Review,
+} from '../../validation/msmeLoanValidation'
 import { loanApplicationService } from '../../services/loanApplicationService'
-import type { LoanApplicationBase } from '../../types/loanApplication.types'
-import type { MsmeLoanData } from '../../types/msmeLoan.types'
-import { msmeLoanValidation } from '../../validation/msmeLoanValidation'
-
-import { MsmeProfile } from './steps/MsmeProfile/MsmeProfile'
-import { BusinessAndBanking } from './steps/BusinessAndBanking/BusinessAndBanking'
-import { MsmeDocuments } from './steps/MsmeDocuments/MsmeDocuments'
-import { MsmeReview } from './steps/MsmeReview/MsmeReview'
-import { LoanSubmitSuccessModal } from '../../shared'
-
+import { useLoanApplication } from '../../hooks/useLoanApplication'
+import { safeNavigateTo } from '../../utils/loanMarketplace.utils'
+import type { MsmeLoanFormData } from '../../types/msmeLoan.types'
+import type { BusinessLoanFormData } from '../../types/businessLoan.types'
 import './MSMELoan.css'
 
 const MSME_LOAN_STEPS: FlowStepItem[] = [
-  { stepNumber: 1, title: 'MSME Profile & Loan', shortLabel: 'MSME Profile' },
-  { stepNumber: 2, title: 'Business & Banking', shortLabel: 'Business' },
-  { stepNumber: 3, title: 'Document Dossier', shortLabel: 'Documents' },
-  { stepNumber: 4, title: 'Review & Submit', shortLabel: 'Review' },
+  { stepNumber: 1, title: 'Loan & Applicant', shortLabel: 'Loan & Applicant' },
+  { stepNumber: 2, title: 'Business', shortLabel: 'Business' },
+  { stepNumber: 3, title: 'Banking', shortLabel: 'Banking' },
+  { stepNumber: 4, title: 'Documents', shortLabel: 'Documents' },
+  { stepNumber: 5, title: 'Review', shortLabel: 'Review' },
 ]
 
-const INITIAL_MSME_LOAN_DATA: MsmeLoanData = {
+const MSME_LOAN_STEP_VALIDATORS: Record<
+  number,
+  {
+    validate: (data: MsmeLoanFormData) => { isValid: boolean; errors: Record<string, string>; generalError?: string }
+    defaultMsg: string
+  }
+> = {
+  1: { validate: validateStep1LoanAndApplicant, defaultMsg: 'Please fill in all mandatory fields.' },
+  2: { validate: validateStep2BusinessDetails, defaultMsg: 'Please fill in all mandatory fields.' },
+  3: { validate: validateStep3Banking, defaultMsg: 'Please fill in all mandatory fields.' },
+  4: { validate: validateStep4Documents, defaultMsg: 'Please upload all mandatory documents marked with *.' },
+  5: { validate: validateStep5Review, defaultMsg: 'Please check the authorization box before submitting.' },
+}
+
+function clearFieldErrors(
+  errors: Record<string, string>,
+  fields: Partial<MsmeLoanFormData>
+): Record<string, string> {
+  const next = { ...errors }
+  Object.keys(fields).forEach((key) => {
+    delete next[key]
+  })
+  if ('hasUdyam' in fields) delete next.udyamRegistrationNumber
+  if ('uploadedDocs' in fields) {
+    const docFields = [
+      'panCard', 'aadhaarCard', 'directorsKyc', 'businessAddressProof',
+      'bankStatements', 'gstCertificate', 'gstReturns', 'businessItr',
+      'auditedBalanceSheet', 'profitAndLossStatement', 'cashFlowStatement',
+      'businessExpansionDoc', 'businessRegistrationProof',
+    ]
+    docFields.forEach((d) => { delete next[d] })
+  }
+  return next
+}
+
+const INITIAL_MSME_LOAN_DATA: MsmeLoanFormData = {
+  employmentProfile: '',
   requiredLoanAmount: '',
-  loanPurpose: '',
-  repaymentTenure: '',
-  hasActiveBorrowings: false,
-  totalExistingEmiOutgo: '',
+  preferredTenureMonths: '',
+  purposeOfLoan: '',
+  revenueOrTurnover: '',
+  existingLoans: '',
+
   registeredBusinessName: '',
   businessConstitution: '',
   gstin: '',
@@ -38,21 +83,34 @@ const INITIAL_MSME_LOAN_DATA: MsmeLoanData = {
   businessVintage: '',
   annualTurnover: '',
   annualNetProfit: '',
-  primaryBankName: '',
+  signatoryName: '',
+  signatoryDesignation: '',
+  signatoryEmail: '',
+
+  primaryOperatingBankName: '',
   currentAccountNumber: '',
   bankIfscCode: '',
-  itrFilingStatus: '',
+  currentLenderBank: '',
+  totalActiveLoanLimit: '',
   itrAcknowledgementNumber: '',
+  grossTotalIncomeItr: '',
+
   uploadedDocs: {},
   termsAccepted: false,
 }
 
+/**
+ * MSME Loan Application flow orchestrator component.
+ * Implements advanced modular architecture, pure functional components,
+ * and zero loop constructs matching the Business Loan standard.
+ */
 export const MSMELoan: React.FC = () => {
   const navigate = useNavigate()
   const [stepError, setStepError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
-  const [submittedRef, setSubmittedRef] = useState<string | null>(null)
-  const [submittedApp, setSubmittedApp] = useState<LoanApplicationBase | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+
+  const applicant = useMemo(() => getApplicantIdentityDetails(), [])
 
   const {
     formData,
@@ -63,163 +121,217 @@ export const MSMELoan: React.FC = () => {
     prevStep,
     isDraftModalOpen,
     setIsDraftModalOpen,
-    isSubmitting,
-    setIsSubmitting,
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
-  } = useLoanApplication<MsmeLoanData>(
-    'msme_loan',
-    INITIAL_MSME_LOAN_DATA,
-    {
-      serviceTitle: 'MSME Loan',
-      totalSteps: 4,
-      stepLabels: ['MSME Profile & Loan', 'Business & Banking', 'Document Dossier', 'Review & Submit'],
-      resumeRoute: '/loans/msme-loan',
-    }
+  } = useLoanApplication<MsmeLoanFormData>('msme_loan', INITIAL_MSME_LOAN_DATA, {
+    serviceTitle: 'MSME Loan',
+    totalSteps: 5,
+    stepLabels: ['Loan & Applicant', 'Business', 'Banking', 'Documents', 'Review'],
+    resumeRoute: '/loans/msme-loan',
+  })
+
+  const handleFieldChange = useCallback(
+    (fields: Partial<MsmeLoanFormData>) => {
+      try {
+        updateFormData(fields)
+        setFieldErrors((prev) => clearFieldErrors(prev, fields))
+        Boolean(stepError) && setStepError(null)
+      } catch (err) {
+        console.error('[MSMELoan] Error updating form field:', err)
+      }
+    },
+    [updateFormData, stepError]
   )
 
-  const handleFieldChange = (fields: Partial<MsmeLoanData>) => {
-    updateFormData(fields)
-    if (Object.keys(fieldErrors).length > 0) {
-      setFieldErrors((prev) => {
-        const next = { ...prev }
-        Object.keys(fields).forEach((key) => { delete next[key] })
-        if (fields.uploadedDocs) {
-          Object.keys(fields.uploadedDocs).forEach((docId) => { delete next[docId] })
-        }
-        return next
-      })
+  const handleBack = useCallback(() => {
+    try {
+      const isPastFirstStep = currentStep > 1
+      isPastFirstStep
+        ? (setStepError(null), setFieldErrors({}), prevStep())
+        : safeNavigateTo(navigate, '/loans')
+    } catch (err) {
+      console.error('[MSMELoan] Navigation error:', err)
+      navigate('/loans')
     }
-    if (stepError) setStepError(null)
-  }
+  }, [currentStep, prevStep, navigate])
 
-  const validateCurrentStep = (): boolean => {
-    setStepError(null)
-    setFieldErrors({})
-    const validators = [
-      () => msmeLoanValidation.validateStep1(formData),
-      () => msmeLoanValidation.validateStep2(formData),
-      () => msmeLoanValidation.validateStep3(formData),
-      () => msmeLoanValidation.validateStep4(formData),
-    ]
-    const res = validators[currentStep - 1]?.()
-    if (res && !res.isValid) {
-      setStepError(res.error || 'Please fill in all required fields.')
-      setFieldErrors(res.errors)
-      return false
-    }
-    return true
-  }
-
-  const handleNext = async () => {
-    if (!validateCurrentStep()) return
-
-    if (currentStep < 4) {
-      nextStep()
-    } else {
-      setIsSubmitting(true)
-      try {
-        const tenureMonths = Number(String(formData.repaymentTenure).replace(/\D/g, '')) || 36
-        const app = await loanApplicationService.submitApplication('msme_loan', {
-          loanType: 'msme_loan',
-          title: 'MSME Loan Application',
-          category: 'MSME & SME Finance',
-          requestedAmount: Number(String(formData.requiredLoanAmount).replace(/\D/g, '')) || 2500000,
-          tenureMonths,
-          details: formData,
-        })
-        setSubmittedRef(app.referenceNumber || 'TXE-LN-MSME-001')
-        setSubmittedApp(app)
-      } catch (err: unknown) {
-        const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
-        setStepError(errorMsg)
-      } finally {
-        setIsSubmitting(false)
-      }
-    }
-  }
-
-  const handleStepClick = (targetStep: number) => {
-    if (targetStep < currentStep) {
-      goToStep(targetStep)
+  const handleSubmit = useCallback(async () => {
+    try {
       setStepError(null)
-      setFieldErrors({})
-    } else if (targetStep === currentStep + 1) {
-      if (validateCurrentStep()) goToStep(targetStep)
+      const validation = validateStep5Review(formData)
+
+      const executeSubmission = async () => {
+        setIsSubmitting(true)
+        const result = await loanApplicationService.submitApplication('msme_loan', formData)
+        setIsSubmitting(false)
+        navigate(`/loans/status/${result.id || result.refNumber}`, {
+          state: { application: result, loanTitle: 'MSME Loan', formData },
+        })
+      }
+
+      const handleInvalid = () => {
+        setFieldErrors(validation.errors)
+        setStepError(validation.generalError || 'Please check the authorization box before submitting.')
+      }
+
+      validation.isValid ? executeSubmission() : handleInvalid()
+    } catch (err) {
+      console.error('[MSMELoan] Application submission failed:', err)
+      setIsSubmitting(false)
+      setStepError('Application submission failed. Please try again.')
     }
-  }
+  }, [formData, navigate])
+
+  const handleContinue = useCallback(() => {
+    try {
+      setStepError(null)
+      const stepConfig = MSME_LOAN_STEP_VALIDATORS[currentStep]
+      const validation = stepConfig ? stepConfig.validate(formData) : { isValid: true, errors: {} }
+
+      const handleInvalid = () => {
+        setFieldErrors(validation?.errors ?? {})
+        setStepError(validation?.generalError || stepConfig?.defaultMsg || 'Please fill in all mandatory fields.')
+      }
+
+      const handleValid = () => {
+        setFieldErrors({})
+        currentStep === 5 ? handleSubmit() : nextStep()
+      }
+
+      !stepConfig
+        ? nextStep()
+        : validation.isValid
+          ? handleValid()
+          : handleInvalid()
+    } catch (err) {
+      console.error('[MSMELoan] Step continuation error:', err)
+      setStepError('An unexpected error occurred. Please verify your inputs.')
+    }
+  }, [currentStep, formData, nextStep, handleSubmit])
+
+  const handleStepClick = useCallback(
+    (targetStep: number) => {
+      try {
+        const canGoBack = targetStep < currentStep
+        const isNextStep = targetStep === currentStep + 1
+        const validator = MSME_LOAN_STEP_VALIDATORS[currentStep]
+        const validation = validator ? validator.validate(formData) : { isValid: true, errors: {} }
+
+        const navigateDirect = () => {
+          setStepError(null)
+          setFieldErrors({})
+          goToStep(targetStep)
+        }
+
+        const handleStepValidation = () => {
+          validation.isValid
+            ? navigateDirect()
+            : (
+                setFieldErrors(validation.errors),
+                setStepError(validation.generalError || validator?.defaultMsg || 'Please complete the current step.')
+              )
+        }
+
+        canGoBack
+          ? navigateDirect()
+          : isNextStep
+            ? handleStepValidation()
+            : undefined
+      } catch (err) {
+        console.error('[MSMELoan] Step click error:', err)
+      }
+    },
+    [currentStep, formData, goToStep]
+  )
+
+  // Safe cast to business loan shape as both types share identical structure
+  const businessShapeData = formData as unknown as BusinessLoanFormData
+  const handleBusinessShapeChange = handleFieldChange as unknown as (fields: Partial<BusinessLoanFormData>) => void
 
   return (
     <div className="msme-loan-page" data-testid="msme-loan-page">
+      {/* 1. Page Heading */}
       <h1 className="msme-loan-page__title">MSME Loan</h1>
 
+      {/* 2. Five-Step Progress Indicator using global shared FlowStepper */}
       <FlowStepper
         steps={MSME_LOAN_STEPS}
         currentStep={currentStep}
         onStepClick={handleStepClick}
       />
 
+      {/* 3. Error Banner */}
       {stepError && (
         <div className="msme-loan-page__error-banner" role="alert">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
+          <img
+            src="/assets/icons/loans/alert-error.svg"
+            alt=""
+            width="20"
+            height="20"
+            className="msme-loan-page__error-icon"
+            aria-hidden="true"
+          />
           <span>{stepError}</span>
         </div>
       )}
 
-      <div className="msme-loan-page__card">
-        {currentStep === 1 && (
-          <MsmeProfile
-            data={formData}
-            onChange={handleFieldChange}
-            errors={fieldErrors}
-          />
-        )}
-        {currentStep === 2 && (
-          <BusinessAndBanking
-            data={formData}
-            onChange={handleFieldChange}
-            errors={fieldErrors}
-          />
-        )}
-        {currentStep === 3 && (
-          <MsmeDocuments
-            data={formData}
-            onChange={handleFieldChange}
-            errors={fieldErrors}
-          />
-        )}
-        {currentStep === 4 && (
-          <MsmeReview
-            data={formData}
-            onChange={handleFieldChange}
-            onNavigateToStep={(step) => {
-              setStepError(null)
-              setFieldErrors({})
-              goToStep(step)
-            }}
-            errors={fieldErrors}
-          />
-        )}
-      </div>
+      {/* 4. Active Step Content */}
+      {currentStep === 1 && (
+        <LoanAndApplicant
+          data={businessShapeData}
+          applicant={applicant}
+          onChange={handleBusinessShapeChange}
+          errors={fieldErrors}
+        />
+      )}
 
+      {currentStep === 2 && (
+        <BusinessDetails
+          data={businessShapeData}
+          onChange={handleBusinessShapeChange}
+          errors={fieldErrors}
+        />
+      )}
+
+      {currentStep === 3 && (
+        <Banking
+          data={businessShapeData}
+          onChange={handleBusinessShapeChange}
+          errors={fieldErrors}
+        />
+      )}
+
+      {currentStep === 4 && (
+        <DocumentVerification
+          data={businessShapeData}
+          onChange={handleBusinessShapeChange}
+          errors={fieldErrors}
+        />
+      )}
+
+      {currentStep === 5 && (
+        <ReviewAndSubmit
+          data={businessShapeData}
+          applicant={applicant}
+          onChange={handleBusinessShapeChange}
+          onNavigateToStep={goToStep}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          errors={fieldErrors}
+        />
+      )}
+
+      {/* 5. Bottom Action Bar */}
       <StepActionBar
         showBack={true}
-        onBack={() => {
-          setStepError(null)
-          setFieldErrors({})
-          currentStep > 1 ? prevStep() : navigate('/loans')
-        }}
-        onNext={handleNext}
+        onBack={handleBack}
+        onNext={currentStep === 5 ? handleSubmit : handleContinue}
         onSaveDraft={() => setIsDraftModalOpen(true)}
         saveDraftLabel="Save Draft & Exit"
-        nextLabel={currentStep === 4 ? (isSubmitting ? 'Submitting...' : 'Submit Application') : 'Continue'}
+        nextLabel={currentStep === 5 ? (isSubmitting ? 'Submitting...' : 'Submit Application') : 'Continue'}
         nextDisabled={isSubmitting}
-        nextTestId={currentStep === 4 ? 'msme-submit-application-btn' : 'msme-step-continue-btn'}
+        nextTestId={currentStep === 5 ? 'msme-submit-application-btn' : 'msme-step-continue-btn'}
       />
 
       <DraftConfirmModal
@@ -228,19 +340,6 @@ export const MSMELoan: React.FC = () => {
         onSaveAndExit={handleSaveAndExit}
         onDiscardAndExit={handleDiscardAndExit}
         onKeepEditing={handleKeepEditing}
-      />
-
-      <LoanSubmitSuccessModal
-        isOpen={Boolean(submittedRef)}
-        title="MSME Loan Submitted"
-        referenceNumber={submittedRef || ''}
-        message="Your MSME Loan application has been successfully received. A TaxEdge MSME Finance Advisor will review your dossier and contact you shortly."
-        onTrackStatus={() => {
-          const ref = submittedRef || 'TXE-LN-MSME-001'
-          navigate(`/loans/status/${ref}`, {
-            state: { application: submittedApp, formData, refNumber: ref, loanTitle: 'MSME Loan' },
-          })
-        }}
       />
     </div>
   )

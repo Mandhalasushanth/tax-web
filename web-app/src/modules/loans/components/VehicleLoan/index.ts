@@ -1,6 +1,2 @@
 export { VehicleLoan, default } from './VehicleLoan'
-export * from './steps/VehicleRequirements/VehicleRequirements'
-export * from './steps/ApplicantDetails/ApplicantDetails'
-export * from './steps/BankingDetails/BankingDetails'
-export * from './steps/DocumentDossier/DocumentDossier'
-export * from './steps/ReviewAndDeclaration/ReviewAndDeclaration'
+export * from './steps'

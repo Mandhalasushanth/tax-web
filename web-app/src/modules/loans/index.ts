@@ -1,23 +1,42 @@
-export { loansRoutes } from './routes'
+// Routes
+export { loansRoutes, default as defaultLoansRoutes } from './routes'
  
-export { useLoans } from './hooks/useLoans'
-export { useLoanApplication } from './hooks/useLoanApplication'
-export { useDropdown } from './hooks/useDropdown'
+// Hooks
+export { useLoans, useLoanApplication, useDropdown } from './hooks'
+export * from './hooks'
+
+// Services
 export { loansService } from './services/loansService'
 export { loanApplicationService } from './services/loanApplicationService'
-export type * from './types'
-export { BusinessLoan } from './components/BusinessLoan'
-export { HomeLoan } from './components/HomeLoan'
-export { LoanMarketplace } from './components/LoanMarketplace'
-export { ProjectFinance } from './components/ProjectFinance'
-export { LoanApplicationStatus } from './shared'
- 
-export * from './hooks'
 export * from './services'
+
+// Documents
 export * from './documents'
+
+// Validation
 export * from './validation'
-export * from './types'
+
+// Types
+export type * from './types'
+
+// Components
+export {
+  HomeLoan,
+  MachineryLoan,
+  WorkingCapitalLoan,
+  VehicleLoan,
+  BusinessLoan,
+  MSMELoan,
+  ProjectFinance,
+  PersonalLoan,
+  PropertyLoan,
+  Loans,
+  LoanMarketplace,
+} from './components'
 export * from './components'
+
+// Shared & Utilities
+export { LoanApplicationStatus } from './shared'
 export * from './shared'
 export * from './utils'
 export * from './constants'

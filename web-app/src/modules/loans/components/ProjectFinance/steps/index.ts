@@ -5,3 +5,4 @@ export { FinancialProjections } from './FinancialProjections/FinancialProjection
 export { PromoterAndManagement } from './PromoterAndManagement/PromoterAndManagement'
 export { DocumentDossier } from './DocumentDossier/DocumentDossier'
 export { ReviewAndSubmit } from './ReviewAndSubmit/ReviewAndSubmit'
+export { ProjectDetails } from './ProjectDetails'

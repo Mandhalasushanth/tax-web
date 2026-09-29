@@ -1,5 +1,5 @@
 import React from 'react'
-import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
+import { LoanFormSection } from '@modules/loans/shared'
 import type {
   WorkingCapitalLoanData,
   WorkingCapitalCreditPurpose,
@@ -227,7 +227,7 @@ export const Financials: React.FC<FinancialsProps> = ({
         </div>
 
         {data.hasActiveBorrowings && (
-          <div className="working-capital-form-group" style={{ marginTop: '1rem' }}>
+          <div className="working-capital-form-group working-capital-form-group--mt1">
             <label htmlFor="wc-monthly-emi" className="working-capital-label">
               Total Monthly Interest / EMI Outgo (₹) <span className="working-capital-label__req">*</span>
             </label>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
+import { LoanFormSection } from '@modules/loans/shared'
 import type { HomeLoanData } from '../../../../types/homeLoan.types'
 import { loanInputHelpers } from '../../../../validation/homeLoanValidation'
 import './BankingAndITR.css'
@@ -64,22 +64,17 @@ export const BankingAndITR: React.FC<BankingAndITRProps> = ({ data, onChange, er
         subtitle="Specify the account for loan disbursement and setting up auto-debit EMI repayments."
       >
         <div className="home-loan-form-group">
-          <label htmlFor="home-bank-select" className="home-loan-label">
+          <label htmlFor="home-bank-name" className="home-loan-label">
             Bank Name <span className="home-loan-label__req">*</span>
           </label>
-          <select
-            id="home-bank-select"
-            className={`home-loan-select ${errors.bankName ? 'home-loan-select--error' : ''}`}
+          <input
+            id="home-bank-name"
+            type="text"
+            className={`home-loan-input ${errors.bankName ? 'home-loan-input--error' : ''}`}
+            placeholder="Enter your bank name (e.g. HDFC Bank, State Bank of India)"
             value={data.bankName || ''}
             onChange={(e) => onChange({ bankName: e.target.value })}
-          >
-            <option value="" disabled>Select your primary salary / operating bank</option>
-            {POPULAR_BANKS.map((b) => (
-              <option key={b} value={b}>
-                {b}
-              </option>
-            ))}
-          </select>
+          />
           {errors.bankName && (
             <span className="home-loan-field-error" role="alert">{errors.bankName}</span>
           )}

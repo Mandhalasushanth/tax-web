@@ -10,6 +10,3 @@ export type { BankingProps } from './Banking/Banking'
 export { DocumentsAndReview } from './DocumentsAndReview/DocumentsAndReview'
 export type { DocumentsAndReviewProps } from './DocumentsAndReview/DocumentsAndReview'
 
-export { LoanSubmitModal } from './LoanSubmitModal/LoanSubmitModal'
-export type { LoanSubmitModalProps } from './LoanSubmitModal/LoanSubmitModal'
-

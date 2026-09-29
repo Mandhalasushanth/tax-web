@@ -70,3 +70,11 @@
   padding: 0.35rem;
   border-radius: 12px;
 }
+
+.working-capital-input--uppercase {
+  text-transform: uppercase;
+}
+
+.working-capital-form-group--mt-sm {
+  margin-top: 0.85rem;
+}

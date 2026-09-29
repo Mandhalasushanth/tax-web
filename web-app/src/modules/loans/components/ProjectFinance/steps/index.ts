@@ -1,0 +1,7 @@
+export { ApplicantAndProject } from './ApplicantAndProject/ApplicantAndProject'
+export { LocationLandTechnical } from './LocationLandTechnical/LocationLandTechnical'
+export { CostAndFinancing } from './CostAndFinancing/CostAndFinancing'
+export { FinancialProjections } from './FinancialProjections/FinancialProjections'
+export { PromoterAndManagement } from './PromoterAndManagement/PromoterAndManagement'
+export { DocumentDossier } from './DocumentDossier/DocumentDossier'
+export { ReviewAndSubmit } from './ReviewAndSubmit/ReviewAndSubmit'

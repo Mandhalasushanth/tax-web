@@ -53,46 +53,19 @@ function clearFieldErrors(
   fields: Partial<BusinessLoanFormData>
 ): Record<string, string> {
   const next = { ...errors }
-  'employmentProfile' in fields && delete next.employmentProfile
-  'requiredLoanAmount' in fields && delete next.requiredLoanAmount
-  'preferredTenureMonths' in fields && delete next.preferredTenureMonths
-  'purposeOfLoan' in fields && delete next.purposeOfLoan
-  'revenueOrTurnover' in fields && delete next.revenueOrTurnover
-  'existingLoans' in fields && delete next.existingLoans
-  'registeredBusinessName' in fields && delete next.registeredBusinessName
-  'businessConstitution' in fields && delete next.businessConstitution
-  'gstin' in fields && delete next.gstin
-  'hasUdyam' in fields && (delete next.hasUdyam, delete next.udyamRegistrationNumber)
-  'udyamRegistrationNumber' in fields && delete next.udyamRegistrationNumber
-  'businessVintage' in fields && delete next.businessVintage
-  'annualTurnover' in fields && delete next.annualTurnover
-  'annualNetProfit' in fields && delete next.annualNetProfit
-  'signatoryName' in fields && delete next.signatoryName
-  'signatoryDesignation' in fields && delete next.signatoryDesignation
-  'signatoryEmail' in fields && delete next.signatoryEmail
-  'primaryOperatingBankName' in fields && delete next.primaryOperatingBankName
-  'currentAccountNumber' in fields && delete next.currentAccountNumber
-  'bankIfscCode' in fields && delete next.bankIfscCode
-  'currentLenderBank' in fields && delete next.currentLenderBank
-  'totalActiveLoanLimit' in fields && delete next.totalActiveLoanLimit
-  'itrAcknowledgementNumber' in fields && delete next.itrAcknowledgementNumber
-  'grossTotalIncomeItr' in fields && delete next.grossTotalIncomeItr
-  'uploadedDocs' in fields && (
-    delete next.panCard,
-    delete next.aadhaarCard,
-    delete next.directorsKyc,
-    delete next.businessAddressProof,
-    delete next.bankStatements,
-    delete next.gstCertificate,
-    delete next.gstReturns,
-    delete next.businessItr,
-    delete next.auditedBalanceSheet,
-    delete next.profitAndLossStatement,
-    delete next.cashFlowStatement,
-    delete next.businessExpansionDoc,
-    delete next.businessRegistrationProof
-  )
-  'termsAccepted' in fields && delete next.termsAccepted
+  Object.keys(fields).forEach((key) => {
+    delete next[key]
+  })
+  if ('hasUdyam' in fields) delete next.udyamRegistrationNumber
+  if ('uploadedDocs' in fields) {
+    const docFields = [
+      'panCard', 'aadhaarCard', 'directorsKyc', 'businessAddressProof',
+      'bankStatements', 'gstCertificate', 'gstReturns', 'businessItr',
+      'auditedBalanceSheet', 'profitAndLossStatement', 'cashFlowStatement',
+      'businessExpansionDoc', 'businessRegistrationProof',
+    ]
+    docFields.forEach((d) => { delete next[d] })
+  }
   return next
 }
 
@@ -161,8 +134,9 @@ export const BusinessLoan: React.FC = () => {
     prevStep,
     isDraftModalOpen,
     setIsDraftModalOpen,
-    saveDraft,
-    discardDraft,
+    handleSaveAndExit,
+    handleDiscardAndExit,
+    handleKeepEditing,
   } = useLoanApplication<BusinessLoanFormData>('business_loan', INITIAL_BUSINESS_LOAN_DATA)
 
   /**
@@ -208,7 +182,9 @@ export const BusinessLoan: React.FC = () => {
         setIsSubmitting(true)
         const result = await loanApplicationService.submitApplication('business_loan', formData)
         setIsSubmitting(false)
-        safeNavigateTo(navigate, `/loans/status/${result.id || result.refNumber}`)
+        navigate(`/loans/status/${result.id || result.refNumber}`, {
+          state: { application: result, loanTitle: 'Business Loan', formData },
+        })
       }
 
       const handleInvalid = () => {
@@ -380,15 +356,9 @@ export const BusinessLoan: React.FC = () => {
       <DraftConfirmModal
         isOpen={isDraftModalOpen}
         serviceTitle="Business Loan Application"
-        onSaveAndExit={() => {
-          saveDraft()
-          navigate('/loans')
-        }}
-        onDiscardAndExit={() => {
-          discardDraft()
-          navigate('/loans')
-        }}
-        onKeepEditing={() => setIsDraftModalOpen(false)}
+        onSaveAndExit={handleSaveAndExit}
+        onDiscardAndExit={handleDiscardAndExit}
+        onKeepEditing={handleKeepEditing}
       />
     </div>
   )

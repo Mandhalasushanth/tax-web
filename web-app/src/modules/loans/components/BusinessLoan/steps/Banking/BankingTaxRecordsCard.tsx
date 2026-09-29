@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import type { BusinessLoanFormData } from '../../../../types/businessLoan.types'
 import { useDropdown } from '../../../../hooks/useDropdown'
-import { LoanDropdownOption } from '../../../../shared/LoanDropdownOption'
+import { LoanDropdownOption } from '../LoanDropdownOption'
 import {
   formatDigitsOnly,
   formatUppercaseAlphanumeric,

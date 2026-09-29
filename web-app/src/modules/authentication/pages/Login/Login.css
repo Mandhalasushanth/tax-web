@@ -210,11 +210,11 @@
 /* ── Right Card Slot ─────────────────────────────────────── */
 .login-card-slot {
   position: absolute;
-  top: 10%;
+  top: 50%;
+  transform: translateY(-50%);
   right: 4%;
   width: 32%;
   max-width: 420px;
-  bottom: 6%;
   z-index: 15;
   display: flex;
   align-items: center;
@@ -225,7 +225,7 @@
 @media (max-width: 1100px) {
   .login-illustration-wrap { left: 26%; right: 36%; top: 18%; }
   .illus-img { max-width: 360px; }
-  .login-card-slot { width: 35%; top: 12%; }
+  .login-card-slot { width: 35%; }
 }
 
 @media (max-width: 768px) {

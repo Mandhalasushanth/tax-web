@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
+import { LoanFormSection } from '@modules/loans/shared'
 import type {
   VehicleLoanData,
   VehicleOccupationType,
@@ -35,19 +35,8 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
 }) => {
   const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false)
 
-  const handleTurnoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
-    onChange({ annualTurnover: formatted })
-  }
-
-  const handleEmiChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
-    onChange({ totalMonthlyEmi: formatted })
-  }
-
-  const handleGstinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const clean = loanInputHelpers.cleanGstin(e.target.value)
-    onChange({ gstin: clean })
+  const handleCurrencyInput = (field: keyof VehicleLoanData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange({ [field]: loanInputHelpers.formatCurrencyString(e.target.value) })
   }
 
   return (
@@ -56,8 +45,7 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
       <LoanFormSection
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect width="20" height="14" x="2" y="7" rx="2" />
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+            <rect width="20" height="14" x="2" y="7" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
           </svg>
         }
         title="Employment & Income Category"
@@ -65,23 +53,18 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
       >
         <div className="applicant-form-group">
           <div className="applicant-occupation-grid">
-            {OCCUPATION_OPTIONS.map((occ) => {
-              const isSelected = data.occupationType === occ
-              return (
-                <button
-                  key={occ}
-                  type="button"
-                  className={`applicant-occupation-btn ${isSelected ? 'applicant-occupation-btn--active' : ''}`}
-                  onClick={() => onChange({ occupationType: occ })}
-                >
-                  {occ}
-                </button>
-              )
-            })}
+            {OCCUPATION_OPTIONS.map((occ) => (
+              <button
+                key={occ}
+                type="button"
+                className={`applicant-occupation-btn ${data.occupationType === occ ? 'applicant-occupation-btn--active' : ''}`}
+                onClick={() => onChange({ occupationType: occ })}
+              >
+                {occ}
+              </button>
+            ))}
           </div>
-          {errors.occupationType && (
-            <span className="applicant-field-error" role="alert">{errors.occupationType}</span>
-          )}
+          {errors.occupationType && <span className="applicant-field-error" role="alert">{errors.occupationType}</span>}
         </div>
       </LoanFormSection>
 
@@ -89,9 +72,7 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
       <LoanFormSection
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect width="20" height="12" x="2" y="6" rx="2" />
-            <circle cx="12" cy="12" r="2" />
-            <path d="M6 12h.01M18 12h.01" />
+            <rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" />
           </svg>
         }
         title="Monthly In-Hand Income"
@@ -111,30 +92,23 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
               <polyline points="6 9 12 15 18 9" />
             </svg>
           </button>
-          {errors.monthlyIncomeRange && (
-            <span className="applicant-field-error" role="alert">{errors.monthlyIncomeRange}</span>
-          )}
+          {errors.monthlyIncomeRange && <span className="applicant-field-error" role="alert">{errors.monthlyIncomeRange}</span>}
         </div>
       </LoanFormSection>
 
-      {/* 3. Business Profile & Compliance (Shown for Business Owner & Self-Employed Pro) */}
+      {/* 3. Business Profile & Compliance */}
       {(data.occupationType === 'Business Owner' || data.occupationType === 'Self-Employed Pro') && (
         <LoanFormSection
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="16" height="20" x="4" y="2" rx="2" />
-              <path d="M9 22v-4h6v4" />
-              <path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" />
+              <rect width="16" height="20" x="4" y="2" rx="2" /><path d="M9 22v-4h6v4" /><path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" />
             </svg>
           }
           title="Business Profile & Compliance"
           subtitle="Provide enterprise details for commercial/auto-credit underwriting."
         >
-          {/* Legal Business / Firm Name */}
           <div className="applicant-form-group">
-            <label htmlFor="vehicle-biz-name" className="applicant-label">
-              Legal Business / Firm Name
-            </label>
+            <label htmlFor="vehicle-biz-name" className="applicant-label">Legal Business / Firm Name</label>
             <input
               id="vehicle-biz-name"
               type="text"
@@ -143,53 +117,38 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
               value={data.legalBusinessName || ''}
               onChange={(e) => onChange({ legalBusinessName: e.target.value })}
             />
-            {errors.legalBusinessName && (
-              <span className="applicant-field-error" role="alert">{errors.legalBusinessName}</span>
-            )}
+            {errors.legalBusinessName && <span className="applicant-field-error" role="alert">{errors.legalBusinessName}</span>}
           </div>
 
-          {/* GSTIN (15 Digits) */}
           <div className="applicant-form-group">
-            <label htmlFor="vehicle-biz-gstin" className="applicant-label">
-              GSTIN (15 Digits)
-            </label>
+            <label htmlFor="vehicle-biz-gstin" className="applicant-label">GSTIN (15 Digits)</label>
             <input
               id="vehicle-biz-gstin"
               type="text"
               maxLength={15}
-              className={`applicant-input ${errors.gstin ? 'applicant-input--error' : ''}`}
+              className={`applicant-input applicant-input--uppercase ${errors.gstin ? 'applicant-input--error' : ''}`}
               placeholder="Enter 15-digit GSTIN (e.g. 27ABCDE1234F1Z5)"
               value={data.gstin || ''}
               onKeyDown={loanInputHelpers.allowOnlyAlphanumericKeyDown}
-              onChange={handleGstinChange}
-              style={{ textTransform: 'uppercase' }}
+              onChange={(e) => onChange({ gstin: loanInputHelpers.cleanGstin(e.target.value) })}
             />
-            {errors.gstin && (
-              <span className="applicant-field-error" role="alert">{errors.gstin}</span>
-            )}
+            {errors.gstin && <span className="applicant-field-error" role="alert">{errors.gstin}</span>}
           </div>
 
-          {/* Udyam Registration Number */}
           <div className="applicant-form-group">
-            <label htmlFor="vehicle-biz-udyam" className="applicant-label">
-              Udyam Registration Number
-            </label>
+            <label htmlFor="vehicle-biz-udyam" className="applicant-label">Udyam Registration Number</label>
             <input
               id="vehicle-biz-udyam"
               type="text"
-              className="applicant-input"
+              className="applicant-input applicant-input--uppercase"
               placeholder="Enter Udyam number (e.g. UDYAM-MH-01-0012345)"
               value={data.udyamNumber || ''}
               onChange={(e) => onChange({ udyamNumber: e.target.value.toUpperCase() })}
-              style={{ textTransform: 'uppercase' }}
             />
           </div>
 
-          {/* Business Vintage (in Years) */}
           <div className="applicant-form-group">
-            <label htmlFor="vehicle-biz-vintage" className="applicant-label">
-              Business Vintage (in Years)
-            </label>
+            <label htmlFor="vehicle-biz-vintage" className="applicant-label">Business Vintage (in Years)</label>
             <input
               id="vehicle-biz-vintage"
               type="text"
@@ -200,16 +159,11 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
               onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
               onChange={(e) => onChange({ businessVintageYears: loanInputHelpers.digitsOnly(e.target.value, 2) })}
             />
-            {errors.businessVintageYears && (
-              <span className="applicant-field-error" role="alert">{errors.businessVintageYears}</span>
-            )}
+            {errors.businessVintageYears && <span className="applicant-field-error" role="alert">{errors.businessVintageYears}</span>}
           </div>
 
-          {/* Annual Turnover (₹) */}
           <div className="applicant-form-group">
-            <label htmlFor="vehicle-biz-turnover" className="applicant-label">
-              Annual Turnover (₹)
-            </label>
+            <label htmlFor="vehicle-biz-turnover" className="applicant-label">Annual Turnover (₹)</label>
             <input
               id="vehicle-biz-turnover"
               type="text"
@@ -218,11 +172,9 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
               placeholder="Enter annual turnover (₹)"
               value={data.annualTurnover ? loanInputHelpers.formatCurrencyString(String(data.annualTurnover)) : ''}
               onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
-              onChange={handleTurnoverChange}
+              onChange={handleCurrencyInput('annualTurnover')}
             />
-            {errors.annualTurnover && (
-              <span className="applicant-field-error" role="alert">{errors.annualTurnover}</span>
-            )}
+            {errors.annualTurnover && <span className="applicant-field-error" role="alert">{errors.annualTurnover}</span>}
           </div>
         </LoanFormSection>
       )}
@@ -231,8 +183,7 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
       <LoanFormSection
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect width="20" height="14" x="2" y="5" rx="2" />
-            <line x1="2" y1="10" x2="22" y2="10" />
+            <rect width="20" height="14" x="2" y="5" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
           </svg>
         }
         title="Existing Loan Obligations"
@@ -258,7 +209,7 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
         </div>
 
         {data.hasActiveEmis && (
-          <div className="applicant-form-group" style={{ marginTop: '1rem' }}>
+          <div className="applicant-form-group applicant-form-group--mt1">
             <label htmlFor="vehicle-total-emi" className="applicant-label">
               Total Ongoing Monthly EMI (₹) <span className="applicant-label__req">*</span>
             </label>
@@ -270,26 +221,20 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
               placeholder="Enter total ongoing monthly EMI (₹)"
               value={data.totalMonthlyEmi ? loanInputHelpers.formatCurrencyString(String(data.totalMonthlyEmi)) : ''}
               onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
-              onChange={handleEmiChange}
+              onChange={handleCurrencyInput('totalMonthlyEmi')}
             />
-            {errors.totalMonthlyEmi && (
-              <span className="applicant-field-error" role="alert">{errors.totalMonthlyEmi}</span>
-            )}
+            {errors.totalMonthlyEmi && <span className="applicant-field-error" role="alert">{errors.totalMonthlyEmi}</span>}
           </div>
         )}
       </LoanFormSection>
 
-      {/* Modal Bottom Sheet for Monthly In-Hand Income */}
+      {/* Income Modal Sheet */}
       {isIncomeModalOpen && (
         <div className="vehicle-modal-overlay" onClick={() => setIsIncomeModalOpen(false)}>
           <div className="vehicle-modal-sheet" onClick={(e) => e.stopPropagation()}>
             <div className="vehicle-modal-header">
               <h3 className="vehicle-modal-title">Select Monthly In-Hand Income</h3>
-              <button
-                type="button"
-                className="vehicle-modal-close-btn"
-                onClick={() => setIsIncomeModalOpen(false)}
-              >
+              <button type="button" className="vehicle-modal-close-btn" onClick={() => setIsIncomeModalOpen(false)}>
                 ✕
               </button>
             </div>

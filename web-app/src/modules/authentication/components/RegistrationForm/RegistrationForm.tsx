@@ -35,7 +35,6 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   const location = useLocation()
   const locationState = location.state as { returnTo?: string; mobile?: string } | null
   const user = useAuthStore((state) => state.user)
-  const setUser = useAuthStore((state) => state.setUser)
   const [values, setValues] = useState<RegistrationFormState>(() => ({
     ...INITIAL_REGISTRATION_VALUES,
     mobile: (locationState?.mobile || user?.mobile || '').replace(/\D/g, '').slice(0, 10),
@@ -180,16 +179,15 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         .filter(Boolean)
         .join(', ')
 
-      const isFinishing = Boolean(customerType || onSuccess)
       const registeredUser: AuthUser = {
-        id: `usr_${Date.now().toString(36)}`,
+        id: user?.id || `usr_${cleanMobile || Date.now().toString(36)}`,
         fullName: values.fullName.trim(),
         email: values.email.trim(),
         mobile: cleanMobile,
         role: 'CUSTOMER',
         permissions: [],
-        isProfileComplete: isFinishing,
-        customerType: customerType || 'individual',
+        isProfileComplete: true,
+        customerType: customerType || user?.customerType || 'individual',
         gender: values.gender,
         dob: values.dob,
         fatherSpouseName: values.fatherSpouseName.trim(),
@@ -211,18 +209,17 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         user: registeredUser,
       })
 
-      if (isFinishing) {
-        await authFlowService.completeRegistration(cleanMobile, customerType || 'individual')
-      }
+      await authFlowService.completeRegistration(cleanMobile, customerType || user?.customerType || 'individual')
 
-      setUser(registeredUser)
-      authService.startSession({
+      const session = {
         user: registeredUser,
         tokens: {
           accessToken: authService.getAccessToken() || `tok_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
           refreshToken: authService.getRefreshToken() || `ref_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
         },
-      })
+      }
+      authService.startSession(session)
+      useAuthStore.getState().signIn(session)
 
       if (onSuccess) {
         onSuccess()

@@ -1,7 +1,7 @@
 .banking-details-step {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.75rem;
   width: 100%;
 }
 
@@ -11,6 +11,14 @@
   gap: 0.5rem;
   width: 100%;
   position: relative;
+}
+
+.banking-form-group--mt-sm {
+  margin-top: 0.75rem;
+}
+
+.banking-input--uppercase {
+  text-transform: uppercase;
 }
 
 .banking-label {

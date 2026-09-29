@@ -1,0 +1,306 @@
+.pf-screen-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.pf-collapsible-card {
+  background: #ffffff;
+  border: 1.5px solid #edf2f7;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  transition: border-color 0.2s ease;
+}
+
+.pf-collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background-color: #ffffff;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pf-collapsible-header__left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.pf-section-icon-tile {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff7ed;
+  color: #ff7a00;
+  flex-shrink: 0;
+}
+
+.pf-collapsible-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #041d3e;
+}
+
+.pf-chevron {
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  color: #64748b;
+}
+
+.pf-chevron--open {
+  transform: rotate(180deg);
+}
+
+.pf-collapsible-body {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Grids */
+.pf-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.pf-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .pf-grid-2,
+  .pf-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Land Parcel Cards */
+.pf-parcels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.pf-parcel-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.pf-parcel-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.pf-parcel-card__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #041d3e;
+}
+
+.pf-parcel-btn-remove {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+
+.pf-btn-add-parcel {
+  padding: 0.45rem 0.95rem;
+  border: 1.5px solid #ff7a00;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #ff7a00;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.pf-btn-add-parcel:hover {
+  background: #fff7ed;
+}
+
+/* Radio Group */
+.pf-radio-group {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  margin-top: 0.35rem;
+}
+
+.pf-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pf-radio-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.pf-radio-custom {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.pf-radio-label:hover .pf-radio-custom {
+  border-color: #94a3b8;
+}
+
+.pf-radio-input:checked + .pf-radio-custom {
+  border-color: #ff7a00;
+  background-color: #ffffff;
+}
+
+.pf-radio-custom-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ff7a00;
+  transform: scale(0);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pf-radio-input:checked + .pf-radio-custom .pf-radio-custom-dot {
+  transform: scale(1);
+}
+
+/* Form Fields */
+.pf-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.pf-field-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.pf-req {
+  color: #ef4444;
+}
+
+.pf-custom-input,
+.pf-custom-select-btn {
+  width: 100%;
+  height: 48px;
+  padding: 0 1rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  background-color: #ffffff;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: all 0.18s ease;
+}
+
+.pf-custom-input--disabled {
+  background-color: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.pf-custom-select-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+}
+
+.pf-custom-input:focus,
+.pf-custom-select-btn:focus {
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.12);
+}
+
+.pf-custom-input--error,
+.pf-custom-select-btn--error {
+  border-color: #ef4444 !important;
+  background-color: #fff5f5 !important;
+}
+
+.pf-custom-input--error:focus,
+.pf-custom-select-btn--error:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+.pf-select-value {
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.pf-select-placeholder {
+  color: #94a3b8;
+}
+
+.pf-select-chevron {
+  display: flex;
+  align-items: center;
+  color: #64748b;
+}
+
+.pf-field-error {
+  font-size: 0.78125rem;
+  color: #dc2626;
+  font-weight: 500;
+  margin-top: 0.2rem;
+}
+
+@media (max-width: 640px) {
+  .pf-collapsible-header {
+    padding: 1rem 1.15rem;
+  }
+  .pf-collapsible-body {
+    padding: 0 1.15rem 1.15rem 1.15rem;
+  }
+}

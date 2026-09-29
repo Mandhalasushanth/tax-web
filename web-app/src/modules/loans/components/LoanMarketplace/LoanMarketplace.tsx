@@ -46,7 +46,7 @@ export const LoanMarketplace: React.FC = () => {
 
   return (
     <div className="loan-marketplace" data-testid="loan-marketplace-container">
-      {/* Sticky Top Section Header Banner */}
+      {/* Static Top Section Header Banner */}
       <LoanMarketplaceHeader />
 
       {/* Loan Catalog List */}

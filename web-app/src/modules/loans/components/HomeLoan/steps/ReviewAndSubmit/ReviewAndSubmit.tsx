@@ -1,5 +1,5 @@
 import React from 'react'
-import { LoanReviewSection } from '../../../../components/LoanReviewSection/LoanReviewSection'
+import { LoanReviewSection } from '@modules/loans/shared'
 import type { HomeLoanData } from '../../../../types/homeLoan.types'
 import './ReviewAndSubmit.css'
 
@@ -39,7 +39,10 @@ export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
           },
           {
             label: 'Property Intent',
-            value: formData.propertyIntent || 'Not specified',
+            value:
+              formData.propertyIntent === 'Others' && formData.customPropertyIntent
+                ? `Others (${formData.customPropertyIntent})`
+                : formData.propertyIntent || 'Not specified',
           },
           {
             label: 'Tenure',
@@ -77,7 +80,10 @@ export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
           },
           {
             label: 'Monthly Net Income',
-            value: formData.monthlyIncomeRange || 'Not specified',
+            value:
+              formData.monthlyIncomeRange?.startsWith('Other') && formData.exactMonthlyIncome
+                ? `₹${formData.exactMonthlyIncome}`
+                : formData.monthlyIncomeRange || 'Not specified',
           },
           {
             label: 'Existing EMIs',
@@ -137,21 +143,29 @@ export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
       />
 
       {/* Declaration Checkbox */}
-      <div className="home-loan-review__declaration">
+      <div
+        className={`home-loan-review__declaration ${
+          errors.termsAccepted ? 'home-loan-review__declaration--error' : ''
+        }`}
+      >
         <input
           id="home-loan-terms-checkbox"
           type="checkbox"
           className="home-loan-review__checkbox"
-          checked={formData.termsAccepted}
+          checked={Boolean(formData.termsAccepted)}
           onChange={(e) => updateFormData({ termsAccepted: e.target.checked })}
         />
         <label htmlFor="home-loan-terms-checkbox" className="home-loan-review__label">
-          I confirm that all provided details and attached documents are accurate and authentic to the best of my knowledge, and I accept the{' '}
-          <span className="home-loan-review__terms-link">Terms &amp; Conditions</span> of the Home Loan application.
+          I authorize TaxEdge to evaluate my credit report and share my property purchase details and income proof with partner housing finance institutes for home loan underwriting.
         </label>
       </div>
       {errors.termsAccepted && (
         <span className="home-loan-field-error" role="alert">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
           {errors.termsAccepted}
         </span>
       )}

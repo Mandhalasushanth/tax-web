@@ -68,7 +68,9 @@ export const homeLoanValidation = {
 
     !data.propertyIntent || !data.propertyIntent.trim()
       ? (errors.propertyIntent = 'Please select your property intent / purpose')
-      : undefined
+      : data.propertyIntent === 'Others' && (!data.customPropertyIntent || !data.customPropertyIntent.trim())
+        ? (errors.customPropertyIntent = 'Please specify custom property intent')
+        : undefined
 
     !data.repaymentTenureYears || data.repaymentTenureYears <= 0
       ? (errors.repaymentTenureYears = 'Please select intended repayment tenure')
@@ -107,7 +109,9 @@ export const homeLoanValidation = {
 
     !data.monthlyIncomeRange || !data.monthlyIncomeRange.trim()
       ? (errors.monthlyIncomeRange = 'Please select monthly household income range')
-      : undefined
+      : data.monthlyIncomeRange.startsWith('Other') && (!data.exactMonthlyIncome || !data.exactMonthlyIncome.trim())
+        ? (errors.exactMonthlyIncome = 'Please enter your monthly net income')
+        : undefined
 
     const emiClean = (data.existingEmiAmount || '').replace(/[^\d]/g, '')
     const emiNum = Number(emiClean)
@@ -131,7 +135,7 @@ export const homeLoanValidation = {
     const errors: Record<string, string> = {}
 
     !data.bankName || !data.bankName.trim()
-      ? (errors.bankName = 'Please select your operating bank')
+      ? (errors.bankName = 'Please enter your bank name')
       : undefined
 
     const accTrimmed = (data.accountNumber || '').trim()
@@ -201,9 +205,9 @@ export const homeLoanValidation = {
 
   validateStep5: (data: HomeLoanData): StepValidationResult => {
     const errors: Record<string, string> = {}
-    !data.termsAccepted
-      ? (errors.termsAccepted = 'Please accept the Terms & Conditions before submitting')
-      : undefined
+    if (!data.termsAccepted) {
+      errors.termsAccepted = 'Please authorize TaxEdge and accept the declaration to submit your application.'
+    }
 
     return {
       isValid: Object.keys(errors).length === 0,

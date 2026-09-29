@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { CUSTOMER_TYPE_OPTIONS } from '@modules/customerType/data/customerTypeOptions'
 import { CustomerTypeCard } from '@modules/customerType/components/CustomerTypeCard/CustomerTypeCard'
 import type { CustomerTypeId } from '@modules/customerType/types/customerType.types'
@@ -6,8 +7,13 @@ import { RegistrationForm } from '../RegistrationForm/RegistrationForm'
 import './RegistrationCard.css'
 
 export const RegistrationCard: React.FC = () => {
-  const [step, setStep] = useState<1 | 2>(1)
-  const [selectedCustomerType, setSelectedCustomerType] = useState<CustomerTypeId | null>('individual')
+  const location = useLocation()
+  const locationState = location.state as { customerType?: CustomerTypeId; returnTo?: string; mobile?: string } | null
+
+  const [step, setStep] = useState<1 | 2>(() => (locationState?.customerType ? 2 : 1))
+  const [selectedCustomerType, setSelectedCustomerType] = useState<CustomerTypeId | null>(
+    () => locationState?.customerType || 'individual'
+  )
   const [error] = useState<string | null>(null)
 
   const handleProceedToStep2 = () => {

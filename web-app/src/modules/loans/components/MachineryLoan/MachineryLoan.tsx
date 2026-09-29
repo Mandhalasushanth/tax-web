@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { StepActionBar, DraftConfirmModal, FlowStepper } from '@shared/components'
 import type { FlowStepItem } from '@shared/components'
 
-import { LoanPageNavigation } from '../LoanPageNavigation/LoanPageNavigation'
 import { useLoanApplication } from '../../hooks/useLoanApplication'
 import { loanApplicationService } from '../../services/loanApplicationService'
+import type { LoanApplicationBase } from '../../types/loanApplication.types'
 import type { MachineryLoanData } from '../../types/machineryLoan.types'
 import { machineryLoanValidation } from '../../validation/machineryLoanValidation'
 
@@ -13,7 +13,7 @@ import { LoanDetails } from './steps/LoanDetails/LoanDetails'
 import { BusinessDetails } from './steps/BusinessDetails/BusinessDetails'
 import { Banking } from './steps/Banking/Banking'
 import { DocumentsAndReview } from './steps/DocumentsAndReview/DocumentsAndReview'
-import { LoanSubmitModal } from './steps/LoanSubmitModal/LoanSubmitModal'
+import { LoanSubmitSuccessModal } from '../../shared'
 
 import './MachineryLoan.css'
 
@@ -47,6 +47,7 @@ export const MachineryLoan: React.FC = () => {
   const [stepError, setStepError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [submittedRef, setSubmittedRef] = useState<string | null>(null)
+  const [submittedApp, setSubmittedApp] = useState<LoanApplicationBase | null>(null)
 
   const {
     formData,
@@ -54,12 +55,14 @@ export const MachineryLoan: React.FC = () => {
     currentStep,
     goToStep,
     nextStep,
+    prevStep,
     isDraftModalOpen,
     setIsDraftModalOpen,
     isSubmitting,
     setIsSubmitting,
-    saveDraft,
-    discardDraft,
+    handleSaveAndExit,
+    handleDiscardAndExit,
+    handleKeepEditing,
   } = useLoanApplication<MachineryLoanData>(
     'machinery_loan',
     INITIAL_MACHINERY_LOAN_DATA,
@@ -95,35 +98,17 @@ export const MachineryLoan: React.FC = () => {
   const validateCurrentStep = (): boolean => {
     setStepError(null)
     setFieldErrors({})
-
-    if (currentStep === 1) {
-      const res = machineryLoanValidation.validateStep1(formData)
-      if (!res.isValid) {
-        setStepError(res.error || 'Please fill in all required fields.')
-        setFieldErrors(res.errors)
-        return false
-      }
-    } else if (currentStep === 2) {
-      const res = machineryLoanValidation.validateStep2(formData)
-      if (!res.isValid) {
-        setStepError(res.error || 'Please fill in all required fields.')
-        setFieldErrors(res.errors)
-        return false
-      }
-    } else if (currentStep === 3) {
-      const res = machineryLoanValidation.validateStep3(formData)
-      if (!res.isValid) {
-        setStepError(res.error || 'Please fill in all required fields.')
-        setFieldErrors(res.errors)
-        return false
-      }
-    } else if (currentStep === 4) {
-      const res = machineryLoanValidation.validateStep4(formData)
-      if (!res.isValid) {
-        setStepError(res.error || 'Please accept Terms & Conditions and upload required files.')
-        setFieldErrors(res.errors)
-        return false
-      }
+    const validators = [
+      () => machineryLoanValidation.validateStep1(formData),
+      () => machineryLoanValidation.validateStep2(formData),
+      () => machineryLoanValidation.validateStep3(formData),
+      () => machineryLoanValidation.validateStep4(formData),
+    ]
+    const res = validators[currentStep - 1]?.()
+    if (res && !res.isValid) {
+      setStepError(res.error || (currentStep === 4 ? 'Please accept Terms & Conditions and upload required files.' : 'Please fill in all required fields.'))
+      setFieldErrors(res.errors)
+      return false
     }
     return true
   }
@@ -146,6 +131,7 @@ export const MachineryLoan: React.FC = () => {
           details: formData,
         })
         setSubmittedRef(app.referenceNumber || 'TXE-LN-76084608')
+        setSubmittedApp(app)
       } catch (err: unknown) {
         const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
         setStepError(errorMsg)
@@ -167,11 +153,8 @@ export const MachineryLoan: React.FC = () => {
   }
 
   return (
-    <div className="machinery-loan-page">
-      <LoanPageNavigation
-        title="Machinery Loan"
-        showBack={false}
-      />
+    <div className="machinery-loan-page" data-testid="machinery-loan-page">
+      <h1 className="machinery-loan-page__title">Machinery Loan</h1>
 
       <FlowStepper
         steps={MACHINERY_LOAN_STEPS}
@@ -181,7 +164,7 @@ export const MachineryLoan: React.FC = () => {
 
       {stepError && (
         <div className="machinery-loan-page__error-banner" role="alert">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 18, height: 18, flexShrink: 0 }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -227,35 +210,36 @@ export const MachineryLoan: React.FC = () => {
       </div>
 
       <StepActionBar
-        showBack={false}
+        showBack={true}
+        onBack={() => {
+          setStepError(null)
+          setFieldErrors({})
+          currentStep > 1 ? prevStep() : navigate('/loans')
+        }}
         onNext={handleNext}
         onSaveDraft={() => setIsDraftModalOpen(true)}
-        saveDraftLabel="Save Draft"
+        saveDraftLabel="Save Draft & Exit"
         nextLabel={currentStep === 4 ? (isSubmitting ? 'Submitting...' : 'Submit Application') : 'Continue'}
         nextDisabled={isSubmitting}
+        nextTestId={currentStep === 4 ? 'submit-application-btn' : 'step-continue-btn'}
       />
 
       <DraftConfirmModal
         isOpen={isDraftModalOpen}
         serviceTitle="Machinery Loan Application"
-        onSaveAndExit={() => {
-          saveDraft()
-          navigate('/loans')
-        }}
-        onDiscardAndExit={() => {
-          discardDraft()
-          navigate('/loans')
-        }}
-        onKeepEditing={() => setIsDraftModalOpen(false)}
+        onSaveAndExit={handleSaveAndExit}
+        onDiscardAndExit={handleDiscardAndExit}
+        onKeepEditing={handleKeepEditing}
       />
 
-      <LoanSubmitModal
+      <LoanSubmitSuccessModal
         isOpen={Boolean(submittedRef)}
+        title="Machinery Loan Submitted"
         referenceNumber={submittedRef || ''}
         onTrackStatus={() => {
           const ref = submittedRef || 'TXE-LN-76084608'
           navigate(`/loans/status/${ref}`, {
-            state: { formData, refNumber: ref },
+            state: { application: submittedApp, formData, refNumber: ref, loanTitle: 'Machinery Loan' },
           })
         }}
       />

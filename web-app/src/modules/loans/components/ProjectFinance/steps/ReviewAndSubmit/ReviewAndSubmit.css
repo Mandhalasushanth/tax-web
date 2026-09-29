@@ -1,0 +1,367 @@
+.review-and-submit-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+/* Category Tabs */
+.pf-doc-tabs-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.pf-doc-tab-pill {
+  padding: 0.45rem 0.95rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1.5px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.pf-doc-tab-pill:hover {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.pf-doc-tab-pill--active {
+  border-color: #ff7a00 !important;
+  color: #ff7a00 !important;
+  background-color: #fff7ed !important;
+}
+
+/* Document Upload Cards */
+.pf-doc-upload-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.pf-doc-upload-card {
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+  transition: all 0.18s ease;
+  box-sizing: border-box;
+}
+
+.pf-doc-upload-card:hover {
+  border-color: #cbd5e1;
+  background-color: #ffffff;
+}
+
+.pf-doc-upload-card--uploaded {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.pf-doc-card-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.85rem;
+}
+
+.pf-doc-card-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.pf-doc-icon-tile {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background-color: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pf-doc-row-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.pf-doc-row-title {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.pf-doc-row-sub {
+  font-size: 0.785rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.pf-doc-uploaded-filename {
+  font-size: 0.785rem;
+  color: #475569;
+  font-weight: 500;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pf-doc-uploaded-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #ecfdf5;
+  color: #10b981;
+  border: 1px solid #d1fae5;
+  border-radius: 9999px;
+  padding: 5px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pf-doc-upload-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.95rem;
+  border: 1.5px solid #fed7aa;
+  background-color: #ffffff;
+  color: #ea580c;
+  border-radius: 8px;
+  font-size: 0.825rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.pf-doc-upload-btn-outline:hover {
+  background-color: #fff7ed;
+  border-color: #ff7a00;
+}
+
+.pf-doc-file-input-hidden {
+  display: none;
+}
+
+/* Uploaded Actions Footer Bar */
+.pf-doc-card-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #f1f5f9;
+  margin: 12px 0 8px 0;
+}
+
+.pf-doc-card-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 100%;
+  padding-top: 0.25rem;
+}
+
+.pf-doc-actions-separator {
+  width: 1px;
+  height: 16px;
+  background-color: #e2e8f0;
+}
+
+.pf-doc-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: transparent;
+  border: none;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.pf-doc-action-btn:hover {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+.pf-doc-action-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pf-doc-action-btn--view {
+  color: #0284c7;
+}
+
+.pf-doc-action-btn--view:hover {
+  color: #0369a1;
+  background-color: #f0f9ff;
+}
+
+.pf-doc-action-btn--replace {
+  color: #475569;
+}
+
+.pf-doc-action-btn--replace:hover {
+  color: #0f172a;
+  background-color: #f8fafc;
+}
+
+.pf-doc-action-btn--delete {
+  color: #ef4444;
+}
+
+.pf-doc-action-btn--delete:hover {
+  color: #dc2626;
+  background-color: #fef2f2;
+}
+
+/* Review Application Step Rows */
+.pf-review-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pf-review-step-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid #f1f5f9;
+  background-color: #f8fafc;
+  border-radius: 10px;
+  transition: all 0.15s ease;
+}
+
+.pf-review-step-row:hover {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.pf-review-step-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pf-review-step-label {
+  font-size: 0.925rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.pf-review-step-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pf-review-completed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: #f0fdf4;
+  color: #16a34a;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.785rem;
+  font-weight: 700;
+}
+
+.pf-review-edit-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: none;
+  color: #ea580c;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.pf-review-edit-action:hover {
+  background-color: #fff7ed;
+}
+
+/* Declarations List */
+.pf-declarations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* Submit Info Box */
+.pf-submit-info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+}
+
+.pf-submit-info-box__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.pf-submit-info-box__text {
+  font-size: 0.875rem;
+  color: #1e40af;
+  line-height: 1.5;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .pf-doc-upload-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .pf-doc-upload-btn-outline {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pf-review-step-row {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .pf-review-step-right {
+    gap: 0.5rem;
+  }
+}

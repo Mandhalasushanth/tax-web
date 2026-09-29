@@ -1,7 +1,8 @@
 import React from 'react'
-import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
+import { LoanFormSection } from '@modules/loans/shared'
 import type { VehicleLoanData, VehicleItrFilingStatus } from '../../../../types/vehicleLoan.types'
 import { loanInputHelpers } from '../../../../validation/vehicleLoanValidation'
+import { resolveIfscBranch } from '../../../../utils/loanInputFormatters'
 import './BankingDetails.css'
 
 export interface BankingDetailsProps {
@@ -15,14 +16,6 @@ export const ITR_FILING_OPTIONS: VehicleItrFilingStatus[] = [
   'Not Filed',
   'Exempt',
 ]
-
-const SAMPLE_IFSC_BRANCH_MAP: Record<string, string> = {
-  SBIN0004567: 'STATE BANK OF INDIA - MAIN BRANCH',
-  BKID0008832: 'BANK OF INDIA - TIMBER MARKET',
-  HDFC0001234: 'HDFC BANK - CONNAUGHT PLACE',
-  ICIC0001234: 'ICICI BANK - NARIMAN POINT',
-  UTIB0001234: 'AXIS BANK - MG ROAD',
-}
 
 export const BankingDetails: React.FC<BankingDetailsProps> = ({
   data,
@@ -40,10 +33,9 @@ export const BankingDetails: React.FC<BankingDetailsProps> = ({
 
   const handleIfscChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const clean = loanInputHelpers.cleanIfsc(e.target.value)
-    const detectedBranch = SAMPLE_IFSC_BRANCH_MAP[clean] || (clean.length === 11 ? 'VERIFIED BANK BRANCH' : '')
     onChange({
       ifscCode: clean,
-      branchName: detectedBranch,
+      branchName: resolveIfscBranch(clean),
     })
   }
 
@@ -57,7 +49,7 @@ export const BankingDetails: React.FC<BankingDetailsProps> = ({
     onChange({ grossAnnualIncomeItr: formatted })
   }
 
-  const resolvedBranch = data.branchName || (data.ifscCode ? SAMPLE_IFSC_BRANCH_MAP[data.ifscCode.toUpperCase()] : '')
+  const resolvedBranch = data.branchName || resolveIfscBranch(data.ifscCode)
 
   return (
     <div className="banking-details-step">
@@ -120,12 +112,11 @@ export const BankingDetails: React.FC<BankingDetailsProps> = ({
             id="vehicle-ifsc"
             type="text"
             maxLength={11}
-            className={`banking-input ${errors.ifscCode ? 'banking-input--error' : ''}`}
+            className={`banking-input banking-input--uppercase ${errors.ifscCode ? 'banking-input--error' : ''}`}
             placeholder="Enter 11-digit IFSC code (e.g. SBIN0001234)"
             value={data.ifscCode || ''}
             onKeyDown={loanInputHelpers.allowOnlyAlphanumericKeyDown}
             onChange={handleIfscChange}
-            style={{ textTransform: 'uppercase' }}
           />
           <span className="banking-input-hint">11-digit alphanumeric bank IFSC code</span>
           {errors.ifscCode && (
@@ -186,7 +177,7 @@ export const BankingDetails: React.FC<BankingDetailsProps> = ({
         {/* If Status is Filed: Show Ack Number and Gross Total Annual Income */}
         {data.itrStatus === 'Filed' && (
           <>
-            <div className="banking-form-group" style={{ marginTop: '0.75rem' }}>
+            <div className="banking-form-group banking-form-group--mt-sm">
               <label htmlFor="vehicle-itr-ack" className="banking-label">
                 ITR Acknowledgement Number (15 Digits) <span className="banking-label__opt">(Optional)</span>
               </label>

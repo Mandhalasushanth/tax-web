@@ -1,7 +1,7 @@
 .loan-and-applicant-step {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.75rem;
   width: 100%;
 }
 
@@ -101,7 +101,7 @@
 .applicant-id-card__row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  gap: 0.75rem;
 }
 
 .applicant-id-card__row--full {

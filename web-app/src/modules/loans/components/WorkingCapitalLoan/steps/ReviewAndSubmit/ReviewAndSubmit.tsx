@@ -10,19 +10,59 @@ export interface ReviewAndSubmitProps {
   errors?: Record<string, string>
 }
 
+const EditButton: React.FC<{ onClick: () => void; label?: string }> = ({ onClick, label = 'Edit' }) => (
+  <button type="button" className="working-capital-review-card__edit-btn" onClick={onClick}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14" aria-hidden="true">
+      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+    </svg>
+    {label}
+  </button>
+)
+
+const ReviewItem: React.FC<{ label: string; value: React.ReactNode; highlight?: boolean }> = ({ label, value, highlight }) => (
+  <div className="working-capital-review-card__item">
+    <span className="working-capital-review-card__label">{label}</span>
+    <span className={`working-capital-review-card__value ${highlight ? 'working-capital-review-card__value--highlight' : ''}`}>{value}</span>
+  </div>
+)
+
 export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
   data,
   onChange,
   onNavigateToStep,
   errors = {},
 }) => {
-  const maskedAccountNumber = data.currentAccountNumber
-    ? data.currentAccountNumber.length > 4
-      ? `XXXXXX${data.currentAccountNumber.slice(-4)}`
-      : data.currentAccountNumber
-    : 'Not specified'
+  const maskedAccountNumber = data.currentAccountNumber && data.currentAccountNumber.length > 4
+    ? `XXXXXX${data.currentAccountNumber.slice(-4)}`
+    : (data.currentAccountNumber || 'Not specified')
 
   const uploadedDocEntries = Object.keys(data.uploadedDocs || {})
+
+  const promoterItems = [
+    { label: 'Applicant Name', value: 'Sushanth Mandhala' },
+    { label: 'Mobile', value: '9030045048' },
+    { label: 'PAN', value: 'PFMPS0972B' },
+  ]
+
+  const termsItems = [
+    { label: 'Requested Limit', value: `₹${(Number(String(data.requiredCreditLimit || 5000000).replace(/\D/g, '')) || 5000000).toLocaleString('en-IN')}`, highlight: true },
+    { label: 'Facility Type', value: data.creditPurpose || data.preferredFacilityType || 'Supplier Payments' },
+    { label: 'Sanction Period', value: '12 Months' },
+  ]
+
+  const enterpriseItems = [
+    { label: 'Enterprise Name', value: data.registeredBusinessName || 'Zenith Trading Co' },
+    { label: 'GSTIN', value: data.gstinNumber || '29AAAAA0000A1Z5' },
+    { label: 'Vintage', value: data.operationalTrackRecord || '2 Years' },
+    { label: 'Turnover', value: data.annualAuditedTurnover ? `₹${data.annualAuditedTurnover}` : '₹6,86,995' },
+    { label: 'Net Profit', value: data.annualNetProfitBeforeTax ? `₹${data.annualNetProfitBeforeTax}` : '₹6,599' },
+  ]
+
+  const accountItems = [
+    { label: 'Bank', value: data.currentAccountBankName || 'State Bank of India' },
+    { label: 'Account Number', value: maskedAccountNumber !== 'Not specified' ? maskedAccountNumber : 'XXXXXX5568' },
+    { label: 'IFSC Code', value: data.bankIfscCode || 'SBIN0008887' },
+  ]
 
   return (
     <div className="working-capital-review-step">
@@ -46,18 +86,9 @@ export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
             </span>
           </div>
           <div className="working-capital-review-card__grid">
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">Applicant Name</span>
-              <span className="working-capital-review-card__value">Sushanth Mandhala</span>
-            </div>
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">Mobile</span>
-              <span className="working-capital-review-card__value">9030045048</span>
-            </div>
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">PAN</span>
-              <span className="working-capital-review-card__value">PFMPS0972B</span>
-            </div>
+            {promoterItems.map((item, idx) => (
+              <ReviewItem key={idx} label={item.label} value={item.value} />
+            ))}
           </div>
         </div>
 
@@ -65,34 +96,12 @@ export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
         <div className="working-capital-review-card">
           <div className="working-capital-review-card__header">
             <h4 className="working-capital-review-card__title">Credit Facility Terms</h4>
-            <button
-              type="button"
-              className="working-capital-review-card__edit-btn"
-              onClick={() => onNavigateToStep(1)}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-              </svg>
-              Edit
-            </button>
+            <EditButton onClick={() => onNavigateToStep(1)} />
           </div>
           <div className="working-capital-review-card__grid">
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">Requested Limit</span>
-              <span className="working-capital-review-card__value working-capital-review-card__value--highlight">
-                ₹{(Number(String(data.requiredCreditLimit || 5000000).replace(/\D/g, '')) || 5000000).toLocaleString('en-IN')}
-              </span>
-            </div>
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">Facility Type</span>
-              <span className="working-capital-review-card__value">
-                {data.creditPurpose || data.preferredFacilityType || 'Supplier Payments'}
-              </span>
-            </div>
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">Sanction Period</span>
-              <span className="working-capital-review-card__value">12 Months</span>
-            </div>
+            {termsItems.map((item, idx) => (
+              <ReviewItem key={idx} label={item.label} value={item.value} highlight={item.highlight} />
+            ))}
           </div>
         </div>
 
@@ -100,42 +109,12 @@ export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
         <div className="working-capital-review-card">
           <div className="working-capital-review-card__header">
             <h4 className="working-capital-review-card__title">Enterprise Profile</h4>
-            <button
-              type="button"
-              className="working-capital-review-card__edit-btn"
-              onClick={() => onNavigateToStep(2)}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-              </svg>
-              Edit
-            </button>
+            <EditButton onClick={() => onNavigateToStep(2)} />
           </div>
           <div className="working-capital-review-card__grid">
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">Enterprise Name</span>
-              <span className="working-capital-review-card__value">{data.registeredBusinessName || 'Zenith Trading Co'}</span>
-            </div>
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">GSTIN</span>
-              <span className="working-capital-review-card__value">{data.gstinNumber || '29AAAAA0000A1Z5'}</span>
-            </div>
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">Vintage</span>
-              <span className="working-capital-review-card__value">{data.operationalTrackRecord || '2 Years'}</span>
-            </div>
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">Turnover</span>
-              <span className="working-capital-review-card__value">
-                {data.annualAuditedTurnover ? `₹${data.annualAuditedTurnover}` : '₹6,86,995'}
-              </span>
-            </div>
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">Net Profit</span>
-              <span className="working-capital-review-card__value">
-                {data.annualNetProfitBeforeTax ? `₹${data.annualNetProfitBeforeTax}` : '₹6,599'}
-              </span>
-            </div>
+            {enterpriseItems.map((item, idx) => (
+              <ReviewItem key={idx} label={item.label} value={item.value} />
+            ))}
           </div>
         </div>
 
@@ -143,59 +122,28 @@ export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
         <div className="working-capital-review-card">
           <div className="working-capital-review-card__header">
             <h4 className="working-capital-review-card__title">Disbursement Current Account</h4>
-            <button
-              type="button"
-              className="working-capital-review-card__edit-btn"
-              onClick={() => onNavigateToStep(2)}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-              </svg>
-              Edit
-            </button>
+            <EditButton onClick={() => onNavigateToStep(2)} />
           </div>
           <div className="working-capital-review-card__grid">
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">Bank</span>
-              <span className="working-capital-review-card__value">{data.currentAccountBankName || 'State Bank of India'}</span>
-            </div>
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">Account Number</span>
-              <span className="working-capital-review-card__value">{maskedAccountNumber !== 'Not specified' ? maskedAccountNumber : 'XXXXXX5568'}</span>
-            </div>
-            <div className="working-capital-review-card__item">
-              <span className="working-capital-review-card__label">IFSC Code</span>
-              <span className="working-capital-review-card__value">{data.bankIfscCode || 'SBIN0008887'}</span>
-            </div>
+            {accountItems.map((item, idx) => (
+              <ReviewItem key={idx} label={item.label} value={item.value} />
+            ))}
           </div>
         </div>
 
-        {/* 5. Uploaded Records Pill Cloud */}
+        {/* 5. Uploaded Records */}
         <div className="working-capital-review-card">
           <div className="working-capital-review-card__header">
             <h4 className="working-capital-review-card__title">Uploaded Records</h4>
-            <button
-              type="button"
-              className="working-capital-review-card__edit-btn"
-              onClick={() => onNavigateToStep(3)}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-              </svg>
-              Manage
-            </button>
+            <EditButton onClick={() => onNavigateToStep(3)} label="Manage" />
           </div>
           <div className="working-capital-doc-chips">
             {WORKING_CAPITAL_DOCUMENT_CONFIGS.map((doc) => {
               const isUploaded = uploadedDocEntries.includes(doc.id) || !uploadedDocEntries.length
               return (
-                <div
-                  key={doc.id}
-                  className={`working-capital-doc-chip ${isUploaded ? 'working-capital-doc-chip--active' : ''}`}
-                >
+                <div key={doc.id} className={`working-capital-doc-chip ${isUploaded ? 'working-capital-doc-chip--active' : ''}`}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="working-capital-doc-chip__icon">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
                   </svg>
                   <span>{doc.name}</span>
                 </div>
@@ -205,7 +153,7 @@ export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
         </div>
       </div>
 
-      {/* 6. Authorization Declaration Checkbox */}
+      {/* 6. Authorization Declaration */}
       <div className="working-capital-review__declaration">
         <input
           id="working-capital-terms-checkbox"
@@ -219,9 +167,7 @@ export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
         </label>
       </div>
       {errors.termsAccepted && (
-        <span className="working-capital-field-error" role="alert">
-          {errors.termsAccepted}
-        </span>
+        <span className="working-capital-field-error" role="alert">{errors.termsAccepted}</span>
       )}
     </div>
   )

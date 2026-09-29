@@ -1,5 +1,5 @@
 import React from 'react'
-import { LoanFormSection } from '../../../../components/LoanFormSection/LoanFormSection'
+import { LoanFormSection } from '@modules/loans/shared'
 import type { HomeLoanData, HomeLoanOccupation } from '../../../../types/homeLoan.types'
 import { loanInputHelpers } from '../../../../validation/homeLoanValidation'
 import './EmploymentAndIncome.css'
@@ -17,11 +17,12 @@ const OCCUPATION_OPTIONS: { id: HomeLoanOccupation; label: string }[] = [
 ]
 
 const INCOME_RANGES = [
+  'Below ₹10,000',
+  '₹15,000 - ₹30,000',
   '₹30,000 - ₹50,000',
   '₹50,000 - ₹1,00,000',
-  '₹1,00,000 - ₹2,00,000',
-  '₹2,00,000 - ₹5,00,000',
-  '₹5,00,000+',
+  'Above ₹1,00,000',
+  'Other (Enter Amount)',
 ]
 
 export const EmploymentAndIncome: React.FC<EmploymentAndIncomeProps> = ({
@@ -87,7 +88,13 @@ export const EmploymentAndIncome: React.FC<EmploymentAndIncomeProps> = ({
             id="home-loan-monthly-income"
             className={`home-loan-select ${errors.monthlyIncomeRange ? 'home-loan-select--error' : ''}`}
             value={data.monthlyIncomeRange || ''}
-            onChange={(e) => onChange({ monthlyIncomeRange: e.target.value })}
+            onChange={(e) => {
+              const val = e.target.value
+              onChange({
+                monthlyIncomeRange: val,
+                ...(!val.startsWith('Other') ? { exactMonthlyIncome: '' } : {}),
+              })
+            }}
           >
             <option value="" disabled>Select monthly net take-home income range</option>
             {INCOME_RANGES.map((range) => (
@@ -100,6 +107,30 @@ export const EmploymentAndIncome: React.FC<EmploymentAndIncomeProps> = ({
             <span className="home-loan-field-error" role="alert">{errors.monthlyIncomeRange}</span>
           )}
         </div>
+
+        {data.monthlyIncomeRange?.startsWith('Other') && (
+          <div className="home-loan-form-group">
+            <label htmlFor="home-loan-exact-income" className="home-loan-label">
+              Enter Amount (₹) <span className="home-loan-label__req">*</span>
+            </label>
+            <input
+              id="home-loan-exact-income"
+              type="text"
+              inputMode="numeric"
+              className={`home-loan-input ${errors.exactMonthlyIncome ? 'home-loan-input--error' : ''}`}
+              placeholder="Enter monthly net income in ₹ (e.g. 75,000)"
+              value={data.exactMonthlyIncome ? loanInputHelpers.formatCurrencyString(String(data.exactMonthlyIncome)) : ''}
+              onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
+              onChange={(e) => {
+                const formatted = loanInputHelpers.formatCurrencyString(e.target.value)
+                onChange({ exactMonthlyIncome: formatted })
+              }}
+            />
+            {errors.exactMonthlyIncome && (
+              <span className="home-loan-field-error" role="alert">{errors.exactMonthlyIncome}</span>
+            )}
+          </div>
+        )}
       </LoanFormSection>
 
       {/* 3. Existing Loan Obligations */}

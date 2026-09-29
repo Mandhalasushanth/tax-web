@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { StepActionBar, DraftConfirmModal, FlowStepper } from '@shared/components'
 import type { FlowStepItem } from '@shared/components'
 
-import { LoanPageNavigation } from '../LoanPageNavigation/LoanPageNavigation'
 import { useLoanApplication } from '../../hooks/useLoanApplication'
 import { loanApplicationService } from '../../services/loanApplicationService'
+import type { LoanApplicationBase } from '../../types/loanApplication.types'
 import type { WorkingCapitalLoanData } from '../../types/workingCapitalLoan.types'
 import { workingCapitalLoanValidation } from '../../validation/workingCapitalLoanValidation'
 
@@ -13,7 +13,7 @@ import { Financials } from './steps/Financials/Financials'
 import { BusinessAndBanking } from './steps/BusinessAndBanking/BusinessAndBanking'
 import { Documents } from './steps/Documents/Documents'
 import { ReviewAndSubmit } from './steps/ReviewAndSubmit/ReviewAndSubmit'
-import { LoanSubmitModal } from './steps/LoanSubmitModal/LoanSubmitModal'
+import { LoanSubmitSuccessModal } from '../../shared'
 
 import './WorkingCapitalLoan.css'
 
@@ -51,6 +51,7 @@ export const WorkingCapitalLoan: React.FC = () => {
   const [stepError, setStepError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [submittedRef, setSubmittedRef] = useState<string | null>(null)
+  const [submittedApp, setSubmittedApp] = useState<LoanApplicationBase | null>(null)
 
   const {
     formData,
@@ -62,8 +63,9 @@ export const WorkingCapitalLoan: React.FC = () => {
     setIsDraftModalOpen,
     isSubmitting,
     setIsSubmitting,
-    saveDraft,
-    discardDraft,
+    handleSaveAndExit,
+    handleDiscardAndExit,
+    handleKeepEditing,
   } = useLoanApplication<WorkingCapitalLoanData>(
     'working_capital_loan',
     INITIAL_WORKING_CAPITAL_LOAN_DATA,
@@ -99,35 +101,17 @@ export const WorkingCapitalLoan: React.FC = () => {
   const validateCurrentStep = (): boolean => {
     setStepError(null)
     setFieldErrors({})
-
-    if (currentStep === 1) {
-      const res = workingCapitalLoanValidation.validateStep1(formData)
-      if (!res.isValid) {
-        setStepError(res.error || 'Please fill in all required fields.')
-        setFieldErrors(res.errors)
-        return false
-      }
-    } else if (currentStep === 2) {
-      const res = workingCapitalLoanValidation.validateStep2(formData)
-      if (!res.isValid) {
-        setStepError(res.error || 'Please fill in all required fields.')
-        setFieldErrors(res.errors)
-        return false
-      }
-    } else if (currentStep === 3) {
-      const res = workingCapitalLoanValidation.validateStep3(formData)
-      if (!res.isValid) {
-        setStepError(res.error || 'Please upload all mandatory documents.')
-        setFieldErrors(res.errors)
-        return false
-      }
-    } else if (currentStep === 4) {
-      const res = workingCapitalLoanValidation.validateStep4(formData)
-      if (!res.isValid) {
-        setStepError(res.error || 'Please accept the authorization declaration.')
-        setFieldErrors(res.errors)
-        return false
-      }
+    const validators = [
+      () => workingCapitalLoanValidation.validateStep1(formData),
+      () => workingCapitalLoanValidation.validateStep2(formData),
+      () => workingCapitalLoanValidation.validateStep3(formData),
+      () => workingCapitalLoanValidation.validateStep4(formData),
+    ]
+    const res = validators[currentStep - 1]?.()
+    if (res && !res.isValid) {
+      setStepError(res.error || 'Please fill in all required fields.')
+      setFieldErrors(res.errors)
+      return false
     }
     return true
   }
@@ -149,6 +133,7 @@ export const WorkingCapitalLoan: React.FC = () => {
           details: formData,
         })
         setSubmittedRef(app.referenceNumber || 'TXE-LN-84920184')
+        setSubmittedApp(app)
       } catch (err: unknown) {
         const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
         setStepError(errorMsg)
@@ -172,23 +157,22 @@ export const WorkingCapitalLoan: React.FC = () => {
 
   const handleTrackStatus = () => {
     const ref = submittedRef || 'TXE-LN-499927'
+    const app = submittedApp
     setSubmittedRef(null)
     navigate(`/loans/status/${ref}`, {
       state: {
+        application: app,
         refNumber: ref,
         formData,
-        loanTitle: 'Working Capital',
+        loanTitle: 'Working Capital Loan',
       },
     })
   }
 
   return (
     <div className="working-capital-page">
-      {/* 1. Header Navigation */}
-      <LoanPageNavigation
-        title="Working Capital"
-        showBack={false}
-      />
+      {/* 1. Page Title */}
+      <h1 className="working-capital-page__title">Working Capital Loan</h1>
 
       {/* 2. Stepper Header */}
       <div className="working-capital-stepper-container">
@@ -260,20 +244,15 @@ export const WorkingCapitalLoan: React.FC = () => {
       <DraftConfirmModal
         isOpen={isDraftModalOpen}
         serviceTitle="Working Capital Loan Application"
-        onSaveAndExit={() => {
-          saveDraft()
-          navigate('/loans')
-        }}
-        onDiscardAndExit={() => {
-          discardDraft()
-          navigate('/loans')
-        }}
-        onKeepEditing={() => setIsDraftModalOpen(false)}
+        onSaveAndExit={handleSaveAndExit}
+        onDiscardAndExit={handleDiscardAndExit}
+        onKeepEditing={handleKeepEditing}
       />
 
       {/* 6. Submit Success Modal */}
-      <LoanSubmitModal
+      <LoanSubmitSuccessModal
         isOpen={Boolean(submittedRef)}
+        title="Working Capital Loan Submitted"
         referenceNumber={submittedRef || ''}
         onTrackStatus={handleTrackStatus}
       />

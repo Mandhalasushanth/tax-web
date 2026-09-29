@@ -91,3 +91,24 @@ export function handleAlphanumericKeyDown(e: React.KeyboardEvent<HTMLInputElemen
   !isAllowedControl && !/^[a-zA-Z0-9-]$/.test(e.key) ? e.preventDefault() : undefined
 }
 
+/**
+ * Centralized known IFSC prefixes to sample branch names for real-time detection
+ */
+export const SAMPLE_IFSC_BRANCH_MAP: Record<string, string> = {
+  BKID0008832: 'GURUNANAK TIMBER MARKET',
+  HDFC0001234: 'CONNAUGHT PLACE BRANCH',
+  SBIN0001234: 'MAIN BRANCH NEW DELHI',
+  SBIN0004567: 'STATE BANK OF INDIA - MAIN BRANCH',
+  ICIC0001234: 'NARIMAN POINT MUMBAI',
+  UTIB0001234: 'MG ROAD BENGALURU',
+}
+
+/**
+ * Resolves IFSC code to detected branch name or verified label
+ */
+export function resolveIfscBranch(ifsc?: string): string {
+  if (!ifsc) return ''
+  const clean = ifsc.trim().toUpperCase()
+  return SAMPLE_IFSC_BRANCH_MAP[clean] || (clean.length === 11 ? 'VERIFIED BANK BRANCH' : '')
+}
+

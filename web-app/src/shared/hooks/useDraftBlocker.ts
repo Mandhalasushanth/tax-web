@@ -45,10 +45,8 @@ export const useDraftBlocker = ({
   useEffect(() => {
     if (!shouldBlock) return
 
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    const handleBeforeUnload = () => {
       onSaveDraft()
-      e.preventDefault()
-      e.returnValue = ''
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload)

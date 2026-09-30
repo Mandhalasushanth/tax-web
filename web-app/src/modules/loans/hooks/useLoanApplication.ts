@@ -148,8 +148,8 @@ export function useLoanApplication<T extends object>(
     localStore.remove(stepStorageKey)
   }, [loanType, stepStorageKey])
 
-  // Block route navigation if unsubmitted and in progress
-  const shouldBlock = (currentStep > 1 || Boolean(localStore.get(stepStorageKey))) && !isSubmitting && !isSubmitted
+  // Block route navigation only if unsubmitted and in progress
+  const shouldBlock = !isSubmitted && (currentStep > 1 || Boolean(localStore.get(stepStorageKey))) && !isSubmitting
 
   const draftBlocker = useDraftBlocker({
     shouldBlock,
@@ -161,7 +161,12 @@ export function useLoanApplication<T extends object>(
     },
     defaultExitRoute: '/loans',
     isNavigationAllowed: (nextLocation) => {
-      return nextLocation.pathname.includes('/loans/status')
+      if (isSubmitted) return true
+      if (nextLocation.pathname.includes('/loans/status')) return true
+      if (nextLocation.pathname === '/loans' || nextLocation.pathname === '/loans/all') {
+        if (isSubmitted) return true
+      }
+      return false
     },
   })
 

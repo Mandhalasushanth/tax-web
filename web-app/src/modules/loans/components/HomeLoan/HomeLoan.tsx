@@ -6,6 +6,7 @@ import { LoanSubmitSuccessModal } from '../../shared'
 
 import { useLoanApplication } from '../../hooks/useLoanApplication'
 import { loanApplicationService } from '../../services/loanApplicationService'
+import { safeNavigateTo } from '../../utils/loanMarketplace.utils'
 import type { HomeLoanData } from '../../types/homeLoan.types'
 import type { LoanApplicationBase } from '../../types/loanApplication.types'
 import { homeLoanValidation } from '../../validation/homeLoanValidation'
@@ -249,7 +250,13 @@ export const HomeLoan: React.FC = () => {
         title="Home Loan Submitted"
         referenceNumber={submittedRef || ''}
         message="Your Home Loan application has been successfully received. A TaxEdge Loan Advisor will review your documents and contact you shortly."
+        onDone={() => {
+          markSubmitted()
+          setSubmittedRef('')
+          safeNavigateTo(navigate, '/loans')
+        }}
         onTrackStatus={() => {
+          markSubmitted()
           const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || ''
           navigate(`/loans/status/${ref}`, {
             state: { formData, refNumber: ref, application: submittedApp, loanTitle: 'Home Loan' },

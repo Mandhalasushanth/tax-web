@@ -4,6 +4,7 @@ import { StepActionBar, DraftConfirmModal, FlowStepper } from '@shared/component
 
 import { useLoanApplication } from '../../hooks/useLoanApplication'
 import { loanApplicationService } from '../../services/loanApplicationService'
+import { safeNavigateTo } from '../../utils/loanMarketplace.utils'
 import type { ProjectFinanceData } from '../../types/projectFinance.types'
 import { projectFinanceValidation } from '../../validation/projectFinanceValidation'
 import { PROJECT_FINANCE_STEPS, INITIAL_PROJECT_FINANCE_DATA } from './projectFinance.constants'
@@ -43,6 +44,7 @@ export const ProjectFinance: React.FC = () => {
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
+    markSubmitted,
   } = useLoanApplication<ProjectFinanceData>(
     'project_finance',
     INITIAL_PROJECT_FINANCE_DATA,
@@ -151,6 +153,7 @@ export const ProjectFinance: React.FC = () => {
           tenureMonths: 60,
           details: formData,
         })
+        markSubmitted()
         setSubmittedRef(app.referenceNumber || 'PF-2026-9842')
       } catch (err: unknown) {
         const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
@@ -276,7 +279,9 @@ export const ProjectFinance: React.FC = () => {
         isOpen={Boolean(submittedRef)}
         applicationId={submittedRef || 'PF-2026-9842'}
         onDone={() => {
-          navigate('/loans')
+          markSubmitted()
+          setSubmittedRef(null)
+          safeNavigateTo(navigate, '/loans')
         }}
       />
     </div>

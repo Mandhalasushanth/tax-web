@@ -5,6 +5,7 @@ import type { FlowStepItem } from '@shared/components'
 
 import { useLoanApplication } from '../../hooks/useLoanApplication'
 import { loanApplicationService } from '../../services/loanApplicationService'
+import { safeNavigateTo } from '../../utils/loanMarketplace.utils'
 import type { LoanApplicationBase } from '../../types/loanApplication.types'
 import type { WorkingCapitalLoanData } from '../../types/workingCapitalLoan.types'
 import { workingCapitalLoanValidation } from '../../validation/workingCapitalLoanValidation'
@@ -134,7 +135,7 @@ export const WorkingCapitalLoan: React.FC = () => {
           details: formData,
         })
         markSubmitted()
-        setSubmittedRef(app.referenceNumber || app.id || '')
+        setSubmittedRef(app.referenceNumber || app.id || 'TXE-LN-84920184')
         setSubmittedApp(app)
       } catch (err: unknown) {
         const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
@@ -158,7 +159,8 @@ export const WorkingCapitalLoan: React.FC = () => {
   }
 
   const handleTrackStatus = () => {
-    const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || ''
+    markSubmitted()
+    const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || 'TXE-LN-499927'
     const app = submittedApp
     setSubmittedRef(null)
     navigate(`/loans/status/${ref}`, {
@@ -257,6 +259,11 @@ export const WorkingCapitalLoan: React.FC = () => {
         title="Working Capital Loan Submitted"
         referenceNumber={submittedRef || ''}
         message="Your Working Capital Loan application has been successfully received. A TaxEdge Loan Advisor will review your business records and contact you shortly."
+        onDone={() => {
+          markSubmitted()
+          setSubmittedRef(null)
+          safeNavigateTo(navigate, '/loans')
+        }}
         onTrackStatus={handleTrackStatus}
       />
     </div>

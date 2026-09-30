@@ -186,6 +186,7 @@ export const BusinessLoan: React.FC = () => {
       const executeSubmission = async () => {
         setIsSubmitting(true)
         const result = await loanApplicationService.submitApplication('business_loan', formData)
+        markSubmitted()
         setIsSubmitting(false)
         markSubmitted()
         setSubmittedApp(result)

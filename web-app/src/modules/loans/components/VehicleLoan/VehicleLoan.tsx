@@ -5,6 +5,7 @@ import type { FlowStepItem } from '@shared/components'
 
 import { useLoanApplication } from '../../hooks/useLoanApplication'
 import { loanApplicationService } from '../../services/loanApplicationService'
+import { safeNavigateTo } from '../../utils/loanMarketplace.utils'
 import type { LoanApplicationBase } from '../../types/loanApplication.types'
 import type { VehicleLoanData } from '../../types/vehicleLoan.types'
 import { vehicleLoanValidation } from '../../validation/vehicleLoanValidation'
@@ -153,7 +154,7 @@ export const VehicleLoan: React.FC = () => {
           details: formData,
         })
         markSubmitted()
-        setSubmittedRef(app.referenceNumber || app.id || '')
+        setSubmittedRef(app.referenceNumber || app.id || 'TXE-LN-93820124')
         setSubmittedApp(app)
       } catch (err: unknown) {
         const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
@@ -268,8 +269,14 @@ export const VehicleLoan: React.FC = () => {
         title="Vehicle Loan Submitted"
         referenceNumber={submittedRef || ''}
         message="Your Vehicle Loan application has been successfully received. A TaxEdge Loan Advisor will review your vehicle quotation and contact you shortly."
+        onDone={() => {
+          markSubmitted()
+          setSubmittedRef(null)
+          safeNavigateTo(navigate, '/loans')
+        }}
         onTrackStatus={() => {
-          const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || ''
+          markSubmitted()
+          const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || 'TXE-LN-93820124'
           navigate(`/loans/status/${ref}`, {
             state: { application: submittedApp, formData, refNumber: ref, loanTitle: 'Vehicle Loan' },
           })

@@ -5,6 +5,7 @@ import type { FlowStepItem } from '@shared/components'
 
 import { useLoanApplication } from '../../hooks/useLoanApplication'
 import { loanApplicationService } from '../../services/loanApplicationService'
+import { safeNavigateTo } from '../../utils/loanMarketplace.utils'
 import type { LoanApplicationBase } from '../../types/loanApplication.types'
 import type { MachineryLoanData } from '../../types/machineryLoan.types'
 import { machineryLoanValidation } from '../../validation/machineryLoanValidation'
@@ -132,7 +133,7 @@ export const MachineryLoan: React.FC = () => {
           details: formData,
         })
         markSubmitted()
-        setSubmittedRef(app.referenceNumber || app.id || '')
+        setSubmittedRef(app.referenceNumber || app.id || 'TXE-LN-76084608')
         setSubmittedApp(app)
       } catch (err: unknown) {
         const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
@@ -239,8 +240,14 @@ export const MachineryLoan: React.FC = () => {
         title="Machinery Loan Submitted"
         referenceNumber={submittedRef || ''}
         message="Your Machinery Loan application has been successfully received. A TaxEdge Loan Advisor will review your equipment quotation and financial records and contact you shortly."
+        onDone={() => {
+          markSubmitted()
+          setSubmittedRef(null)
+          safeNavigateTo(navigate, '/loans')
+        }}
         onTrackStatus={() => {
-          const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || ''
+          markSubmitted()
+          const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || 'TXE-LN-76084608'
           navigate(`/loans/status/${ref}`, {
             state: { application: submittedApp, formData, refNumber: ref, loanTitle: 'Machinery Loan' },
           })

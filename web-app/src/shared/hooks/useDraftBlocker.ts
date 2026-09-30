@@ -42,6 +42,13 @@ export const useDraftBlocker = ({
 
   const isModalOpen = isManualOpen || blocker.state === 'blocked'
 
+  // Reset blocker if shouldBlock transitions to false while in blocked state
+  useEffect(() => {
+    if (!shouldBlock && blocker.state === 'blocked') {
+      blocker.reset()
+    }
+  }, [shouldBlock, blocker])
+
   // Persist draft and show browser dialog if tab is closed or reloaded
   useEffect(() => {
     if (!shouldBlock) return

@@ -42,6 +42,8 @@ export const ProjectFinanceSubmitModal: React.FC<ProjectFinanceSubmitModalProps>
           type="button"
           className="pf-submit-modal-btn"
           onClick={onDone}
+          data-testid="pf-submit-modal-done-btn"
+          aria-label="Done"
         >
           Done
         </button>

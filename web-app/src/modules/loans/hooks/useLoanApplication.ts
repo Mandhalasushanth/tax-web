@@ -140,8 +140,17 @@ export function useLoanApplication<T extends object>(
     pushToast('Draft discarded', 'info')
   }, [loanType, initialValues, pushToast, stepStorageKey])
 
-  // Block route navigation if unsubmitted and in progress
-  const shouldBlock = (currentStep > 1 || Boolean(localStore.get(stepStorageKey))) && !isSubmitting
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
+
+  const markSubmitted = useCallback(() => {
+    setIsSubmitted(true)
+    loanApplicationService.clearDraft(loanType)
+    userStorage.deleteDraft(loanType)
+    localStore.remove(stepStorageKey)
+  }, [loanType, stepStorageKey])
+
+  // Block route navigation only if unsubmitted and in progress
+  const shouldBlock = !isSubmitted && (currentStep > 1 || Boolean(localStore.get(stepStorageKey))) && !isSubmitting
 
   const draftBlocker = useDraftBlocker({
     shouldBlock,
@@ -152,6 +161,13 @@ export function useLoanApplication<T extends object>(
       discardDraft()
     },
     defaultExitRoute: '/loans',
+    isNavigationAllowed: (nextLocation) => {
+      if (isSubmitted) return true
+      if (nextLocation.pathname === '/loans' || nextLocation.pathname === '/loans/all') {
+        if (isSubmitted) return true
+      }
+      return false
+    },
   })
 
   const isDraftModalOpen = isManualDraftModalOpen || draftBlocker.isModalOpen
@@ -186,6 +202,9 @@ export function useLoanApplication<T extends object>(
     setIsDraftModalOpen: setIsManualDraftModalOpen,
     isSubmitting,
     setIsSubmitting,
+    isSubmitted,
+    setIsSubmitted,
+    markSubmitted,
     saveDraft,
     discardDraft,
     handleSaveAndExit,

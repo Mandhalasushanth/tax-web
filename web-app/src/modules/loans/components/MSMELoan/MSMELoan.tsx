@@ -124,6 +124,7 @@ export const MSMELoan: React.FC = () => {
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
+    markSubmitted,
   } = useLoanApplication<MsmeLoanFormData>('msme_loan', INITIAL_MSME_LOAN_DATA, {
     serviceTitle: 'MSME Loan',
     totalSteps: 5,
@@ -164,6 +165,7 @@ export const MSMELoan: React.FC = () => {
       const executeSubmission = async () => {
         setIsSubmitting(true)
         const result = await loanApplicationService.submitApplication('msme_loan', formData)
+        markSubmitted()
         setIsSubmitting(false)
         navigate(`/loans/status/${result.id || result.refNumber}`, {
           state: { application: result, loanTitle: 'MSME Loan', formData },

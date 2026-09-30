@@ -80,6 +80,7 @@ export const HomeLoan: React.FC = () => {
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
+    markSubmitted,
   } = useLoanApplication<HomeLoanData>(
     'home_loan',
     INITIAL_HOME_LOAN_DATA,
@@ -147,6 +148,7 @@ export const HomeLoan: React.FC = () => {
           tenureMonths: Number(formData.repaymentTenureYears || 0) * 12,
           details: formData,
         })
+        markSubmitted()
         navigate(`/loans/status/${app.referenceNumber}`, {
           state: { formData, refNumber: app.referenceNumber, application: app, loanTitle: 'Home Loan' },
         })

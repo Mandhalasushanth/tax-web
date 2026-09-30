@@ -29,6 +29,9 @@ export function safeNavigateTo(
       navigate(fallback)
     } catch (fallbackError) {
       console.error('[LoanMarketplace] Critical fallback navigation failure:', fallbackError)
+      if (typeof window !== 'undefined') {
+        window.location.href = typeof destination === 'string' ? destination : fallback
+      }
     }
   }
 }

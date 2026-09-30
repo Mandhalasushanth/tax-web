@@ -12,14 +12,12 @@ import {
 } from '../../src/modules/loans/utils/loanMarketplace.utils'
 
 describe('LoanMarketplace Module', () => {
-  it('contains exactly 9 loans in the marketplace catalog matching the specification', () => {
-    expect(LOAN_MARKETPLACE_ITEMS).toHaveLength(9)
+  it('contains exactly 7 loans in the marketplace catalog matching the specification', () => {
+    expect(LOAN_MARKETPLACE_ITEMS).toHaveLength(7)
 
     const expectedOrder = [
       { id: 'business-loan', title: 'Business Loan', rate: 'From 12% p.a.' },
-      { id: 'personal-loan', title: 'Personal Loan', rate: 'From 10.5% p.a.' },
       { id: 'home-loan', title: 'Home Loan', rate: 'From 8.4% p.a.' },
-      { id: 'property-loan', title: 'Property Loan', rate: 'From 9.5% p.a.' },
       { id: 'vehicle-loan', title: 'Vehicle Loan', rate: 'From 8.75% p.a.' },
       { id: 'working-capital', title: 'Working Capital', rate: 'From 10.0% p.a.' },
       { id: 'machinery-loan', title: 'Machinery Loan', rate: 'From 11.0% p.a.' },
@@ -35,7 +33,7 @@ describe('LoanMarketplace Module', () => {
     })
   })
 
-  it('renders all 9 loan cards and header inside LoanMarketplace', () => {
+  it('renders all 7 loan cards and header inside LoanMarketplace', () => {
     render(
       <MemoryRouter>
         <LoanMarketplace />
@@ -45,11 +43,9 @@ describe('LoanMarketplace Module', () => {
     expect(screen.getByText('Capital & Financing')).toBeInTheDocument()
     expect(screen.getByText('Loan Marketplace & Assistance')).toBeInTheDocument()
 
-    // Verify all 9 loan titles are rendered
+    // Verify all 7 loan titles are rendered
     expect(screen.getByText('Business Loan')).toBeInTheDocument()
-    expect(screen.getByText('Personal Loan')).toBeInTheDocument()
     expect(screen.getByText('Home Loan')).toBeInTheDocument()
-    expect(screen.getByText('Property Loan')).toBeInTheDocument()
     expect(screen.getByText('Vehicle Loan')).toBeInTheDocument()
     expect(screen.getByText('Working Capital')).toBeInTheDocument()
     expect(screen.getByText('Machinery Loan')).toBeInTheDocument()

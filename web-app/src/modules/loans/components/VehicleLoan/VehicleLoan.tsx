@@ -5,6 +5,7 @@ import type { FlowStepItem } from '@shared/components'
 
 import { useLoanApplication } from '../../hooks/useLoanApplication'
 import { loanApplicationService } from '../../services/loanApplicationService'
+import { safeNavigateTo } from '../../utils/loanMarketplace.utils'
 import type { LoanApplicationBase } from '../../types/loanApplication.types'
 import type { VehicleLoanData } from '../../types/vehicleLoan.types'
 import { vehicleLoanValidation } from '../../validation/vehicleLoanValidation'
@@ -76,6 +77,7 @@ export const VehicleLoan: React.FC = () => {
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
+    markSubmitted,
   } = useLoanApplication<VehicleLoanData>(
     'vehicle_loan',
     INITIAL_VEHICLE_LOAN_DATA,
@@ -151,6 +153,7 @@ export const VehicleLoan: React.FC = () => {
           tenureMonths,
           details: formData,
         })
+        markSubmitted()
         setSubmittedRef(app.referenceNumber || 'TXE-LN-93820124')
         setSubmittedApp(app)
       } catch (err: unknown) {
@@ -265,7 +268,13 @@ export const VehicleLoan: React.FC = () => {
         isOpen={Boolean(submittedRef)}
         title="Vehicle Loan Submitted"
         referenceNumber={submittedRef || ''}
+        onDone={() => {
+          markSubmitted()
+          setSubmittedRef(null)
+          safeNavigateTo(navigate, '/loans')
+        }}
         onTrackStatus={() => {
+          markSubmitted()
           const ref = submittedRef || 'TXE-LN-93820124'
           navigate(`/loans/status/${ref}`, {
             state: { application: submittedApp, formData, refNumber: ref, loanTitle: 'Vehicle Loan' },

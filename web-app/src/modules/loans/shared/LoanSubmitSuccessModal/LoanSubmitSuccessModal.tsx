@@ -7,7 +7,8 @@ export interface LoanSubmitSuccessModalProps {
   referenceNumber: string
   message?: string
   buttonLabel?: string
-  onTrackStatus: () => void
+  onTrackStatus?: () => void
+  onDone?: () => void
 }
 
 /**
@@ -21,6 +22,7 @@ export const LoanSubmitSuccessModal: React.FC<LoanSubmitSuccessModalProps> = ({
   message,
   buttonLabel = 'TRACK STATUS',
   onTrackStatus,
+  onDone,
 }) => {
   if (!isOpen) return null
 
@@ -32,13 +34,26 @@ export const LoanSubmitSuccessModal: React.FC<LoanSubmitSuccessModalProps> = ({
           {message || `Your application (Ref: ${referenceNumber}) has been submitted. Our TaxEdge Loan Agent will process the application shortly.`}
         </p>
         <div className="loan-submit-modal-actions">
-          <button
-            type="button"
-            className="loan-submit-modal-btn"
-            onClick={onTrackStatus}
-          >
-            {buttonLabel}
-          </button>
+          {onDone && (
+            <button
+              type="button"
+              className="loan-submit-modal-btn loan-submit-modal-btn--done"
+              onClick={onDone}
+              data-testid="loan-submit-modal-done-btn"
+            >
+              Done
+            </button>
+          )}
+          {onTrackStatus && (
+            <button
+              type="button"
+              className="loan-submit-modal-btn"
+              onClick={onTrackStatus}
+              data-testid="loan-submit-modal-track-btn"
+            >
+              {buttonLabel}
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -137,6 +137,7 @@ export const BusinessLoan: React.FC = () => {
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
+    markSubmitted,
   } = useLoanApplication<BusinessLoanFormData>('business_loan', INITIAL_BUSINESS_LOAN_DATA)
 
   /**
@@ -181,6 +182,7 @@ export const BusinessLoan: React.FC = () => {
       const executeSubmission = async () => {
         setIsSubmitting(true)
         const result = await loanApplicationService.submitApplication('business_loan', formData)
+        markSubmitted()
         setIsSubmitting(false)
         navigate(`/loans/status/${result.id || result.refNumber}`, {
           state: { application: result, loanTitle: 'Business Loan', formData },

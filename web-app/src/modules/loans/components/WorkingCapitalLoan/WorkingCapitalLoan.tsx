@@ -5,6 +5,7 @@ import type { FlowStepItem } from '@shared/components'
 
 import { useLoanApplication } from '../../hooks/useLoanApplication'
 import { loanApplicationService } from '../../services/loanApplicationService'
+import { safeNavigateTo } from '../../utils/loanMarketplace.utils'
 import type { LoanApplicationBase } from '../../types/loanApplication.types'
 import type { WorkingCapitalLoanData } from '../../types/workingCapitalLoan.types'
 import { workingCapitalLoanValidation } from '../../validation/workingCapitalLoanValidation'
@@ -66,6 +67,7 @@ export const WorkingCapitalLoan: React.FC = () => {
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
+    markSubmitted,
   } = useLoanApplication<WorkingCapitalLoanData>(
     'working_capital_loan',
     INITIAL_WORKING_CAPITAL_LOAN_DATA,
@@ -132,6 +134,7 @@ export const WorkingCapitalLoan: React.FC = () => {
           tenureMonths: 12,
           details: formData,
         })
+        markSubmitted()
         setSubmittedRef(app.referenceNumber || 'TXE-LN-84920184')
         setSubmittedApp(app)
       } catch (err: unknown) {
@@ -156,6 +159,7 @@ export const WorkingCapitalLoan: React.FC = () => {
   }
 
   const handleTrackStatus = () => {
+    markSubmitted()
     const ref = submittedRef || 'TXE-LN-499927'
     const app = submittedApp
     setSubmittedRef(null)
@@ -254,6 +258,11 @@ export const WorkingCapitalLoan: React.FC = () => {
         isOpen={Boolean(submittedRef)}
         title="Working Capital Loan Submitted"
         referenceNumber={submittedRef || ''}
+        onDone={() => {
+          markSubmitted()
+          setSubmittedRef(null)
+          safeNavigateTo(navigate, '/loans')
+        }}
         onTrackStatus={handleTrackStatus}
       />
     </div>

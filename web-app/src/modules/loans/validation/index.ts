@@ -53,3 +53,7 @@ export {
   validateStep6 as validateProjectFinanceStep6,
   validateStep7 as validateProjectFinanceStep7,
 } from './projectFinanceValidationPart2'
+
+export { personalLoanValidation, PERSONAL_LOAN_REQUIRED_DOC_IDS } from './personalLoanValidation'
+export type { ValidationResult as PersonalLoanValidationResult } from './personalLoanValidation'
+export * from './propertyLoanValidation'

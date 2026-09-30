@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StepActionBar, DraftConfirmModal, FlowStepper } from '@shared/components'
 import type { FlowStepItem } from '@shared/components'
+import { LoanSubmitSuccessModal } from '../../shared'
 import {
   LoanAndApplicant,
   BusinessDetails,
@@ -21,6 +22,7 @@ import { loanApplicationService } from '../../services/loanApplicationService'
 import { useLoanApplication } from '../../hooks/useLoanApplication'
 import { safeNavigateTo } from '../../utils/loanMarketplace.utils'
 import type { BusinessLoanFormData } from '../../types/businessLoan.types'
+import type { LoanApplicationBase } from '../../types/loanApplication.types'
 import './BusinessLoan.css'
 
 const BUSINESS_LOAN_STEPS: FlowStepItem[] = [
@@ -120,6 +122,8 @@ export const BusinessLoan: React.FC = () => {
   const [stepError, setStepError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [submittedRef, setSubmittedRef] = useState<string | null>(null)
+  const [submittedApp, setSubmittedApp] = useState<LoanApplicationBase | null>(null)
 
   // Secured applicant profile dynamically retrieved from account session
   const applicant = useMemo(() => getApplicantIdentityDetails(), [])
@@ -137,6 +141,7 @@ export const BusinessLoan: React.FC = () => {
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
+    markSubmitted,
   } = useLoanApplication<BusinessLoanFormData>('business_loan', INITIAL_BUSINESS_LOAN_DATA)
 
   /**
@@ -182,9 +187,9 @@ export const BusinessLoan: React.FC = () => {
         setIsSubmitting(true)
         const result = await loanApplicationService.submitApplication('business_loan', formData)
         setIsSubmitting(false)
-        navigate(`/loans/status/${result.id || result.refNumber}`, {
-          state: { application: result, loanTitle: 'Business Loan', formData },
-        })
+        markSubmitted()
+        setSubmittedApp(result)
+        setSubmittedRef(result.referenceNumber || result.id || '')
       }
 
       const handleInvalid = () => {
@@ -359,6 +364,19 @@ export const BusinessLoan: React.FC = () => {
         onSaveAndExit={handleSaveAndExit}
         onDiscardAndExit={handleDiscardAndExit}
         onKeepEditing={handleKeepEditing}
+      />
+
+      <LoanSubmitSuccessModal
+        isOpen={Boolean(submittedRef)}
+        title="Business Loan Submitted"
+        referenceNumber={submittedRef || ''}
+        message="Your Business Loan application has been successfully received. A TaxEdge Loan Advisor will review your business dossier and contact you shortly."
+        onTrackStatus={() => {
+          const ref = submittedRef || submittedApp?.referenceNumber || submittedApp?.id || ''
+          navigate(`/loans/status/${ref}`, {
+            state: { application: submittedApp, loanTitle: 'Business Loan', formData, refNumber: ref },
+          })
+        }}
       />
     </div>
   )

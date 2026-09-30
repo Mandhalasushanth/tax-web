@@ -195,7 +195,7 @@ export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
                 value={
                   data.itrAcknowledgementNumber
                     ? `Filed (${data.itrAcknowledgementNumber})`
-                    : 'Filed (Last 3 Years)'
+                    : '—'
                 }
               />
             </div>

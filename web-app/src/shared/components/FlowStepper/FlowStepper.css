@@ -1,7 +1,7 @@
 /* ==========================================================================
    Modular FlowStepper Styles - Navy Blue & Vibrant Orange Design System
-   Matches Image 1 Reference Stepper: 40px circle, centered 720px track,
-   clean connecting lines with airy gaps away from circles.
+   Guarantees mathematically equal spacing between all steps and consistent
+   connecting line lengths across all loan modules.
    ========================================================================== */
 
 .flow-stepper-container {
@@ -23,21 +23,38 @@
   width: 100%;
   max-width: 980px;
   margin: 0 auto;
-  box-sizing: border-box;
   position: relative;
+  box-sizing: border-box;
+  padding: 0 0.5rem;
 }
 
 .flow-step-item-wrapper {
-  display: flex;
-  align-items: flex-start;
-  flex: 1 1 0;
-  min-width: 0;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 0px;
+  min-width: 0;
+  text-align: center;
+  box-sizing: border-box;
 }
 
-.flow-step-item-wrapper:last-child {
-  flex: 0 0 auto;
-  min-width: 90px;
+/* Connecting Line between steps: perfectly centered from circle center to next circle center */
+.flow-step-line {
+  position: absolute;
+  top: 20px;
+  left: calc(50% + 24px);
+  right: calc(-50% + 24px);
+  height: 2.5px;
+  transform: translateY(-50%);
+  background-color: #e2e8f0;
+  transition: background-color 0.3s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.flow-step-line--completed {
+  background-color: #083b75;
 }
 
 /* Button & Circle */
@@ -46,17 +63,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 0.5rem;
+  width: 100%;
   background: transparent;
   border: none;
-  padding: 0;
+  padding: 0 4px;
+  box-sizing: border-box;
   cursor: default;
   position: relative;
   z-index: 2;
   user-select: none;
   outline: none;
   font-family: inherit;
-  width: 100%;
   max-width: 110px;
   margin: 0 auto;
 }
@@ -82,6 +99,9 @@
   flex-shrink: 0;
   transition: all 0.25s ease;
   user-select: none;
+  position: relative;
+  z-index: 2;
+  background-color: #ffffff;
   box-sizing: border-box;
 }
 
@@ -134,7 +154,7 @@
   stroke-linejoin: round;
 }
 
-/* Label */
+/* Label: Centered under each circle with clean typography */
 .flow-step-label {
   font-size: 0.775rem;
   line-height: 1.25;
@@ -143,24 +163,13 @@
   text-align: center;
   letter-spacing: -0.01em;
   transition: color 0.2s ease;
+  margin-top: 0.55rem;
+  width: 100%;
+  max-width: 100%;
+  display: block;
   word-break: normal;
   overflow-wrap: break-word;
-  max-width: 100px;
   padding: 0 2px;
-}
-
-/* Connecting Line between steps */
-.flow-step-line {
-  flex: 1 1 auto;
-  height: 2px;
-  background-color: #e2e8f0;
-  margin: 18px 0.25rem 0 0.25rem; /* Centered with 38px circle */
-  transition: background-color 0.3s ease;
-  z-index: 1;
-}
-
-.flow-step-line--completed {
-  background-color: #1a237e;
 }
 
 /* Interactive Hover */
@@ -172,32 +181,32 @@
   transform: scale(1.04) translateY(-2px);
 }
 
+/* Tablet Responsiveness */
+@media (max-width: 820px) {
+  .flow-step-label {
+    font-size: 0.75rem;
+    white-space: normal;
+    line-height: 1.2;
+  }
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .flow-stepper-track {
     max-width: 100%;
     overflow-x: auto;
     justify-content: flex-start;
-    padding: 0.25rem 0.5rem 0.75rem 0.5rem;
+    padding: 0 1rem 0.5rem 1rem;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .flow-stepper-track::-webkit-scrollbar {
-    display: none;
   }
 
   .flow-step-item-wrapper {
-    flex: 0 0 auto;
-    min-width: 96px;
-  }
-
-  .flow-step-item-wrapper:last-child {
-    min-width: 96px;
+    flex: 0 0 92px;
+    min-width: 92px;
   }
 
   .flow-step-line {
-    min-width: 20px;
-    margin: 18px 0.25rem 0 0.25rem;
+    left: calc(50% + 24px);
+    right: calc(-50% + 24px);
   }
 }

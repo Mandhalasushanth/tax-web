@@ -46,6 +46,7 @@ export function useLoanApplication<T extends object>(
 
   const [isManualDraftModalOpen, setIsManualDraftModalOpen] = useState<boolean>(false)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
 
   const setCurrentStep = useCallback(
     (step: number | ((prev: number) => number)) => {
@@ -140,8 +141,15 @@ export function useLoanApplication<T extends object>(
     pushToast('Draft discarded', 'info')
   }, [loanType, initialValues, pushToast, stepStorageKey])
 
+  const markSubmitted = useCallback(() => {
+    setIsSubmitted(true)
+    loanApplicationService.clearDraft(loanType)
+    userStorage.deleteDraft(loanType)
+    localStore.remove(stepStorageKey)
+  }, [loanType, stepStorageKey])
+
   // Block route navigation if unsubmitted and in progress
-  const shouldBlock = (currentStep > 1 || Boolean(localStore.get(stepStorageKey))) && !isSubmitting
+  const shouldBlock = (currentStep > 1 || Boolean(localStore.get(stepStorageKey))) && !isSubmitting && !isSubmitted
 
   const draftBlocker = useDraftBlocker({
     shouldBlock,
@@ -152,6 +160,9 @@ export function useLoanApplication<T extends object>(
       discardDraft()
     },
     defaultExitRoute: '/loans',
+    isNavigationAllowed: (nextLocation) => {
+      return nextLocation.pathname.includes('/loans/status')
+    },
   })
 
   const isDraftModalOpen = isManualDraftModalOpen || draftBlocker.isModalOpen
@@ -186,6 +197,9 @@ export function useLoanApplication<T extends object>(
     setIsDraftModalOpen: setIsManualDraftModalOpen,
     isSubmitting,
     setIsSubmitting,
+    isSubmitted,
+    setIsSubmitted,
+    markSubmitted,
     saveDraft,
     discardDraft,
     handleSaveAndExit,

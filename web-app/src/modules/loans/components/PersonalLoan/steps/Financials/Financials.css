@@ -1,0 +1,338 @@
+.personal-financials-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Applicant Identity Details Card */
+.personal-applicant-card {
+  background: #ffffff;
+  border: 1.5px solid #edf2f7;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.personal-applicant-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.personal-applicant-card__title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.personal-applicant-card__icon-tile {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.personal-applicant-card__title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.personal-applicant-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+  border-radius: 9999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.personal-applicant-card__badge-icon {
+  width: 13px;
+  height: 13px;
+}
+
+/* Callout Box */
+.personal-applicant-card__callout {
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.personal-applicant-card__bracket {
+  font-size: 1.25rem;
+  line-height: 1;
+  color: #0f172a;
+  font-family: monospace;
+  font-weight: 700;
+}
+
+.personal-applicant-card__callout-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #475569;
+  line-height: 1.45;
+}
+
+/* Responsive Grid of Profile Information */
+.personal-applicant-card__list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem 2rem;
+  width: 100%;
+}
+
+.personal-applicant-card__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.25rem 0;
+}
+
+.personal-applicant-card__row--address {
+  grid-column: span 3;
+}
+
+.personal-applicant-card__label {
+  font-size: 0.82rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.personal-applicant-card__value {
+  font-size: 0.92rem;
+  color: #0f172a;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.personal-applicant-card__value--mono {
+  font-family: monospace;
+  letter-spacing: 0.05em;
+}
+
+.personal-applicant-card__value--address {
+  line-height: 1.4;
+}
+
+/* Financial Requirements Section Card */
+.personal-financial-section {
+  background: #ffffff;
+  border: 1.5px solid #edf2f7;
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.personal-financial-section__title {
+  margin: 0 0 0.35rem 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.personal-financial-section__subtitle {
+  margin: 0 0 1.5rem 0;
+  font-size: 0.88rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* 2-column responsive form rows */
+.personal-form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 2rem;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.personal-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  width: 100%;
+}
+
+.personal-form-group--mt {
+  margin-top: 1rem;
+}
+
+.personal-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.personal-label__req {
+  color: #ef4444;
+}
+
+.personal-input {
+  width: 100%;
+  height: 48px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 1rem;
+  font-size: 0.95rem;
+  color: #0f172a;
+  background: #ffffff;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.personal-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.personal-input--error {
+  border-color: #ef4444 !important;
+  background: #fef2f2;
+}
+
+.personal-field-error {
+  font-size: 0.8rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* Quick Chips */
+.personal-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.25rem 0;
+  width: 100%;
+}
+
+.personal-chip {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.personal-chip:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.personal-chip--active {
+  background: #eff6ff !important;
+  border-color: #3b82f6 !important;
+  color: #1d4ed8 !important;
+  font-weight: 600;
+}
+
+/* Toggle Grid */
+.personal-toggle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.personal-toggle-btn {
+  height: 46px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.personal-toggle-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.personal-toggle-btn--active {
+  border-color: #ea580c !important;
+  color: #ea580c !important;
+  background: #fff7ed !important;
+}
+
+/* Tablet & Mobile Breakpoints */
+@media (max-width: 1024px) {
+  .personal-applicant-card__list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .personal-applicant-card__row--address {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .personal-form-row-2 {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .personal-financial-section {
+    padding: 1.25rem;
+  }
+
+  .personal-applicant-card {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .personal-applicant-card__list {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .personal-applicant-card__row--address {
+    grid-column: span 1;
+  }
+
+  .personal-applicant-card__row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .personal-toggle-grid {
+    grid-template-columns: 1fr;
+  }
+}

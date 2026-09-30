@@ -3,6 +3,7 @@ import './DocumentSection.css'
 
 export interface DocumentSectionProps {
   title?: string
+  icon?: React.ReactNode
   badgeLabel?: string
   badgeType?: 'mandatory' | 'recommended' | 'optional' | 'default'
   variant?: 'card' | 'flat'
@@ -12,6 +13,7 @@ export interface DocumentSectionProps {
 
 export const DocumentSection: React.FC<DocumentSectionProps> = ({
   title,
+  icon,
   badgeLabel,
   badgeType = 'default',
   variant = 'flat',
@@ -26,9 +28,12 @@ export const DocumentSection: React.FC<DocumentSectionProps> = ({
     >
       {title && (
         <div className={isCard ? 'taxedge-doc-section__header' : 'taxedge-doc-section__header-flat'}>
-          <h3 className={isCard ? 'taxedge-doc-section__title' : 'taxedge-doc-section__title-flat'}>
-            {title}
-          </h3>
+          <div className="taxedge-doc-section__title-wrap">
+            {icon && <span className="taxedge-doc-section__header-icon">{icon}</span>}
+            <h3 className={isCard ? 'taxedge-doc-section__title' : 'taxedge-doc-section__title-flat'}>
+              {title}
+            </h3>
+          </div>
           {badgeLabel && (
             <span className={`taxedge-doc-badge taxedge-doc-badge--${badgeType}`}>
               {badgeLabel}

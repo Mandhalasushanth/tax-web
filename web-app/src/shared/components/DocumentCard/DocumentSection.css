@@ -39,6 +39,20 @@
   padding-left: 2px;
 }
 
+.taxedge-doc-section__title-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.taxedge-doc-section__header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ea580c;
+  flex-shrink: 0;
+}
+
 .taxedge-doc-section__title-flat {
   margin: 0;
   font-size: 0.8125rem;

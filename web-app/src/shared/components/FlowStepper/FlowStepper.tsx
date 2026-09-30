@@ -60,6 +60,15 @@ export const FlowStepper: React.FC<FlowStepperProps> = ({
 
           return (
             <div key={step.stepNumber} className="flow-step-item-wrapper">
+              {!isLast && (
+                <div
+                  className={`flow-step-line ${
+                    isLineCompleted ? 'flow-step-line--completed' : ''
+                  }`}
+                  aria-hidden="true"
+                />
+              )}
+
               <button
                 type="button"
                 className={`flow-step-button flow-step-button--${status}`}
@@ -77,15 +86,6 @@ export const FlowStepper: React.FC<FlowStepperProps> = ({
                 </span>
                 <span className="flow-step-label">{displayLabel}</span>
               </button>
-
-              {!isLast && (
-                <div
-                  className={`flow-step-line ${
-                    isLineCompleted ? 'flow-step-line--completed' : ''
-                  }`}
-                  aria-hidden="true"
-                />
-              )}
             </div>
           )
         })}

@@ -1,0 +1,6 @@
+export { LoanRequirement } from './LoanRequirement/LoanRequirement'
+export { ApplicantIncome } from './ApplicantIncome/ApplicantIncome'
+export { PropertyDetails } from './PropertyDetails/PropertyDetails'
+export { Ownership } from './Ownership/Ownership'
+export { Documents } from './Documents/Documents'
+export { Review } from './Review/Review'

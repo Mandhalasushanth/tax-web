@@ -236,3 +236,14 @@
   margin: 0.5rem 0 0 0;
   font-size: 0.875rem;
 }
+
+.vehicle-review-no-docs {
+  margin: 0;
+  padding: 1rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  text-align: center;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px dashed #cbd5e1;
+}

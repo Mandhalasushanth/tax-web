@@ -1,4 +1,5 @@
 import React from 'react'
+import { LoanDocumentGrid } from '@modules/loans/shared'
 import { DocumentSection } from '@shared/components'
 import { DocumentVerificationHeader } from './DocumentVerificationHeader'
 import { BusinessDocumentItem } from './BusinessDocumentItem'
@@ -44,7 +45,7 @@ export const DocumentVerification: React.FC<DocumentVerificationProps> = ({
 
       {/* 3. Reusable Shared DocumentSection wrapping Full-Width Single-Column List */}
       <DocumentSection className="business-doc-verification-section" variant="flat">
-        <div className="business-doc-grid">
+        <LoanDocumentGrid>
           {/* 1. PAN Card (Required) */}
           <BusinessDocumentItem
             id="panCard"
@@ -254,7 +255,7 @@ export const DocumentVerification: React.FC<DocumentVerificationProps> = ({
             onRemove={handleRemove}
             onView={handleView}
           />
-        </div>
+        </LoanDocumentGrid>
       </DocumentSection>
     </div>
   )

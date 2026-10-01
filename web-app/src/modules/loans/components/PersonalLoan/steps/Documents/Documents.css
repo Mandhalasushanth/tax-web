@@ -67,17 +67,5 @@
 }
 
 /* Responsive 2-column grid for documents on wide screens */
-.personal-doc-group__list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem 1.25rem;
-  width: 100%;
-  box-sizing: border-box;
-}
 
 /* Responsive adjustments */
-@media (max-width: 860px) {
-  .personal-doc-group__list {
-    grid-template-columns: 1fr;
-  }
-}

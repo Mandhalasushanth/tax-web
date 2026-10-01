@@ -1,9 +1,9 @@
 import React from 'react'
-import type { BusinessLoanFormData } from '@modules/loans/types/businessLoan.types'
 import {
-  formatDigitsOnly,
+  formatCurrencyString,
   handleNumericKeyDown,
 } from '@modules/loans/utils/loanInputFormatters'
+import type { BusinessLoanFormData } from '@modules/loans/types/businessLoan.types'
 
 export interface BusinessFinancialsCardProps {
   data: BusinessLoanFormData
@@ -47,7 +47,7 @@ export const BusinessFinancialsCard: React.FC<BusinessFinancialsCardProps> = ({
           className={`custom-form-input ${errors.annualTurnover ? 'custom-form-input--error' : ''}`}
           placeholder="e.g. 5000000"
           value={data.annualTurnover || ''}
-          onChange={(e) => onChange({ annualTurnover: formatDigitsOnly(e.target.value) })}
+          onChange={(e) => onChange({ annualTurnover: formatCurrencyString(e.target.value) })}
           onKeyDown={handleNumericKeyDown}
           aria-label="Annual Turnover (FY 2024–25 / Latest)"
         />
@@ -81,7 +81,7 @@ export const BusinessFinancialsCard: React.FC<BusinessFinancialsCardProps> = ({
           className={`custom-form-input ${errors.annualNetProfit ? 'custom-form-input--error' : ''}`}
           placeholder="e.g. 500000"
           value={data.annualNetProfit || ''}
-          onChange={(e) => onChange({ annualNetProfit: formatDigitsOnly(e.target.value) })}
+          onChange={(e) => onChange({ annualNetProfit: formatCurrencyString(e.target.value) })}
           onKeyDown={handleNumericKeyDown}
           aria-label="Annual Net Profit (After Tax)"
         />

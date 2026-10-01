@@ -10,3 +10,4 @@ export type { LoanSubmitSuccessModalProps } from './LoanSubmitSuccessModal/LoanS
 export * from './LoanApplicationStatus'
 export { LoanStepErrorBanner } from './LoanStepFlow/LoanStepErrorBanner'
 export { LoanStepFlowFooter } from './LoanStepFlow/LoanStepFlowFooter'
+export { LoanDocumentGrid } from './LoanDocumentGrid/LoanDocumentGrid'

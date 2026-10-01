@@ -1,4 +1,5 @@
 import React from 'react'
+import { formatCurrencyString } from '@modules/loans/utils/loanInputFormatters'
 import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 import {
   PROJECTION_PERIOD_OPTIONS,
@@ -52,9 +53,8 @@ export const Section4And5: React.FC<Section4And5Props> = ({
   onToggleHistoricalFinancials,
   errors = {},
 }) => {
-  const handleNumericInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    const sanitized = rawValue.replace(/[^\d.]/g, '')
-    onChange({ [field]: sanitized })
+  const handleAmountInput = (field: keyof ProjectFinanceData, rawValue: string) => {
+    onChange({ [field]: formatCurrencyString(rawValue) })
   }
 
   return (
@@ -206,7 +206,7 @@ export const Section4And5: React.FC<Section4And5Props> = ({
                         className="pf-table-cell-input"
                         placeholder="Enter"
                         value={data.historicalRevenueFy3 || ''}
-                        onChange={(e) => handleNumericInput('historicalRevenueFy3', e.target.value)}
+                        onChange={(e) => handleAmountInput('historicalRevenueFy3', e.target.value)}
                       />
                     </td>
                     <td>
@@ -215,7 +215,7 @@ export const Section4And5: React.FC<Section4And5Props> = ({
                         className="pf-table-cell-input"
                         placeholder="Enter"
                         value={data.historicalRevenueFy2 || ''}
-                        onChange={(e) => handleNumericInput('historicalRevenueFy2', e.target.value)}
+                        onChange={(e) => handleAmountInput('historicalRevenueFy2', e.target.value)}
                       />
                     </td>
                     <td>
@@ -224,7 +224,7 @@ export const Section4And5: React.FC<Section4And5Props> = ({
                         className="pf-table-cell-input"
                         placeholder="Enter"
                         value={data.historicalRevenueFy1 || ''}
-                        onChange={(e) => handleNumericInput('historicalRevenueFy1', e.target.value)}
+                        onChange={(e) => handleAmountInput('historicalRevenueFy1', e.target.value)}
                       />
                     </td>
                   </tr>
@@ -237,7 +237,7 @@ export const Section4And5: React.FC<Section4And5Props> = ({
                         className="pf-table-cell-input"
                         placeholder="Enter"
                         value={data.historicalEbitdaFy3 || ''}
-                        onChange={(e) => handleNumericInput('historicalEbitdaFy3', e.target.value)}
+                        onChange={(e) => handleAmountInput('historicalEbitdaFy3', e.target.value)}
                       />
                     </td>
                     <td>
@@ -246,7 +246,7 @@ export const Section4And5: React.FC<Section4And5Props> = ({
                         className="pf-table-cell-input"
                         placeholder="Enter"
                         value={data.historicalEbitdaFy2 || ''}
-                        onChange={(e) => handleNumericInput('historicalEbitdaFy2', e.target.value)}
+                        onChange={(e) => handleAmountInput('historicalEbitdaFy2', e.target.value)}
                       />
                     </td>
                     <td>
@@ -255,7 +255,7 @@ export const Section4And5: React.FC<Section4And5Props> = ({
                         className="pf-table-cell-input"
                         placeholder="Enter"
                         value={data.historicalEbitdaFy1 || ''}
-                        onChange={(e) => handleNumericInput('historicalEbitdaFy1', e.target.value)}
+                        onChange={(e) => handleAmountInput('historicalEbitdaFy1', e.target.value)}
                       />
                     </td>
                   </tr>
@@ -268,7 +268,7 @@ export const Section4And5: React.FC<Section4And5Props> = ({
                         className="pf-table-cell-input"
                         placeholder="Enter"
                         value={data.historicalPatFy3 || ''}
-                        onChange={(e) => handleNumericInput('historicalPatFy3', e.target.value)}
+                        onChange={(e) => handleAmountInput('historicalPatFy3', e.target.value)}
                       />
                     </td>
                     <td>
@@ -277,7 +277,7 @@ export const Section4And5: React.FC<Section4And5Props> = ({
                         className="pf-table-cell-input"
                         placeholder="Enter"
                         value={data.historicalPatFy2 || ''}
-                        onChange={(e) => handleNumericInput('historicalPatFy2', e.target.value)}
+                        onChange={(e) => handleAmountInput('historicalPatFy2', e.target.value)}
                       />
                     </td>
                     <td>
@@ -286,7 +286,7 @@ export const Section4And5: React.FC<Section4And5Props> = ({
                         className="pf-table-cell-input"
                         placeholder="Enter"
                         value={data.historicalPatFy1 || ''}
-                        onChange={(e) => handleNumericInput('historicalPatFy1', e.target.value)}
+                        onChange={(e) => handleAmountInput('historicalPatFy1', e.target.value)}
                       />
                     </td>
                   </tr>
@@ -299,7 +299,7 @@ export const Section4And5: React.FC<Section4And5Props> = ({
                         className="pf-table-cell-input"
                         placeholder="Enter"
                         value={data.historicalDebtFy3 || ''}
-                        onChange={(e) => handleNumericInput('historicalDebtFy3', e.target.value)}
+                        onChange={(e) => handleAmountInput('historicalDebtFy3', e.target.value)}
                       />
                     </td>
                     <td>
@@ -308,7 +308,7 @@ export const Section4And5: React.FC<Section4And5Props> = ({
                         className="pf-table-cell-input"
                         placeholder="Enter"
                         value={data.historicalDebtFy2 || ''}
-                        onChange={(e) => handleNumericInput('historicalDebtFy2', e.target.value)}
+                        onChange={(e) => handleAmountInput('historicalDebtFy2', e.target.value)}
                       />
                     </td>
                     <td>
@@ -317,7 +317,7 @@ export const Section4And5: React.FC<Section4And5Props> = ({
                         className="pf-table-cell-input"
                         placeholder="Enter"
                         value={data.historicalDebtFy1 || ''}
-                        onChange={(e) => handleNumericInput('historicalDebtFy1', e.target.value)}
+                        onChange={(e) => handleAmountInput('historicalDebtFy1', e.target.value)}
                       />
                     </td>
                   </tr>

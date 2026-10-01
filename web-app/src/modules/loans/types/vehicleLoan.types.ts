@@ -55,6 +55,7 @@ export type VehicleOccupationType = 'Salaried' | 'Self-Employed Pro' | 'Business
 
 export type VehicleIncomeRange =
   | 'Below ₹10,000'
+  | '₹10,000 - ₹15,000'
   | '₹15,000 - ₹30,000'
   | '₹30,000 - ₹50,000'
   | '₹50,000 - ₹1,00,000'

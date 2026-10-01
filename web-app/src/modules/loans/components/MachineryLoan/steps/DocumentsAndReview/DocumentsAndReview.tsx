@@ -1,4 +1,5 @@
 import React from 'react'
+import { LoanDocumentGrid } from '@modules/loans/shared'
 import { DocumentSection, UploadDocument } from '@shared/components'
 import { LoanReviewSection } from '@modules/loans/shared'
 import { loanDocumentService, createDocDef } from '@modules/loans/documents'
@@ -89,6 +90,7 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
   const progressPercent = Math.round((requiredUploadedCount / totalRequiredDocs) * 100)
 
   const handleUpload = (id: string, file: File) => {
+    if (!loanDocumentService.acceptFile(file)) return
     const entry = loanDocumentService.createDocumentEntry(id, file)
     onChange({ uploadedDocs: { ...uploadedDocs, [id]: entry } })
   }
@@ -166,21 +168,27 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
         title="IDENTITY & ADDRESS"
         icon={SECTION_ICON_IDENTITY}
       >
-        {IDENTITY_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {IDENTITY_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
 
       <DocumentSection
         title="INCOME & BANKING"
         icon={SECTION_ICON_BANKING}
       >
-        {INCOME_BANKING_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {INCOME_BANKING_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
 
       <DocumentSection
         title="BUSINESS & TAX"
         icon={SECTION_ICON_BUSINESS}
       >
-        {BUSINESS_TAX_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {BUSINESS_TAX_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
     </>
   )

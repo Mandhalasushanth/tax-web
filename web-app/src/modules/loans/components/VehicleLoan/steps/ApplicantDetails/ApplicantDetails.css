@@ -60,15 +60,16 @@
 
 .applicant-select {
   width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 0.9375rem;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  background-color: #ffffff;
+  height: 48px;
+  padding: 0 2.5rem 0 1rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.95rem;
   color: #0f172a;
+  background-color: #ffffff;
   outline: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
   box-sizing: border-box;
 }
 
@@ -79,6 +80,12 @@
 
 .applicant-select--error {
   border-color: #ef4444 !important;
+  background-color: #fff5f5 !important;
+}
+
+.applicant-select--error:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
 }
 
 .applicant-occupation-grid {

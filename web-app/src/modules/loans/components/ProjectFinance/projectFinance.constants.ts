@@ -1,5 +1,5 @@
 import type { FlowStepItem } from '@shared/components'
-import type { ProjectFinanceData } from '../../types/projectFinance.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 
 export const PROJECT_FINANCE_STEPS: FlowStepItem[] = [
   { stepNumber: 1, title: 'Applicant & Project', shortLabel: 'Applicant & Project' },

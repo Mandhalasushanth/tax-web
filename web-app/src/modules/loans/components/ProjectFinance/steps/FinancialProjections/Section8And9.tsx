@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 
 export interface Section8And9Props {
   data: ProjectFinanceData
@@ -47,20 +47,16 @@ export const Section8And9: React.FC<Section8And9Props> = ({
   errors = {},
 }) => {
   const handleNumericInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    try {
-      const sanitized = rawValue.replace(/\D/g, '')
-      const inv = field === 'inventoryDays' ? Number(sanitized || 0) : Number(data.inventoryDays || 0)
-      const rec = field === 'receivableDays' ? Number(sanitized || 0) : Number(data.receivableDays || 0)
-      const pay = field === 'payableDays' ? Number(sanitized || 0) : Number(data.payableDays || 0)
-      const opCycle = Math.max(0, inv + rec - pay)
+    const sanitized = rawValue.replace(/\D/g, '')
+    const inv = field === 'inventoryDays' ? Number(sanitized || 0) : Number(data.inventoryDays || 0)
+    const rec = field === 'receivableDays' ? Number(sanitized || 0) : Number(data.receivableDays || 0)
+    const pay = field === 'payableDays' ? Number(sanitized || 0) : Number(data.payableDays || 0)
+    const opCycle = Math.max(0, inv + rec - pay)
 
-      onChange({
-        [field]: sanitized,
-        operatingCycleDays: opCycle > 0 ? String(opCycle) : '',
-      })
-    } catch (err) {
-      console.error(`Error updating field ${String(field)}:`, err)
-    }
+    onChange({
+      [field]: sanitized,
+      operatingCycleDays: opCycle > 0 ? String(opCycle) : '',
+    })
   }
 
   return (

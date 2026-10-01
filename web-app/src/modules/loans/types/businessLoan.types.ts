@@ -1,4 +1,4 @@
-import type { UploadedLoanDocument } from '../documents/loanDocument.types'
+import type { UploadedLoanDocument } from '@modules/loans/documents/loanDocument.types'
 
 /**
  * Employment and business profile types
@@ -23,27 +23,6 @@ export interface ApplicantIdentityProfile {
   address: string
   isVerified: boolean
 }
-
-/**
- * Business constitution options
- */
-export type BusinessConstitutionType =
-  | 'Proprietorship'
-  | 'Partnership'
-  | 'LLP'
-  | 'Private Limited'
-  | 'Public Limited'
-  | 'Others'
-
-/**
- * Business vintage options
- */
-export type BusinessVintageType =
-  | '< 1 Year'
-  | '1–2 Years'
-  | '3–5 Years'
-  | '5–10 Years'
-  | '10+ Years'
 
 /**
  * Udyam registration choice
@@ -90,15 +69,6 @@ export interface BusinessLoanFormData {
   ifscCode?: string
   uploadedDocs?: Record<string, UploadedLoanDocument>
   termsAccepted?: boolean
-}
-
-/**
- * Validation result for Business Loan steps
- */
-export interface BusinessLoanValidationResult {
-  isValid: boolean
-  errors: Record<string, string>
-  generalError?: string
 }
 
 /**
@@ -150,5 +120,3 @@ export interface ReviewAndSubmitProps {
   isSubmitting?: boolean
   errors?: Record<string, string>
 }
-
-

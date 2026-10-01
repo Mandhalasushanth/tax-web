@@ -192,7 +192,6 @@
   width: 10px;
   height: 6px;
   background-image: url("data:image/svg2+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2364748b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
   background-position: center;
   pointer-events: none;
 }
@@ -206,15 +205,10 @@
   font-size: 0.9rem;
   color: #0f172a;
   background-color: #ffffff;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
   background-size: 16px 16px;
   outline: none;
   box-sizing: border-box;
   transition: all 0.2s ease;
-  appearance: none;
-  -webkit-appearance: none;
   cursor: pointer;
 }
 
@@ -230,8 +224,6 @@
   outline: none;
   box-sizing: border-box;
   transition: all 0.2s ease;
-  appearance: none;
-  -webkit-appearance: none;
 }
 
 .property-form-select:focus,
@@ -241,7 +233,6 @@
 }
 
 .property-form-select:focus {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 }
 
 .property-input-prefix-box {

@@ -1,4 +1,4 @@
-import type { UploadedLoanDocument } from '../documents/loanDocument.types'
+import type { UploadedLoanDocument } from '@modules/loans/documents/loanDocument.types'
 
 export type PropertyLoanOwnershipType = 'sole' | 'joint'
 export type PropertyLoanApplicantType = 'salaried' | 'self_employed_professional' | 'self_employed_business'

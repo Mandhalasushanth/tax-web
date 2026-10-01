@@ -1,9 +1,11 @@
-import React from 'react'
+import type React from 'react'
 
 /**
- * Centralized Field Limits and Regex Patterns for all Loan modules.
- * Strictly zero loops and pure functional helpers.
+ * Input filters and key handlers for all loan forms.
+ * This is the single source for input formatting; validation rules live in
+ * validation/commonLoanValidation.ts.
  */
+
 export const LOAN_FIELD_LIMITS = {
   PAN: 10,
   AADHAAR: 12,
@@ -17,82 +19,90 @@ export const LOAN_FIELD_LIMITS = {
   MOBILE: 10,
 } as const
 
-/**
- * Filter text-only value (strips out all numbers).
- * Allows alphabets, spaces, dots, hyphens, and apostrophes.
- */
+const CONTROL_KEYS = ['Backspace', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter']
+
+const isControlKey = (e: React.KeyboardEvent<HTMLInputElement>): boolean =>
+  CONTROL_KEYS.includes(e.key) || e.ctrlKey || e.metaKey
+
+const limit = (val: string, maxLen?: number): string => (maxLen ? val.slice(0, maxLen) : val)
+
+/** Strips digits (for names typed as free text) */
 export function formatTextOnly(val: string, maxLen?: number): string {
-  const cleaned = val.replace(/[0-9]/g, '')
-  return maxLen ? cleaned.slice(0, maxLen) : cleaned
+  return limit(val.replace(/[0-9]/g, ''), maxLen)
 }
 
-/**
- * Filter numeric-only value (strips out all non-digits).
- */
+/** Keeps digits only */
 export function formatDigitsOnly(val: string, maxLen?: number): string {
-  const cleaned = val.replace(/\D/g, '')
-  return maxLen ? cleaned.slice(0, maxLen) : cleaned
+  return limit(val.replace(/\D/g, ''), maxLen)
 }
 
-/**
- * Filter uppercase alphanumeric value (e.g. GSTIN, IFSC, PAN).
- */
+/** Uppercase letters and digits only (GSTIN, IFSC, PAN) */
 export function formatUppercaseAlphanumeric(val: string, maxLen?: number): string {
-  const cleaned = val.toUpperCase().replace(/[^A-Z0-9]/g, '')
-  return maxLen ? cleaned.slice(0, maxLen) : cleaned
+  return limit(val.toUpperCase().replace(/[^A-Z0-9]/g, ''), maxLen)
 }
 
-/**
- * Filter Udyam registration number (e.g. UDYAM-XX-00-0000000).
- */
+/** Names, bank names, cities: letters, spaces and . ' - & ( ) only */
+export function formatLettersOnly(val: string, maxLen = 100): string {
+  return val.replace(/[^A-Za-z .'&()-]/g, '').replace(/\s{2,}/g, ' ').slice(0, maxLen)
+}
+
+/** Udyam number: auto-formats to UDYAM-XX-00-0000000 as the user types */
 export function formatUdyamNumber(val: string, maxLen = LOAN_FIELD_LIMITS.UDYAM_MAX): string {
-  const cleaned = val.toUpperCase().replace(/[^A-Z0-9-]/g, '')
-  return cleaned.slice(0, maxLen)
+  const upper = val.toUpperCase().replace(/[^A-Z0-9]/g, '')
+  // Still typing the "UDYAM" prefix (or empty): keep as-is
+  if ('UDYAM'.startsWith(upper)) return upper
+  const raw = upper.replace(/^UDYAM/, '')
+  const state = raw.slice(0, 2).replace(/[^A-Z]/g, '')
+  const district = raw.slice(state.length, state.length + 2).replace(/\D/g, '')
+  const serial = raw.slice(state.length + district.length).replace(/\D/g, '').slice(0, 7)
+  return ['UDYAM', state, district, serial].filter(Boolean).join('-').slice(0, maxLen)
 }
 
-/**
- * Formats a raw number or string into Indian Rupee locale representation (Pure functional).
- */
+/** Date of birth: auto-formats digits to DD/MM/YYYY */
+export function formatDob(val: string): string {
+  const d = val.replace(/\D/g, '').slice(0, 8)
+  return [d.slice(0, 2), d.slice(2, 4), d.slice(4, 8)].filter(Boolean).join('/')
+}
+
+/** Formats a raw number string in Indian grouping, e.g. "500000" → "5,00,000" */
 export function formatCurrencyString(val: string): string {
   const digits = val.replace(/\D/g, '')
-  return !digits ? '' : Number(digits).toLocaleString('en-IN')
+  return digits ? Number(digits).toLocaleString('en-IN') : ''
 }
 
-/**
- * KeyDown handler to prevent non-digit keystrokes (Pure functional).
- */
+/** Blocks non-digit keystrokes */
 export function handleNumericKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
-  const isAllowedControl =
-    ['Backspace', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter'].includes(e.key) ||
-    e.ctrlKey ||
-    e.metaKey
-  !isAllowedControl && !/^\d$/.test(e.key) ? e.preventDefault() : undefined
+  if (!isControlKey(e) && !/^\d$/.test(e.key)) e.preventDefault()
 }
 
-/**
- * KeyDown handler to prevent numeric keystrokes in text-only fields (Pure functional).
- */
+/** Blocks digit keystrokes in text-only fields */
 export function handleTextOnlyKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
-  const isAllowedControl =
-    ['Backspace', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter', ' ', '.', '-'].includes(e.key) ||
-    e.ctrlKey ||
-    e.metaKey
-  !isAllowedControl && /[0-9]/.test(e.key) ? e.preventDefault() : undefined
+  if (!isControlKey(e) && /[0-9]/.test(e.key)) e.preventDefault()
 }
 
-/**
- * KeyDown handler for alphanumeric-only fields (Pure functional).
- */
+/** Blocks anything except letters and digits */
 export function handleAlphanumericKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
-  const isAllowedControl =
-    ['Backspace', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter', '-'].includes(e.key) ||
-    e.ctrlKey ||
-    e.metaKey
-  !isAllowedControl && !/^[a-zA-Z0-9-]$/.test(e.key) ? e.preventDefault() : undefined
+  if (!isControlKey(e) && !/^[a-zA-Z0-9]$/.test(e.key)) e.preventDefault()
 }
 
 /**
- * Centralized known IFSC prefixes to sample branch names for real-time detection
+ * Grouped helpers used by the loan step forms.
+ */
+export const loanInputHelpers = {
+  allowOnlyNumbersKeyDown: handleNumericKeyDown,
+  allowOnlyAlphanumericKeyDown: handleAlphanumericKeyDown,
+  formatCurrencyString,
+  digitsOnly: formatDigitsOnly,
+  cleanPan: (val: string): string => formatUppercaseAlphanumeric(val, LOAN_FIELD_LIMITS.PAN),
+  cleanIfsc: (val: string): string => formatUppercaseAlphanumeric(val, LOAN_FIELD_LIMITS.IFSC),
+  cleanGstin: (val: string): string => formatUppercaseAlphanumeric(val, LOAN_FIELD_LIMITS.GSTIN),
+  lettersOnly: formatLettersOnly,
+  cleanUdyam: (val: string): string => formatUdyamNumber(val),
+  formatDob,
+}
+
+/**
+ * Known IFSC codes mapped to sample branch names for real-time detection
  */
 export const SAMPLE_IFSC_BRANCH_MAP: Record<string, string> = {
   HDFC0000123: 'HDFC Bank - MADURAI - TAMIL NADU',
@@ -112,4 +122,3 @@ export function resolveIfscBranch(ifsc?: string): string {
   const clean = ifsc.trim().toUpperCase()
   return SAMPLE_IFSC_BRANCH_MAP[clean] || (clean.length === 11 ? 'VERIFIED BANK BRANCH' : '')
 }
-

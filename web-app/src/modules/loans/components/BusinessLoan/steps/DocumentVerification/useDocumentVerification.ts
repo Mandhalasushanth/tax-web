@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
-import { loanDocumentService } from '../../../../documents/loanDocumentService'
-import { validateDocumentFile } from '../../../../validation/businessLoanValidation'
-import type { UploadedLoanDocument } from '../../../../documents/loanDocument.types'
+import { loanDocumentService } from '@modules/loans/documents/loanDocumentService'
+import { validateDocumentFile } from '@modules/loans/validation/businessLoanValidation'
+import type { UploadedLoanDocument } from '@modules/loans/documents/loanDocument.types'
 
 export interface UseDocumentVerificationProps {
   uploadedDocs?: Record<string, UploadedLoanDocument>
@@ -23,16 +23,17 @@ export function useDocumentVerification({
       try {
         setFileError(null)
         const validation = validateDocumentFile(file)
-        !validation.isValid
-          ? setFileError(validation.error || 'Invalid file uploaded.')
-          : onChange({
-              uploadedDocs: {
-                ...uploadedDocs,
-                [id]: loanDocumentService.createDocumentEntry(id, file),
-              },
-            })
-      } catch (err) {
-        console.error(`[useDocumentVerification] Error uploading document ${id}:`, err)
+        if (!validation.isValid) {
+          setFileError(validation.error || 'Invalid file uploaded.')
+          return
+        }
+        onChange({
+          uploadedDocs: {
+            ...uploadedDocs,
+            [id]: loanDocumentService.createDocumentEntry(id, file),
+          },
+        })
+      } catch {
         setFileError('Failed to process uploaded file. Please try again.')
       }
     },
@@ -46,8 +47,7 @@ export function useDocumentVerification({
         const nextUploaded = { ...uploadedDocs }
         delete nextUploaded[id]
         onChange({ uploadedDocs: nextUploaded })
-      } catch (err) {
-        console.error(`[useDocumentVerification] Error removing document ${id}:`, err)
+      } catch {
         setFileError('Failed to remove document. Please try again.')
       }
     },
@@ -56,12 +56,10 @@ export function useDocumentVerification({
 
   const handleView = useCallback(
     (doc: { id: string; title: string; fileName?: string; file?: File }) => {
-      try {
-        doc.file
-          ? window.open(URL.createObjectURL(doc.file), '_blank')
-          : alert(`Viewing ${doc.fileName || doc.title}`)
-      } catch (err) {
-        console.error(`[useDocumentVerification] Error viewing document ${doc.id}:`, err)
+      if (doc.file) {
+        window.open(URL.createObjectURL(doc.file), '_blank')
+      } else {
+        alert(`Viewing ${doc.fileName || doc.title}`)
       }
     },
     []

@@ -1,8 +1,8 @@
 import React from 'react'
 import { DocumentSection, UploadDocument } from '@shared/components'
-import type { PropertyLoanStepProps } from '../../../../types/propertyLoan.types'
-import { loanDocumentService, createDocDef } from '../../../../documents'
-import type { LoanDocumentDefinition } from '../../../../documents/loanDocument.types'
+import type { PropertyLoanStepProps } from '@modules/loans/types/propertyLoan.types'
+import { loanDocumentService, createDocDef } from '@modules/loans/documents'
+import type { LoanDocumentDefinition } from '@modules/loans/documents/loanDocument.types'
 import './Documents.css'
 
 const doc = (
@@ -124,22 +124,14 @@ export const Documents: React.FC<PropertyLoanStepProps> = ({
   const progressPercent = Math.round((uploadedMandatoryCount / totalMandatory) * 100)
 
   const handleUpload = (id: string, file: File) => {
-    try {
-      const entry = loanDocumentService.createDocumentEntry(id, file)
-      onChange({ uploadedDocs: { ...uploadedDocs, [id]: entry } })
-    } catch {
-      // Fallback
-    }
+    const entry = loanDocumentService.createDocumentEntry(id, file)
+    onChange({ uploadedDocs: { ...uploadedDocs, [id]: entry } })
   }
 
   const handleRemove = (id: string) => {
-    try {
-      const next = { ...uploadedDocs }
-      delete next[id]
-      onChange({ uploadedDocs: next })
-    } catch {
-      // Fallback
-    }
+    const next = { ...uploadedDocs }
+    delete next[id]
+    onChange({ uploadedDocs: next })
   }
 
   const renderDocCard = (docDef: LoanDocumentDefinition) => {

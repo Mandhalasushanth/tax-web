@@ -1,9 +1,9 @@
 import React from 'react'
 import { DocumentSection, UploadDocument } from '@shared/components'
-import { loanDocumentService } from '../../../../documents/loanDocumentService'
-import { createDocDef } from '../../../../documents/loanDocument.types'
-import type { LoanDocumentDefinition } from '../../../../documents/loanDocument.types'
-import type { HomeLoanData } from '../../../../types/homeLoan.types'
+import { loanDocumentService } from '@modules/loans/documents/loanDocumentService'
+import { createDocDef } from '@modules/loans/documents/loanDocument.types'
+import type { LoanDocumentDefinition } from '@modules/loans/documents/loanDocument.types'
+import type { HomeLoanData } from '@modules/loans/types/homeLoan.types'
 import './Documents.css'
 
 export interface DocumentsProps {

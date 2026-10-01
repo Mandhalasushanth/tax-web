@@ -2,7 +2,7 @@ import React from "react";
 import {
   formatDigitsOnly,
   handleNumericKeyDown,
-} from "../../../../utils/loanInputFormatters";
+} from "@modules/loans/utils/loanInputFormatters";
 
 export interface LoanRequirementsSectionProps {
   requiredLoanAmount: string;

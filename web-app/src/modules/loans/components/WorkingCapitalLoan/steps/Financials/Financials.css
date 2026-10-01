@@ -24,8 +24,7 @@
   color: #ef4444;
 }
 
-.working-capital-input,
-.working-capital-select {
+.working-capital-input {
   width: 100%;
   height: 48px;
   padding: 0 1rem;
@@ -35,6 +34,22 @@
   color: #0f172a;
   background-color: #ffffff;
   outline: none;
+  font-family: inherit;
+  transition: all 0.18s ease;
+  box-sizing: border-box;
+}
+
+.working-capital-select {
+  width: 100%;
+  height: 48px;
+  padding: 0 2.5rem 0 1rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  background-color: #ffffff;
+  outline: none;
+  cursor: pointer;
   font-family: inherit;
   transition: all 0.18s ease;
   box-sizing: border-box;

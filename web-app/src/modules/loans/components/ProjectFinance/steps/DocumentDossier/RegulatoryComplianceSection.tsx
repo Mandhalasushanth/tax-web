@@ -1,12 +1,13 @@
 import React from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
+import { BUSINESS_REGISTRATION_TYPE_OPTIONS } from './securityComplianceConstants'
 
 export interface RegulatoryComplianceSectionProps {
   data: ProjectFinanceData
   onChange: (fields: Partial<ProjectFinanceData>) => void
   isOpen: boolean
   onToggle: () => void
-  onOpenPicker: () => void
+  onOpenPicker?: () => void
   errors?: Record<string, string>
 }
 
@@ -33,7 +34,6 @@ export const RegulatoryComplianceSection: React.FC<RegulatoryComplianceSectionPr
   onChange,
   isOpen,
   onToggle,
-  onOpenPicker,
   errors = {},
 }) => {
   return (
@@ -56,21 +56,20 @@ export const RegulatoryComplianceSection: React.FC<RegulatoryComplianceSectionPr
 
           {/* Business Registration Type */}
           <div className="pf-field-group">
-            <label className="pf-field-label">
+            <label htmlFor="businessRegistrationType" className="pf-field-label">
               Business Registration Type <span className="pf-required-star">*</span>
             </label>
-            <button
-              type="button"
-              className={`pf-custom-select-btn ${errors.businessRegistrationType ? 'pf-custom-select-btn--error' : ''}`}
-              onClick={onOpenPicker}
+            <select
+              id="businessRegistrationType"
+              className={`pf-custom-select ${errors.businessRegistrationType ? 'pf-custom-select--error' : ''}`}
+              value={data.businessRegistrationType || ''}
+              onChange={(e) => onChange({ businessRegistrationType: e.target.value })}
             >
-              <span className={data.businessRegistrationType ? 'pf-select-value' : 'pf-select-placeholder'}>
-                {data.businessRegistrationType || 'Select registration type'}
-              </span>
-              <span className="pf-select-chevron">
-                <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-              </span>
-            </button>
+              <option value="" disabled>Select registration type</option>
+              {BUSINESS_REGISTRATION_TYPE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
             {errors.businessRegistrationType && (
               <span className="pf-field-error-msg">{errors.businessRegistrationType}</span>
             )}
@@ -129,17 +128,17 @@ export const RegulatoryComplianceSection: React.FC<RegulatoryComplianceSectionPr
             </div>
           </div>
 
-          {/* GST Number */}
+          {/* GSTIN (conditional) */}
           {data.gstApplicable && (
             <div className="pf-field-group">
               <label htmlFor="complianceGstNumber" className="pf-field-label">
-                GST Number <span className="pf-required-star">*</span>
+                GSTIN <span className="pf-required-star">*</span>
               </label>
               <input
                 id="complianceGstNumber"
                 type="text"
                 className={`pf-custom-input ${errors.complianceGstNumber ? 'pf-custom-input--error' : ''}`}
-                placeholder="Enter GST number"
+                placeholder="Enter GSTIN (e.g., 29ABCDE1234F1Z5)"
                 value={data.complianceGstNumber || ''}
                 onChange={(e) => onChange({ complianceGstNumber: e.target.value.toUpperCase() })}
               />
@@ -149,16 +148,16 @@ export const RegulatoryComplianceSection: React.FC<RegulatoryComplianceSectionPr
             </div>
           )}
 
-          {/* Income Tax PAN */}
+          {/* PAN Number */}
           <div className="pf-field-group">
             <label htmlFor="complianceIncomeTaxPan" className="pf-field-label">
-              Income Tax PAN <span className="pf-required-star">*</span>
+              PAN Number <span className="pf-required-star">*</span>
             </label>
             <input
               id="complianceIncomeTaxPan"
               type="text"
               className={`pf-custom-input ${errors.complianceIncomeTaxPan ? 'pf-custom-input--error' : ''}`}
-              placeholder="Enter PAN number"
+              placeholder="Enter PAN (e.g., ABCDE1234F)"
               value={data.complianceIncomeTaxPan || ''}
               onChange={(e) => onChange({ complianceIncomeTaxPan: e.target.value.toUpperCase() })}
             />
@@ -167,18 +166,53 @@ export const RegulatoryComplianceSection: React.FC<RegulatoryComplianceSectionPr
             )}
           </div>
 
-          {/* TAN (if applicable) */}
+          {/* Environmental Clearance Required? */}
           <div className="pf-field-group">
-            <label htmlFor="complianceTan" className="pf-field-label">
-              TAN (if applicable)
+            <label className="pf-field-label">
+              Environmental Clearance Required? <span className="pf-required-star">*</span>
+            </label>
+            <div className="pf-radio-group">
+              <label className="pf-radio-label">
+                <input
+                  type="radio"
+                  name="approvalEnvironmentalClearance"
+                  className="pf-radio-input"
+                  checked={data.approvalEnvironmentalClearance === true}
+                  onChange={() => onChange({ approvalEnvironmentalClearance: true })}
+                />
+                <span className="pf-radio-custom">
+                  <span className="pf-radio-custom-dot" />
+                </span>
+                <span>Yes</span>
+              </label>
+              <label className="pf-radio-label">
+                <input
+                  type="radio"
+                  name="approvalEnvironmentalClearance"
+                  className="pf-radio-input"
+                  checked={data.approvalEnvironmentalClearance === false}
+                  onChange={() => onChange({ approvalEnvironmentalClearance: false })}
+                />
+                <span className="pf-radio-custom">
+                  <span className="pf-radio-custom-dot" />
+                </span>
+                <span>No</span>
+              </label>
+            </div>
+          </div>
+
+          {/* PCB Category */}
+          <div className="pf-field-group">
+            <label htmlFor="typeOfInsurance" className="pf-field-label">
+              Pollution Control Board Category
             </label>
             <input
-              id="complianceTan"
+              id="typeOfInsurance"
               type="text"
               className="pf-custom-input"
-              placeholder="Enter TAN number"
-              value={data.complianceTan || ''}
-              onChange={(e) => onChange({ complianceTan: e.target.value.toUpperCase() })}
+              placeholder="e.g., Red, Orange, Green, White"
+              value={data.typeOfInsurance || ''}
+              onChange={(e) => onChange({ typeOfInsurance: e.target.value })}
             />
           </div>
         </div>

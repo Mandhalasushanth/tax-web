@@ -32,11 +32,3 @@ export interface LoanMarketplaceCardProps {
   item: LoanMarketplaceItem
   onSelect?: (item: LoanMarketplaceItem) => void
 }
-
-/**
- * Props for the marketplace list renderer.
- */
-export interface LoanMarketplaceListProps {
-  items: LoanMarketplaceItem[]
-  onItemClick?: (item: LoanMarketplaceItem) => void
-}

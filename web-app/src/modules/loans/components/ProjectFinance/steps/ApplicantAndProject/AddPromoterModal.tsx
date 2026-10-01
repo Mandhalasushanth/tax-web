@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import type { ProjectPromoterSponsor } from '../../../../types/projectFinance.types'
+import type { ProjectPromoterSponsor } from '@modules/loans/types/projectFinance.types'
 import './AddPromoterModal.css'
 
 export interface AddPromoterModalProps {

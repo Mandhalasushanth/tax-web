@@ -1,13 +1,8 @@
-import { commonLoanValidation } from './commonLoanValidation'
-import type { HomeLoanData } from '../types/homeLoan.types'
+import { commonLoanValidation, loanFieldRules, toAmount, toStepResult } from './commonLoanValidation'
+import type { LoanStepValidationResult } from './commonLoanValidation'
+import type { HomeLoanData } from '@modules/loans/types/homeLoan.types'
 
-export interface StepValidationResult {
-  isValid: boolean
-  error?: string
-  errors: Record<string, string>
-}
-
-export const REQUIRED_DOCUMENT_IDS = [
+export const HOME_LOAN_REQUIRED_DOCUMENTS = [
   { id: 'pan_card', name: 'PAN Card' },
   { id: 'aadhaar_card', name: 'Aadhaar Card' },
   { id: 'address_proof', name: 'Address Proof' },
@@ -20,166 +15,131 @@ export const REQUIRED_DOCUMENT_IDS = [
   { id: 'title_deed', name: 'Title Deed / Chain of Deeds' },
 ]
 
-export { loanInputHelpers } from './commonLoanValidation'
+const fmt = (n: number): string => `₹${n.toLocaleString('en-IN')}`
 
 export const homeLoanValidation = {
-  validateStep1: (data: HomeLoanData): StepValidationResult => {
+  /** Step 1: Requirements */
+  validateStep1: (data: HomeLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
 
-    const loanAmountNum = Number(String(data.loanAmount || '').replace(/[^\d]/g, ''))
-    !loanAmountNum || isNaN(loanAmountNum)
-      ? (errors.loanAmount = 'Please enter your required loan amount (Min ₹5 Lakhs)')
-      : loanAmountNum < 500000 || loanAmountNum > 100000000
-        ? (errors.loanAmount = 'Loan amount must be between ₹5 Lakhs and ₹10 Crores')
-        : undefined
-
-    !data.propertyIntent || !data.propertyIntent.trim()
-      ? (errors.propertyIntent = 'Please select your property intent / purpose')
-      : data.propertyIntent === 'Others' && (!data.customPropertyIntent || !data.customPropertyIntent.trim())
-        ? (errors.customPropertyIntent = 'Please specify custom property intent')
-        : undefined
-
-    !data.repaymentTenureYears || data.repaymentTenureYears <= 0
-      ? (errors.repaymentTenureYears = 'Please select intended repayment tenure')
-      : data.repaymentTenureYears < 5 || data.repaymentTenureYears > 35
-        ? (errors.repaymentTenureYears = 'Tenure must be between 5 and 35 years')
-        : undefined
-
-    !data.propertyStage || !data.propertyStage.trim()
-      ? (errors.propertyStage = 'Please select property construction stage')
-      : undefined
-
-    const costClean = (data.estimatedPropertyCost || '').replace(/[^\d]/g, '')
-    const costNum = Number(costClean)
-    !costClean
-      ? (errors.estimatedPropertyCost = 'Please enter estimated total property or agreement value')
-      : isNaN(costNum) || costNum <= 0
-        ? (errors.estimatedPropertyCost = 'Please enter a valid property cost')
-        : loanAmountNum > 0 && costNum < loanAmountNum
-          ? (errors.estimatedPropertyCost = `Property cost (₹${costNum.toLocaleString('en-IN')}) cannot be less than the requested loan amount (₹${loanAmountNum.toLocaleString('en-IN')})`)
-          : undefined
-
-    const firstError = Object.values(errors)[0]
-    return {
-      isValid: Object.keys(errors).length === 0,
-      error: firstError,
-      errors,
+    const loanAmount = toAmount(data.loanAmount)
+    if (!loanAmount) {
+      errors.loanAmount = 'Please enter your required loan amount (Min ₹5 Lakhs)'
+    } else if (loanAmount < 500000 || loanAmount > 100000000) {
+      errors.loanAmount = 'Loan amount must be between ₹5 Lakhs and ₹10 Crores'
     }
+
+    if (!data.propertyIntent || !data.propertyIntent.trim()) {
+      errors.propertyIntent = 'Please select your property intent / purpose'
+    } else if (data.propertyIntent === 'Others') {
+      const customIntentError = loanFieldRules.text(data.customPropertyIntent, 'Custom property intent', 3, 100)
+      if (customIntentError) errors.customPropertyIntent = customIntentError
+    }
+
+    if (!data.repaymentTenureYears || data.repaymentTenureYears <= 0) {
+      errors.repaymentTenureYears = 'Please select intended repayment tenure'
+    } else if (data.repaymentTenureYears < 5 || data.repaymentTenureYears > 35) {
+      errors.repaymentTenureYears = 'Tenure must be between 5 and 35 years'
+    }
+
+    if (!data.propertyStage || !data.propertyStage.trim()) {
+      errors.propertyStage = 'Please select property construction stage'
+    }
+
+    const propertyCost = toAmount(data.estimatedPropertyCost)
+    if (!(data.estimatedPropertyCost || '').trim()) {
+      errors.estimatedPropertyCost = 'Please enter estimated total property or agreement value'
+    } else if (propertyCost <= 0) {
+      errors.estimatedPropertyCost = 'Please enter a valid property cost'
+    } else if (loanAmount > 0 && propertyCost < loanAmount) {
+      errors.estimatedPropertyCost = `Property cost (${fmt(propertyCost)}) cannot be less than the requested loan amount (${fmt(loanAmount)})`
+    }
+
+    return toStepResult(errors)
   },
 
-  validateStep2: (data: HomeLoanData): StepValidationResult => {
+  /** Step 2: Employment & Income */
+  validateStep2: (data: HomeLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
 
-    !data.occupation
-      ? (errors.occupation = 'Please select your occupation category')
-      : undefined
-
-    !data.monthlyIncomeRange || !data.monthlyIncomeRange.trim()
-      ? (errors.monthlyIncomeRange = 'Please select monthly household income range')
-      : data.monthlyIncomeRange.startsWith('Other') && (!data.exactMonthlyIncome || !data.exactMonthlyIncome.trim())
-        ? (errors.exactMonthlyIncome = 'Please enter your monthly net income')
-        : undefined
-
-    const emiClean = (data.existingEmiAmount || '').replace(/[^\d]/g, '')
-    const emiNum = Number(emiClean)
-    data.hasExistingEmis
-      ? !emiClean
-        ? (errors.existingEmiAmount = 'Please enter ongoing monthly EMI amount')
-        : isNaN(emiNum) || emiNum <= 0
-          ? (errors.existingEmiAmount = 'Ongoing EMI amount must be greater than ₹0')
-          : undefined
-      : undefined
-
-    const firstError = Object.values(errors)[0]
-    return {
-      isValid: Object.keys(errors).length === 0,
-      error: firstError,
-      errors,
+    if (!data.occupation) {
+      errors.occupation = 'Please select your occupation category'
     }
+
+    const hasExactIncome = (data.monthlyIncomeRange || '').startsWith('Other')
+    const exactIncome = toAmount(data.exactMonthlyIncome)
+    if (!data.monthlyIncomeRange || !data.monthlyIncomeRange.trim()) {
+      errors.monthlyIncomeRange = 'Please select monthly household income range'
+    } else if (hasExactIncome && !(data.exactMonthlyIncome || '').trim()) {
+      errors.exactMonthlyIncome = 'Please enter your monthly net income'
+    } else if (hasExactIncome && exactIncome < 10000) {
+      errors.exactMonthlyIncome = 'Monthly net income must be at least ₹10,000'
+    }
+
+    if (data.hasExistingEmis) {
+      const emi = toAmount(data.existingEmiAmount)
+      if (!(data.existingEmiAmount || '').trim()) {
+        errors.existingEmiAmount = 'Please enter ongoing monthly EMI amount'
+      } else if (emi <= 0) {
+        errors.existingEmiAmount = 'Ongoing EMI amount must be greater than ₹0'
+      } else if (hasExactIncome && exactIncome > 0 && emi >= exactIncome) {
+        errors.existingEmiAmount = 'Ongoing EMI must be less than your monthly net income'
+      }
+    }
+
+    return toStepResult(errors)
   },
 
-  validateStep3: (data: HomeLoanData): StepValidationResult => {
+  /** Step 3: Banking & ITR */
+  validateStep3: (data: HomeLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
 
-    !data.bankName || !data.bankName.trim()
-      ? (errors.bankName = 'Please enter your bank name')
-      : undefined
+    const bankNameError = loanFieldRules.bankName(data.bankName)
+    if (bankNameError) errors.bankName = bankNameError
 
-    const accTrimmed = (data.accountNumber || '').trim()
-    !accTrimmed
-      ? (errors.accountNumber = 'Bank account number is required')
-      : !/^\d{9,18}$/.test(accTrimmed)
-        ? (errors.accountNumber = 'Account number must contain only digits (9 to 18 digits)')
-        : undefined
-
-    const ifscTrimmed = (data.ifscCode || '').trim().toUpperCase()
-    !ifscTrimmed
-      ? (errors.ifscCode = 'Bank IFSC code is required')
-      : !commonLoanValidation.isValidIfsc(ifscTrimmed)
-        ? (errors.ifscCode = 'Please enter a valid 11-digit IFSC code (e.g. HDFC0001234)')
-        : undefined
-
-    const ackClean = (data.itrAckNumber || '').trim()
-    const incClean = (data.annualIncomeAsPerItr || '').replace(/[^\d]/g, '')
-
-    !data.itrStatus
-      ? (errors.itrStatus = 'Please select ITR filing status')
-      : data.itrStatus === 'filed'
-        ? (
-            data.itrAckNumber && data.itrAckNumber.trim() && !/^\d{15}$/.test(ackClean)
-              ? (errors.itrAckNumber = 'ITR acknowledgement number must be exactly 15 digits')
-              : undefined,
-            data.annualIncomeAsPerItr && data.annualIncomeAsPerItr.trim() && (!incClean || isNaN(Number(incClean)))
-              ? (errors.annualIncomeAsPerItr = 'Please enter a valid annual income')
-              : undefined
-          )
-        : undefined
-
-    const firstError = Object.values(errors)[0]
-    return {
-      isValid: Object.keys(errors).length === 0,
-      error: firstError,
-      errors,
+    const account = (data.accountNumber || '').trim()
+    if (!account) {
+      errors.accountNumber = 'Bank account number is required'
+    } else if (!commonLoanValidation.isValidAccountNumber(account)) {
+      errors.accountNumber = 'Account number must contain only digits (9 to 18 digits)'
     }
+
+    const ifsc = (data.ifscCode || '').trim()
+    if (!ifsc) {
+      errors.ifscCode = 'Bank IFSC code is required'
+    } else if (!commonLoanValidation.isValidIfsc(ifsc)) {
+      errors.ifscCode = 'Please enter a valid 11-digit IFSC code (e.g. HDFC0001234)'
+    }
+
+    if (!data.itrStatus) {
+      errors.itrStatus = 'Please select ITR filing status'
+    } else if (data.itrStatus === 'filed') {
+      const ackError = loanFieldRules.optionalItrAck(data.itrAckNumber)
+      if (ackError) errors.itrAckNumber = ackError
+    }
+
+    return toStepResult(errors)
   },
 
-  validateStep4: (data: HomeLoanData): StepValidationResult => {
+  /** Step 4: Documents */
+  validateStep4: (data: HomeLoanData): LoanStepValidationResult => {
     const uploadedDocs = data.uploadedDocs || {}
-    const { errors, missingDocs } = REQUIRED_DOCUMENT_IDS.reduce<{
-      errors: Record<string, string>
-      missingDocs: string[]
-    }>(
-      (acc, doc) => {
-        !uploadedDocs[doc.id]
-          ? (acc.errors[doc.id] = `${doc.name} is required`, acc.missingDocs.push(doc.name))
-          : undefined
-        return acc
-      },
-      { errors: {}, missingDocs: [] }
-    )
-
-    const errorMsg =
-      missingDocs.length > 0
-        ? `Please upload all required documents (${missingDocs.length} missing: ${missingDocs.slice(0, 3).join(', ')}${missingDocs.length > 3 ? ` +${missingDocs.length - 3} more` : ''})`
+    const missing = HOME_LOAN_REQUIRED_DOCUMENTS.filter((doc) => !uploadedDocs[doc.id])
+    const errors = Object.fromEntries(missing.map((doc) => [doc.id, `${doc.name} is required`]))
+    const names = missing.map((doc) => doc.name)
+    const summary =
+      names.length > 0
+        ? `Please upload all required documents (${names.length} missing: ${names.slice(0, 3).join(', ')}${names.length > 3 ? ` +${names.length - 3} more` : ''})`
         : undefined
-
-    return {
-      isValid: missingDocs.length === 0,
-      error: errorMsg,
-      errors,
-    }
+    return toStepResult(errors, summary)
   },
 
-  validateStep5: (data: HomeLoanData): StepValidationResult => {
+  /** Step 5: Review & Submit */
+  validateStep5: (data: HomeLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
     if (!data.termsAccepted) {
       errors.termsAccepted = 'Please authorize TaxEdge and accept the declaration to submit your application.'
     }
-
-    return {
-      isValid: Object.keys(errors).length === 0,
-      error: errors.termsAccepted,
-      errors,
-    }
+    return toStepResult(errors)
   },
 }

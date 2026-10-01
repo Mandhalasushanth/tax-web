@@ -1,5 +1,9 @@
 import React from 'react'
-import type { ProjectFinanceData, ImplementationMilestoneItem } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData, ImplementationMilestoneItem } from '@modules/loans/types/projectFinance.types'
+import {
+  CONTRACT_TYPE_OPTIONS,
+  MILESTONE_STATUS_OPTIONS,
+} from './locationLandTechnicalConstants'
 
 export interface Section10To12Props {
   data: ProjectFinanceData
@@ -10,7 +14,7 @@ export interface Section10To12Props {
   onToggleMilestones: () => void
   isManpowerOpen: boolean
   onToggleManpower: () => void
-  onOpenPicker: (picker: string) => void
+  onOpenPicker?: (picker: string) => void
   errors?: Record<string, string>
 }
 
@@ -23,7 +27,6 @@ export const Section10To12: React.FC<Section10To12Props> = ({
   onToggleMilestones,
   isManpowerOpen,
   onToggleManpower,
-  onOpenPicker,
   errors = {},
 }) => {
   const milestones: ImplementationMilestoneItem[] = data.implementationMilestones && data.implementationMilestones.length > 0
@@ -91,19 +94,18 @@ export const Section10To12: React.FC<Section10To12Props> = ({
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">Contract Type <span className="pf-req">*</span></label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.contractType ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => onOpenPicker('contractType')}
+              <label htmlFor="contractType" className="pf-field-label">Contract Type <span className="pf-req">*</span></label>
+              <select
+                id="contractType"
+                className={`pf-custom-select ${errors.contractType ? 'pf-custom-select--error' : ''}`}
+                value={data.contractType || ''}
+                onChange={(e) => onChange({ contractType: e.target.value })}
               >
-                <span className={data.contractType ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.contractType || 'Select contract type'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select contract type</option>
+                {CONTRACT_TYPE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
               {errors.contractType && <span className="pf-field-error">{errors.contractType}</span>}
             </div>
 
@@ -236,19 +238,18 @@ export const Section10To12: React.FC<Section10To12Props> = ({
                   </div>
 
                   <div className="pf-field-group">
-                    <label className="pf-field-label">Status <span className="pf-req">*</span></label>
-                    <button
-                      type="button"
-                      className="pf-custom-select-btn"
-                      onClick={() => onOpenPicker(`milestone_status_${idx}`)}
+                    <label htmlFor={`milestoneStatus_${idx}`} className="pf-field-label">Status <span className="pf-req">*</span></label>
+                    <select
+                      id={`milestoneStatus_${idx}`}
+                      className="pf-custom-select"
+                      value={item.status || ''}
+                      onChange={(e) => handleUpdateMilestone(idx, { status: e.target.value })}
                     >
-                      <span className={item.status ? 'pf-select-value' : 'pf-select-placeholder'}>
-                        {item.status || 'Select status'}
-                      </span>
-                      <span className="pf-select-chevron">
-                        <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                      </span>
-                    </button>
+                      <option value="" disabled>Select status</option>
+                      {MILESTONE_STATUS_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               ))}

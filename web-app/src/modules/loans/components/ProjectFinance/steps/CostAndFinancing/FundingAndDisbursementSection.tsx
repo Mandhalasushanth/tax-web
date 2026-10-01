@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 
 export interface FundingAndDisbursementSectionProps {
   data: ProjectFinanceData
@@ -45,30 +45,18 @@ export const FundingAndDisbursementSection: React.FC<FundingAndDisbursementSecti
   errors = {},
 }) => {
   const handleNumericInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    try {
-      const sanitized = rawValue.replace(/\D/g, '')
-      onChange({ [field]: sanitized })
-    } catch (err) {
-      console.error(`Error updating field ${String(field)}:`, err)
-    }
+    const sanitized = rawValue.replace(/\D/g, '')
+    onChange({ [field]: sanitized })
   }
 
   const handleRatioInput = (rawValue: string) => {
-    try {
-      // Allows numbers and colon for ratio e.g. 70:30
-      const sanitized = rawValue.replace(/[^0-9:]/g, '')
-      onChange({ proposedDebtToEquityRatio: sanitized })
-    } catch (err) {
-      console.error('Error updating debt to equity ratio:', err)
-    }
+    // Allows numbers and colon for ratio e.g. 70:30
+    const sanitized = rawValue.replace(/[^0-9:]/g, '')
+    onChange({ proposedDebtToEquityRatio: sanitized })
   }
 
   const handleTextInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    try {
-      onChange({ [field]: rawValue })
-    } catch (err) {
-      console.error(`Error updating field ${String(field)}:`, err)
-    }
+    onChange({ [field]: rawValue })
   }
 
   return (

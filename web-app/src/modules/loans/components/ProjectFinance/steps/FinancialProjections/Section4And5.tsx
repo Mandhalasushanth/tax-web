@@ -1,5 +1,11 @@
 import React from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
+import {
+  PROJECTION_PERIOD_OPTIONS,
+  HISTORICAL_YEARS_OPTIONS,
+  PROJECTED_YEARS_OPTIONS,
+  STABILISATION_YEAR_OPTIONS,
+} from './financialProjectionsConstants'
 
 export interface Section4And5Props {
   data: ProjectFinanceData
@@ -8,7 +14,7 @@ export interface Section4And5Props {
   onToggleProjectionSetup: () => void
   isHistoricalFinancialsOpen: boolean
   onToggleHistoricalFinancials: () => void
-  onOpenPicker: (field: 'projectionPeriodYears' | 'historicalYears' | 'projectedYears' | 'stabilisationYear') => void
+  onOpenPicker?: (field: 'projectionPeriodYears' | 'historicalYears' | 'projectedYears' | 'stabilisationYear') => void
   errors?: Record<string, string>
 }
 
@@ -44,16 +50,11 @@ export const Section4And5: React.FC<Section4And5Props> = ({
   onToggleProjectionSetup,
   isHistoricalFinancialsOpen,
   onToggleHistoricalFinancials,
-  onOpenPicker,
   errors = {},
 }) => {
   const handleNumericInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    try {
-      const sanitized = rawValue.replace(/[^\d.]/g, '')
-      onChange({ [field]: sanitized })
-    } catch (err) {
-      console.error(`Error updating field ${String(field)}:`, err)
-    }
+    const sanitized = rawValue.replace(/[^\d.]/g, '')
+    onChange({ [field]: sanitized })
   }
 
   return (
@@ -78,58 +79,55 @@ export const Section4And5: React.FC<Section4And5Props> = ({
 
             <div className="pf-grid-2col">
               <div className="pf-field-group">
-                <label className="pf-field-label">
+                <label htmlFor="projectionPeriodYears" className="pf-field-label">
                   Projection Period (Years) <span className="pf-required-star">*</span>
                 </label>
-                <button
-                  type="button"
-                  className="pf-custom-select-btn"
-                  onClick={() => onOpenPicker('projectionPeriodYears')}
+                <select
+                  id="projectionPeriodYears"
+                  className="pf-custom-select"
+                  value={data.projectionPeriodYears || ''}
+                  onChange={(e) => onChange({ projectionPeriodYears: e.target.value })}
                 >
-                  <span className={data.projectionPeriodYears ? 'pf-select-value' : 'pf-select-placeholder'}>
-                    {data.projectionPeriodYears ? `${data.projectionPeriodYears} Years` : 'Select years'}
-                  </span>
-                  <span className="pf-select-chevron">
-                    <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                  </span>
-                </button>
+                  <option value="" disabled>Select years</option>
+                  {PROJECTION_PERIOD_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="pf-field-group">
-                <label className="pf-field-label">
+                <label htmlFor="historicalYears" className="pf-field-label">
                   Historical Years <span className="pf-required-star">*</span>
                 </label>
-                <button
-                  type="button"
-                  className="pf-custom-select-btn"
-                  onClick={() => onOpenPicker('historicalYears')}
+                <select
+                  id="historicalYears"
+                  className="pf-custom-select"
+                  value={data.historicalYears || ''}
+                  onChange={(e) => onChange({ historicalYears: e.target.value })}
                 >
-                  <span className={data.historicalYears ? 'pf-select-value' : 'pf-select-placeholder'}>
-                    {data.historicalYears ? `${data.historicalYears} Years` : 'Select years'}
-                  </span>
-                  <span className="pf-select-chevron">
-                    <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                  </span>
-                </button>
+                  <option value="" disabled>Select years</option>
+                  {HISTORICAL_YEARS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">
+              <label htmlFor="projectedYears" className="pf-field-label">
                 Projected Years <span className="pf-required-star">*</span>
               </label>
-              <button
-                type="button"
-                className="pf-custom-select-btn"
-                onClick={() => onOpenPicker('projectedYears')}
+              <select
+                id="projectedYears"
+                className="pf-custom-select"
+                value={data.projectedYears || ''}
+                onChange={(e) => onChange({ projectedYears: e.target.value })}
               >
-                <span className={data.projectedYears ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.projectedYears ? `${data.projectedYears} Years` : 'Select years'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select years</option>
+                {PROJECTED_YEARS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
             </div>
 
             <div className="pf-field-group">
@@ -149,19 +147,18 @@ export const Section4And5: React.FC<Section4And5Props> = ({
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">Stabilisation Year</label>
-              <button
-                type="button"
-                className="pf-custom-select-btn"
-                onClick={() => onOpenPicker('stabilisationYear')}
+              <label htmlFor="stabilisationYear" className="pf-field-label">Stabilisation Year</label>
+              <select
+                id="stabilisationYear"
+                className="pf-custom-select"
+                value={data.stabilisationYear || ''}
+                onChange={(e) => onChange({ stabilisationYear: e.target.value })}
               >
-                <span className={data.stabilisationYear ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.stabilisationYear || 'Select year'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select year</option>
+                {STABILISATION_YEAR_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
             </div>
           </div>
         )}

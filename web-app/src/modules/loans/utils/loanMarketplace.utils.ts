@@ -1,67 +1,38 @@
 import type { NavigateFunction } from 'react-router-dom'
-import type { LoanMarketplaceItem } from '../types/loanMarketplace.types'
+import type { LoanMarketplaceItem } from '@modules/loans/types/loanMarketplace.types'
 
 /**
- * Safely navigates to a specified path or step using React Router,
- * with comprehensive exception handling and fallback recovery.
- *
- * @param navigate - React Router navigate function
- * @param destination - Target route path or step delta number
- * @param fallback - Optional fallback path if initial navigation throws
+ * Navigates to a route path or history delta; empty paths go to `fallback`.
  */
 export function safeNavigateTo(
   navigate: NavigateFunction,
   destination: string | number,
   fallback: string = '/loans'
 ): void {
-  try {
-    const isNumber = typeof destination === 'number'
-    const isNonEmptyString = typeof destination === 'string' && destination.trim().length > 0
-    isNumber || isNonEmptyString
-      ? navigate(destination as any)
-      : (
-          console.warn('[LoanMarketplace] Empty destination path provided, navigating to fallback:', fallback),
-          navigate(fallback)
-        )
-  } catch (error) {
-    console.error('[LoanMarketplace] Navigation failure encountered:', error)
-    try {
-      navigate(fallback)
-    } catch (fallbackError) {
-      console.error('[LoanMarketplace] Critical fallback navigation failure:', fallbackError)
-      if (typeof window !== 'undefined') {
-        window.location.href = typeof destination === 'string' ? destination : fallback
-      }
-    }
+  if (typeof destination === 'number') {
+    navigate(destination)
+    return
   }
+  navigate(destination.trim() ? destination : fallback)
 }
 
 /**
- * Validates whether an object adheres to the required LoanMarketplaceItem shape (Pure functional).
+ * Checks whether an object has the required LoanMarketplaceItem shape.
  */
 export function isValidLoanMarketplaceItem(item: unknown): item is LoanMarketplaceItem {
-  try {
-    const candidate = (item && typeof item === 'object') ? (item as Partial<LoanMarketplaceItem>) : null
-    return Boolean(
-      candidate &&
+  const candidate = item && typeof item === 'object' ? (item as Partial<LoanMarketplaceItem>) : null
+  return Boolean(
+    candidate &&
       typeof candidate.id === 'string' &&
       typeof candidate.title === 'string' &&
       typeof candidate.applyPath === 'string' &&
       typeof candidate.rate === 'string'
-    )
-  } catch (error) {
-    console.error('[LoanMarketplace] Validation error occurred:', error)
-    return false
-  }
+  )
 }
 
 /**
  * Generates an accessible ARIA label for screen readers.
  */
 export function buildLoanCardAriaLabel(title: string, rate: string, desc: string): string {
-  try {
-    return `${title}, starting from ${rate}. ${desc}`
-  } catch {
-    return title
-  }
+  return `${title}, starting from ${rate}. ${desc}`
 }

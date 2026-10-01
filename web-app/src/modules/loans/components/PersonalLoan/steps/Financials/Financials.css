@@ -111,10 +111,6 @@
   padding: 0.25rem 0;
 }
 
-.personal-applicant-card__row--address {
-  grid-column: span 3;
-}
-
 .personal-applicant-card__label {
   font-size: 0.82rem;
   color: #64748b;
@@ -294,10 +290,6 @@
   .personal-applicant-card__list {
     grid-template-columns: repeat(2, 1fr);
   }
-
-  .personal-applicant-card__row--address {
-    grid-column: span 2;
-  }
 }
 
 @media (max-width: 768px) {
@@ -320,10 +312,6 @@
   .personal-applicant-card__list {
     grid-template-columns: 1fr;
     gap: 0.65rem;
-  }
-
-  .personal-applicant-card__row--address {
-    grid-column: span 1;
   }
 
   .personal-applicant-card__row {

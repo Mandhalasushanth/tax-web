@@ -10,13 +10,12 @@ export interface LifecycleMilestonesCardProps {
 /**
  * Reusable Lifecycle Milestones Card Component
  * Displays the 5 vertical lifecycle stages exactly as shown in the design.
- * Strictly zero inline styles, zero internal styles, and zero loops.
  */
 export const LifecycleMilestonesCard: React.FC<LifecycleMilestonesCardProps> = ({
   milestones,
   submissionTimestamp = '25 Sep 2026 10:30 AM',
 }) => {
-  // Extract or fallback milestone timestamps without loops
+  // Extract milestone timestamps, falling back when missing
   const stage1 = milestones?.[0]
   const stage1Time = stage1?.timestamp || submissionTimestamp
 

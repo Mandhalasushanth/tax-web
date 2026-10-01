@@ -1,7 +1,7 @@
 import React from 'react'
 import { useAuthStore } from '@store/index'
-import type { WorkingCapitalLoanData } from '../../../../types/workingCapitalLoan.types'
-import { WORKING_CAPITAL_DOCUMENT_CONFIGS } from '../../../../validation/workingCapitalLoanValidation'
+import type { WorkingCapitalLoanData } from '@modules/loans/types/workingCapitalLoan.types'
+import { WORKING_CAPITAL_DOCUMENT_CONFIGS } from '@modules/loans/validation/workingCapitalLoanValidation'
 import './ReviewAndSubmit.css'
 
 export interface ReviewAndSubmitProps {
@@ -66,96 +66,91 @@ export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
     { label: 'IFSC Code', value: data.bankIfscCode || '—' },
   ]
 
-  return (
-    <div className="working-capital-review-step">
-      <div className="working-capital-section-heading">
-        <h3 className="working-capital-section-heading__title">Credit Facility Dossier Review</h3>
-        <p className="working-capital-section-heading__desc">
-          Review requested facility limit, enterprise profile, and financial audit files.
-        </p>
+  const renderPromoterInfo = () => (
+    <div className="working-capital-review-card">
+      <div className="working-capital-review-card__header">
+        <h4 className="working-capital-review-card__title">Promoter Information</h4>
+        <span className="working-capital-review-card__verified">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+            <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clipRule="evenodd" />
+          </svg>
+          Verified Profile
+        </span>
       </div>
+      <div className="working-capital-review-card__grid">
+        {promoterItems.map((item, idx) => (
+          <ReviewItem key={idx} label={item.label} value={item.value} />
+        ))}
+      </div>
+    </div>
+  )
 
-      <div className="working-capital-review-group">
-        {/* 1. Promoter Information */}
-        <div className="working-capital-review-card">
-          <div className="working-capital-review-card__header">
-            <h4 className="working-capital-review-card__title">Promoter Information</h4>
-            <span className="working-capital-review-card__verified">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-                <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clipRule="evenodd" />
+  const renderCreditFacilityTerms = () => (
+    <div className="working-capital-review-card">
+      <div className="working-capital-review-card__header">
+        <h4 className="working-capital-review-card__title">Credit Facility Terms</h4>
+        <EditButton onClick={() => onNavigateToStep(1)} />
+      </div>
+      <div className="working-capital-review-card__grid">
+        {termsItems.map((item, idx) => (
+          <ReviewItem key={idx} label={item.label} value={item.value} highlight={item.highlight} />
+        ))}
+      </div>
+    </div>
+  )
+
+  const renderEnterpriseProfile = () => (
+    <div className="working-capital-review-card">
+      <div className="working-capital-review-card__header">
+        <h4 className="working-capital-review-card__title">Enterprise Profile</h4>
+        <EditButton onClick={() => onNavigateToStep(2)} />
+      </div>
+      <div className="working-capital-review-card__grid">
+        {enterpriseItems.map((item, idx) => (
+          <ReviewItem key={idx} label={item.label} value={item.value} />
+        ))}
+      </div>
+    </div>
+  )
+
+  const renderDisbursementAccount = () => (
+    <div className="working-capital-review-card">
+      <div className="working-capital-review-card__header">
+        <h4 className="working-capital-review-card__title">Disbursement Current Account</h4>
+        <EditButton onClick={() => onNavigateToStep(2)} />
+      </div>
+      <div className="working-capital-review-card__grid">
+        {accountItems.map((item, idx) => (
+          <ReviewItem key={idx} label={item.label} value={item.value} />
+        ))}
+      </div>
+    </div>
+  )
+
+  const renderUploadedRecords = () => (
+    <div className="working-capital-review-card">
+      <div className="working-capital-review-card__header">
+        <h4 className="working-capital-review-card__title">Uploaded Records</h4>
+        <EditButton onClick={() => onNavigateToStep(3)} label="Manage" />
+      </div>
+      <div className="working-capital-doc-chips">
+        {WORKING_CAPITAL_DOCUMENT_CONFIGS.map((doc) => {
+          const isUploaded = uploadedDocEntries.includes(doc.id) || !uploadedDocEntries.length
+          return (
+            <div key={doc.id} className={`working-capital-doc-chip ${isUploaded ? 'working-capital-doc-chip--active' : ''}`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="working-capital-doc-chip__icon">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
               </svg>
-              Verified Profile
-            </span>
-          </div>
-          <div className="working-capital-review-card__grid">
-            {promoterItems.map((item, idx) => (
-              <ReviewItem key={idx} label={item.label} value={item.value} />
-            ))}
-          </div>
-        </div>
-
-        {/* 2. Credit Facility Terms */}
-        <div className="working-capital-review-card">
-          <div className="working-capital-review-card__header">
-            <h4 className="working-capital-review-card__title">Credit Facility Terms</h4>
-            <EditButton onClick={() => onNavigateToStep(1)} />
-          </div>
-          <div className="working-capital-review-card__grid">
-            {termsItems.map((item, idx) => (
-              <ReviewItem key={idx} label={item.label} value={item.value} highlight={item.highlight} />
-            ))}
-          </div>
-        </div>
-
-        {/* 3. Enterprise Profile */}
-        <div className="working-capital-review-card">
-          <div className="working-capital-review-card__header">
-            <h4 className="working-capital-review-card__title">Enterprise Profile</h4>
-            <EditButton onClick={() => onNavigateToStep(2)} />
-          </div>
-          <div className="working-capital-review-card__grid">
-            {enterpriseItems.map((item, idx) => (
-              <ReviewItem key={idx} label={item.label} value={item.value} />
-            ))}
-          </div>
-        </div>
-
-        {/* 4. Disbursement Current Account */}
-        <div className="working-capital-review-card">
-          <div className="working-capital-review-card__header">
-            <h4 className="working-capital-review-card__title">Disbursement Current Account</h4>
-            <EditButton onClick={() => onNavigateToStep(2)} />
-          </div>
-          <div className="working-capital-review-card__grid">
-            {accountItems.map((item, idx) => (
-              <ReviewItem key={idx} label={item.label} value={item.value} />
-            ))}
-          </div>
-        </div>
-
-        {/* 5. Uploaded Records */}
-        <div className="working-capital-review-card">
-          <div className="working-capital-review-card__header">
-            <h4 className="working-capital-review-card__title">Uploaded Records</h4>
-            <EditButton onClick={() => onNavigateToStep(3)} label="Manage" />
-          </div>
-          <div className="working-capital-doc-chips">
-            {WORKING_CAPITAL_DOCUMENT_CONFIGS.map((doc) => {
-              const isUploaded = uploadedDocEntries.includes(doc.id) || !uploadedDocEntries.length
-              return (
-                <div key={doc.id} className={`working-capital-doc-chip ${isUploaded ? 'working-capital-doc-chip--active' : ''}`}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="working-capital-doc-chip__icon">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
-                  </svg>
-                  <span>{doc.name}</span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
+              <span>{doc.name}</span>
+            </div>
+          )
+        })}
       </div>
+    </div>
+  )
 
-      {/* 6. Authorization Declaration */}
+  const renderAuthorization = () => (
+    <>
       <div className="working-capital-review__declaration">
         <input
           id="working-capital-terms-checkbox"
@@ -171,6 +166,27 @@ export const ReviewAndSubmit: React.FC<ReviewAndSubmitProps> = ({
       {errors.termsAccepted && (
         <span className="working-capital-field-error" role="alert">{errors.termsAccepted}</span>
       )}
+    </>
+  )
+
+  return (
+    <div className="working-capital-review-step">
+      <div className="working-capital-section-heading">
+        <h3 className="working-capital-section-heading__title">Credit Facility Dossier Review</h3>
+        <p className="working-capital-section-heading__desc">
+          Review requested facility limit, enterprise profile, and financial audit files.
+        </p>
+      </div>
+
+      <div className="working-capital-review-group">
+        {renderPromoterInfo()}
+        {renderCreditFacilityTerms()}
+        {renderEnterpriseProfile()}
+        {renderDisbursementAccount()}
+        {renderUploadedRecords()}
+      </div>
+
+      {renderAuthorization()}
     </div>
   )
 }

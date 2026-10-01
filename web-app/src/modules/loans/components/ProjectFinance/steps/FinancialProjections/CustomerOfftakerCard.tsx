@@ -1,4 +1,5 @@
 import React from 'react'
+import { formatCurrencyString } from '@modules/loans/utils/loanInputFormatters'
 import type { CustomerOfftakerItem } from '@modules/loans/types/projectFinance.types'
 import {
   CUSTOMER_TYPE_OPTIONS,
@@ -28,6 +29,10 @@ export const CustomerOfftakerCard: React.FC<CustomerOfftakerCardProps> = ({
 
   const handleTextInput = (field: keyof CustomerOfftakerItem, value: string) => {
     onChange({ ...item, [field]: value })
+  }
+
+  const handleAmountInput = (field: keyof CustomerOfftakerItem, rawValue: string) => {
+    onChange({ ...item, [field]: formatCurrencyString(rawValue) })
   }
 
   const handleNumericInput = (field: keyof CustomerOfftakerItem, value: string) => {
@@ -142,7 +147,7 @@ export const CustomerOfftakerCard: React.FC<CustomerOfftakerCardProps> = ({
             className={`pf-custom-input ${errors[`${prefix}_expectedRevenue`] ? 'pf-custom-input--error' : ''}`}
             placeholder="Enter amount"
             value={item.expectedRevenue || ''}
-            onChange={(e) => handleNumericInput('expectedRevenue', e.target.value)}
+            onChange={(e) => handleAmountInput('expectedRevenue', e.target.value)}
           />
           {errors[`${prefix}_expectedRevenue`] && (
             <span className="pf-field-error-msg">{errors[`${prefix}_expectedRevenue`]}</span>
@@ -210,7 +215,7 @@ export const CustomerOfftakerCard: React.FC<CustomerOfftakerCardProps> = ({
             className="pf-custom-input"
             placeholder="Enter price"
             value={item.contractedPrice || ''}
-            onChange={(e) => handleNumericInput('contractedPrice', e.target.value)}
+            onChange={(e) => handleAmountInput('contractedPrice', e.target.value)}
           />
         </div>
       </div>

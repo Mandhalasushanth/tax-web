@@ -1,15 +1,22 @@
-import type { FilingPeriodData } from '../components/GSTFiling'
+import type { FilingPeriodData } from '@modules/gst/components/GSTFiling'
+import { GST_FEES } from '@modules/gst/constants/gstBusiness.constants'
+import { gstProfileService } from '@modules/gst/services/gstProfileService'
+import { FINANCIAL_YEAR_OPTIONS, MONTHLY_PERIOD_OPTIONS } from '@modules/gst/utils/gstPeriodOptions'
 
-export const DEFAULT_FILING_DATA: FilingPeriodData = {
-  gstin: '',
-  businessName: 'Shree Deshmukh Traders',
-  financialYear: 'FY 2026-27',
-  frequency: 'Monthly',
-  selectedMonth: 'August 2026',
-  returnType: 'combo',
-  baseFee: 2500,
-  filingType: 'regular',
-  calculationMethod: 'ca_calculate',
+/** Fresh filing data, prefilled from the user's GST profile and the latest period */
+export const getDefaultFilingData = (): FilingPeriodData => {
+  const profile = gstProfileService.get()
+  return {
+    gstin: profile.gstin,
+    businessName: profile.tradeName || profile.legalName,
+    financialYear: FINANCIAL_YEAR_OPTIONS[0]?.value || '',
+    frequency: 'Monthly',
+    selectedMonth: MONTHLY_PERIOD_OPTIONS[0]?.value || '',
+    returnType: 'combo',
+    baseFee: GST_FEES.filingCombo,
+    filingType: 'regular',
+    calculationMethod: 'ca_calculate',
+  }
 }
 
 export const STEP_LABELS: Record<number, string> = {

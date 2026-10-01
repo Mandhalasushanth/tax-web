@@ -1,6 +1,6 @@
 import { useState, type FC, type ReactNode } from 'react'
-import type { DocumentItem } from '../../../types/gstDocuments.types'
-import { ADDRESS_PROOF_OPTIONS } from '../../../utils/gstDocuments.constants'
+import type { DocumentItem } from '@modules/gst/types/gstDocuments.types'
+import { ADDRESS_PROOF_OPTIONS } from '@modules/gst/utils/gstDocuments.constants'
 import {
   PanCardIcon,
   AadhaarCardIcon,
@@ -13,8 +13,9 @@ import {
   ViewEyeIcon,
   ReplaceRotateIcon,
   DeleteTrashIcon,
-} from '../../../shared/GSTDocIcons/GSTDocIcons'
+} from '@modules/gst/shared/GSTDocIcons/GSTDocIcons'
 import './GSTDocCard.css'
+import '@modules/gst/styles/gstTones.css'
 
 interface GSTDocCardProps {
   doc: DocumentItem
@@ -75,8 +76,7 @@ export const GSTDocCard: FC<GSTDocCardProps> = ({
         {/* Left details */}
         <div className="gst-doc-card__left">
           <div
-            className="gst-doc-card__icon"
-            style={{ backgroundColor: doc.iconBg, color: doc.iconColor }}
+            className={`gst-doc-card__icon gst-tone--${doc.tone}`}
             aria-hidden="true"
           >
             {getDocIcon(doc.id)}

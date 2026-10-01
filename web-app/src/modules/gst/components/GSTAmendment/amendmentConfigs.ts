@@ -1,16 +1,29 @@
-export const AMENDMENT_CONFIGS: Record<
-  string,
-  {
-    title: string
-    currentValue: string
-    inputLabel: string
-    placeholder: string
-    proofs: string[]
-  }
-> = {
+import {
+  formatProfileAddress,
+  formatProfileBank,
+  formatProfileContact,
+  formatProfileSignatory,
+  gstProfileService,
+  orNotAvailable,
+  type GstBusinessProfile,
+} from '@modules/gst/services/gstProfileService'
+
+export interface AmendmentConfig {
+  title: string
+  currentValue: string
+  inputLabel: string
+  placeholder: string
+  proofs: string[]
+}
+
+type AmendmentConfigTemplate = Omit<AmendmentConfig, 'currentValue'> & {
+  currentValue: (profile: GstBusinessProfile) => string
+}
+
+const AMENDMENT_CONFIG_TEMPLATES: Record<string, AmendmentConfigTemplate> = {
   legal_name: {
     title: 'Legal Business Name',
-    currentValue: 'Vani Enterprises',
+    currentValue: (p) => orNotAvailable(p.legalName),
     inputLabel: 'New Legal Business Name',
     placeholder: 'As per PAN',
     proofs: [
@@ -24,7 +37,7 @@ export const AMENDMENT_CONFIGS: Record<
   },
   principal_place: {
     title: 'Principal Place of Business',
-    currentValue: 'Flat 402, Sai Residency, Hitec City, Hyderabad - 500081',
+    currentValue: formatProfileAddress,
     inputLabel: 'New Principal Address',
     placeholder: 'Enter full address with PIN code',
     proofs: [
@@ -36,7 +49,7 @@ export const AMENDMENT_CONFIGS: Record<
   },
   additional_place: {
     title: 'Additional Place of Business',
-    currentValue: 'Plot 12, Industrial Park, Gachibowli, Hyderabad - 500032',
+    currentValue: () => 'None on record',
     inputLabel: 'New Additional Place Address',
     placeholder: 'Enter full address of additional premises',
     proofs: [
@@ -47,7 +60,7 @@ export const AMENDMENT_CONFIGS: Record<
   },
   bank_accounts: {
     title: 'Bank Accounts',
-    currentValue: 'HDFC Bank · A/C **** 4892 · HDFC0001234',
+    currentValue: formatProfileBank,
     inputLabel: 'New Bank Account Details',
     placeholder: 'Enter Account Number & IFSC Code',
     proofs: [
@@ -58,7 +71,7 @@ export const AMENDMENT_CONFIGS: Record<
   },
   authorised_signatories: {
     title: 'Authorised Signatories',
-    currentValue: 'Vani Udatha (Proprietor / Director)',
+    currentValue: formatProfileSignatory,
     inputLabel: 'New Authorised Signatory Name',
     placeholder: 'Enter full name as per Aadhaar/PAN',
     proofs: [
@@ -69,7 +82,7 @@ export const AMENDMENT_CONFIGS: Record<
   },
   contact_details: {
     title: 'Contact Details',
-    currentValue: '+91 98765 43210 · vani@vanienterprises.com',
+    currentValue: formatProfileContact,
     inputLabel: 'New Contact Mobile & Email',
     placeholder: 'Enter new mobile number & official email',
     proofs: [
@@ -78,4 +91,13 @@ export const AMENDMENT_CONFIGS: Record<
       'ID proof / Board declaration',
     ],
   },
+}
+
+/** Amendment form config with the "current value" taken from the user's GST profile */
+export const getAmendmentConfig = (id: string, fallbackTitle: string): AmendmentConfig => {
+  const template = AMENDMENT_CONFIG_TEMPLATES[id]
+  if (!template) {
+    return { title: fallbackTitle, currentValue: 'Current details', inputLabel: 'New Value', placeholder: 'Enter new value', proofs: [] }
+  }
+  return { ...template, currentValue: template.currentValue(gstProfileService.get()) }
 }

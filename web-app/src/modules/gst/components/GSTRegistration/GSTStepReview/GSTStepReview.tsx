@@ -1,16 +1,17 @@
+import { GSTStepErrorBanner } from '@modules/gst/shared/GSTStepErrorBanner'
 import { useState, type FC } from 'react'
-import type { GSTStepReviewProps, ReviewField } from '../../../types/gstReview.types'
-import { INITIAL_DOCUMENTS } from '../../../utils/gstDocuments.constants'
+import type { GSTStepReviewProps, ReviewField } from '@modules/gst/types/gstReview.types'
+import { INITIAL_DOCUMENTS } from '@modules/gst/utils/gstDocuments.constants'
 import {
   BusinessRegIcon,
   BankProofIcon,
   UserSignatoryIcon,
-} from '../../../shared/GSTDocIcons/GSTDocIcons'
+} from '@modules/gst/shared/GSTDocIcons/GSTDocIcons'
 import { GSTReviewSection } from './GSTReviewSection'
 import { GSTReviewDocsList } from './GSTReviewDocsList'
 import { GSTReviewDeclaration } from './GSTReviewDeclaration'
 import { GSTDocPreviewModal } from '../GSTStepDocuments/GSTDocPreviewModal'
-import type { DocPreviewState } from '../../../types/gstDocuments.types'
+import type { DocPreviewState } from '@modules/gst/types/gstDocuments.types'
 import { StepActionBar } from '@shared/components'
 import './GSTStepReview.css'
 
@@ -109,7 +110,7 @@ export const GSTStepReview: FC<GSTStepReviewProps> = ({
       <GSTReviewSection
         title="Business Details"
         icon={<BusinessRegIcon width={20} height={20} />}
-        iconBg="#ffedd5"
+        tone="orange"
         fields={businessFields}
         onEdit={() => onEdit('business')}
       />
@@ -118,7 +119,7 @@ export const GSTStepReview: FC<GSTStepReviewProps> = ({
       <GSTReviewSection
         title="Bank Details"
         icon={<BankProofIcon width={20} height={20} />}
-        iconBg="#dcfce7"
+        tone="mint"
         fields={bankFields}
         onEdit={() => onEdit('bank')}
       />
@@ -127,7 +128,7 @@ export const GSTStepReview: FC<GSTStepReviewProps> = ({
       <GSTReviewSection
         title="Authorised Signatory"
         icon={<UserSignatoryIcon width={20} height={20} />}
-        iconBg="#f3e8ff"
+        tone="purple"
         fields={signatoryFields}
         onEdit={() => onEdit('signatory')}
       />
@@ -142,13 +143,14 @@ export const GSTStepReview: FC<GSTStepReviewProps> = ({
         hasError={declarationError}
       />
 
+      <GSTStepErrorBanner message={declarationError ? 'Please accept the declaration to continue.' : null} />
+
       {/* 6. Navigation Footer Actions */}
       <StepActionBar
         onBack={onBack}
         onSaveDraft={onSaveDraft}
         onNext={handleProceedClick}
         nextLabel="Continue to Payment"
-        nextDisabled={!isDeclared}
       />
 
       {/* Document Preview Modal */}

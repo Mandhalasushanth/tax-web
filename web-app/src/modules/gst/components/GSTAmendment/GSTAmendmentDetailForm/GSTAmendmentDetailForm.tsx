@@ -1,4 +1,8 @@
+import { GSTSaveDraftButton } from '@modules/gst/shared/GSTSaveDraftButton'
+import { GST_FILE_MESSAGES, gstFileSizeError } from '@modules/gst/utils/gstFile'
 import React, { useState, type ChangeEvent, type FormEvent } from 'react'
+import { detectGstFieldKind, gstRuleForField } from '@modules/gst/validation/gstFieldRules'
+import { gstInputForKind } from '@modules/gst/utils/gstInputFormatters'
 import GSTAmendmentProofsCard from './GSTAmendmentProofsCard'
 import GSTAmendmentProofUpload from './GSTAmendmentProofUpload'
 import './GSTAmendmentDetailForm.css'
@@ -11,6 +15,7 @@ interface GSTAmendmentDetailFormProps {
   proofs?: string[]
   isSubmitting?: boolean
   onBack: () => void
+  onSaveDraft?: () => void
   onSubmit: (payload: { newValue: string; file: File | null }) => void
 }
 
@@ -23,6 +28,7 @@ export const GSTAmendmentDetailForm: React.FC<GSTAmendmentDetailFormProps> = ({
   isSubmitting = false,
   onBack,
   onSubmit,
+  onSaveDraft,
 }) => {
   const [newValue, setNewValue] = useState<string>('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -31,8 +37,9 @@ export const GSTAmendmentDetailForm: React.FC<GSTAmendmentDetailFormProps> = ({
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
-      if (file.size > 10 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, file: 'File size must be under 10 MB.' }))
+      const sizeError = gstFileSizeError(file)
+      if (sizeError) {
+        setErrors((prev) => ({ ...prev, file: sizeError }))
         return
       }
       setSelectedFile(file)
@@ -45,38 +52,22 @@ export const GSTAmendmentDetailForm: React.FC<GSTAmendmentDetailFormProps> = ({
     setSelectedFile(null)
   }
 
-  // Context-Aware Validation logic based on placeholder/label intent
-  const validateField = (value: string, label?: string, placeholder?: string) => {
-    const val = value.trim()
-    if (!val) return `Please enter ${label?.toLowerCase() || 'a value'}.`
-    
-    // Strict Context-Aware Regex Validation based on intent
-    if (placeholder?.toLowerCase().includes('pan')) {
-      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/
-      if (!panRegex.test(val)) return 'Invalid PAN format (e.g. ABCDE1234F)'
-    }
-    if (label?.toLowerCase().includes('email')) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(val)) return 'Invalid email address format'
-    }
-    if (label?.toLowerCase().includes('mobile') || label?.toLowerCase().includes('phone')) {
-      const phoneRegex = /^[6-9]\d{9}$/
-      if (!phoneRegex.test(val)) return 'Invalid Indian mobile number'
-    }
-    return undefined
-  }
+  // Validation and input filtering chosen from what the field asks for (label first, then placeholder)
+  const fieldKind = detectGstFieldKind(inputLabel, placeholder)
+  const filterInput = gstInputForKind(fieldKind)
+  const validateField = (value: string) => gstRuleForField(inputLabel, placeholder)(value)
 
   const handleSubmitForm = (e: FormEvent) => {
     e.preventDefault()
     const newErrors: { newValue?: string; file?: string } = {}
 
-    const fieldError = validateField(newValue, inputLabel, placeholder)
+    const fieldError = validateField(newValue)
     if (fieldError) {
       newErrors.newValue = fieldError
     }
 
     if (!selectedFile) {
-      newErrors.file = 'Please upload a supporting proof document.'
+      newErrors.file = GST_FILE_MESSAGES.proofRequired
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -123,7 +114,7 @@ export const GSTAmendmentDetailForm: React.FC<GSTAmendmentDetailFormProps> = ({
                   placeholder={placeholder}
                   value={newValue}
                   onChange={(e) => {
-                    setNewValue(e.target.value)
+                    setNewValue(filterInput(e.target.value))
                     if (errors.newValue) setErrors((prev) => ({ ...prev, newValue: undefined }))
                   }}
                   className={`gst-amend-text-input ${errors.newValue ? 'has-error' : ''}`}
@@ -160,17 +151,20 @@ export const GSTAmendmentDetailForm: React.FC<GSTAmendmentDetailFormProps> = ({
             Back
           </button>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="gst-amend-submit-orange-btn"
-          >
-            {isSubmitting ? 'Submitting...' : 'Review Changes'}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </button>
+          <div className="gst-actions-group">
+            {onSaveDraft && <GSTSaveDraftButton onClick={onSaveDraft} />}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="gst-amend-submit-orange-btn"
+            >
+              {isSubmitting ? 'Submitting...' : 'Review Changes'}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </button>
+          </div>
         </div>
       </form>
     </div>

@@ -1,4 +1,5 @@
 import React from 'react'
+import { LoanDocumentGrid } from '@modules/loans/shared'
 import { DocumentSection, UploadDocument } from '@shared/components'
 import { loanDocumentService, createDocDef } from '@modules/loans/documents'
 import type { LoanDocumentDefinition } from '@modules/loans/documents/loanDocument.types'
@@ -69,6 +70,7 @@ export const Documents: React.FC<DocumentsProps> = ({
   const uploadedDocs = data.uploadedDocs || {}
 
   const handleUpload = (id: string, file: File) => {
+    if (!loanDocumentService.acceptFile(file)) return
     const entry = loanDocumentService.createDocumentEntry(id, file)
     onChange({ uploadedDocs: { ...uploadedDocs, [id]: entry } })
   }
@@ -118,16 +120,24 @@ export const Documents: React.FC<DocumentsProps> = ({
   return (
     <div className="working-capital-documents-step">
       <DocumentSection title="IDENTITY & ADDRESS">
-        {IDENTITY_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {IDENTITY_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
       <DocumentSection title="INCOME & BANKING">
-        {INCOME_BANKING_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {INCOME_BANKING_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
       <DocumentSection title="BUSINESS & TAX">
-        {BUSINESS_TAX_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {BUSINESS_TAX_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
       <DocumentSection title="COLLATERAL & OTHERS">
-        {COLLATERAL_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {COLLATERAL_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
     </div>
   )

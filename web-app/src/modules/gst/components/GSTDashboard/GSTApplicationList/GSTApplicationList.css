@@ -161,7 +161,6 @@
 .gst-app-item__progress-fill {
   height: 100%;
   border-radius: 9999px;
-  transition: width 0.3s ease;
 }
 
 .gst-app-item__progress-text {
@@ -179,7 +178,7 @@
 
 .theme-blue .gst-app-item__badge-dot,
 .theme-blue .gst-app-item__progress-fill {
-  background-color: #0284c7;
+  --gst-progress-color: #0284c7;
 }
 
 .theme-orange .gst-app-item__icon-wrapper,
@@ -190,7 +189,7 @@
 
 .theme-orange .gst-app-item__badge-dot,
 .theme-orange .gst-app-item__progress-fill {
-  background-color: #f97316;
+  --gst-progress-color: #f97316;
 }
 
 /* Empty State */

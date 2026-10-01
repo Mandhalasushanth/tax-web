@@ -1,0 +1,25 @@
+/* Named colour tones for GST icon tiles (replaces inline background/colour styles) */
+.gst-tone--sky { background-color: #e0f2fe; color: #0284c7; }
+.gst-tone--purple { background-color: #f3e8ff; color: #9333ea; }
+.gst-tone--indigo { background-color: #e0e7ff; color: #2563eb; }
+.gst-tone--amber { background-color: #fef3c7; color: #d97706; }
+.gst-tone--green { background-color: #d1fae5; color: #059669; }
+.gst-tone--orange { background-color: #ffedd5; color: #ea580c; }
+.gst-tone--mint { background-color: #dcfce7; color: #16a34a; }
+
+/* Visually hidden native file inputs (opened via a label/button) */
+.gst-hidden-input { display: none; }
+
+/* Native <progress> styled as the GST progress bar */
+.gst-progress {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  display: block;
+}
+.gst-progress::-webkit-progress-bar { background: transparent; }
+.gst-progress::-webkit-progress-value { background: var(--gst-progress-color, #ea580c); border-radius: inherit; transition: width 0.3s ease; }
+.gst-progress::-moz-progress-bar { background: var(--gst-progress-color, #ea580c); border-radius: inherit; }

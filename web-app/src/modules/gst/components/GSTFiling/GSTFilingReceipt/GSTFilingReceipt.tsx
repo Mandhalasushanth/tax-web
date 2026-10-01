@@ -1,10 +1,13 @@
+import { useMemo } from 'react'
 import { authStorage } from '@core/auth'
+import { GST_COMPANY } from '@modules/gst/constants/gstBusiness.constants'
 import { formatCurrency } from '@shared/utils'
-import type { PaymentResult } from '../../../types/gst.types'
+import type { PaymentResult } from '@modules/gst/types/gst.types'
 import { useAppStore } from '@store/index'
 import { GSTReceiptSummaryCard } from './GSTReceiptSummaryCard'
 import { GSTReceiptSidebar } from './GSTReceiptSidebar'
 import './GSTFilingReceipt.css'
+import './GSTFilingReceipt.sidebar.css'
 
 interface GSTFilingReceiptProps {
   details: PaymentResult
@@ -13,7 +16,7 @@ interface GSTFilingReceiptProps {
 
 export const GSTFilingReceipt = ({ details, onBack }: GSTFilingReceiptProps) => {
   const pushToast = useAppStore((state) => state.pushToast)
-  const user = authStorage.getUser()
+  const user = useMemo(() => authStorage.getUser(), [])
 
   const handleDownload = () => {
     pushToast('Receipt downloaded as PDF', 'success')
@@ -35,10 +38,10 @@ export const GSTFilingReceipt = ({ details, onBack }: GSTFilingReceiptProps) => 
           <div className="gst-receipt-card__header">
             <div className="gst-receipt-brand-row">
               <div className="gst-receipt-brand-left">
-                <div className="gst-receipt-brand-mark">TE</div>
+                <div className="gst-receipt-brand-mark">{GST_COMPANY.shortName}</div>
                 <div>
-                  <h2 className="gst-receipt-brand-name">TaxEdge Fin Solutions</h2>
-                  <p className="gst-receipt-brand-gstin">GSTIN 27AAKCT9182F12R · Pune, Maharashtra</p>
+                  <h2 className="gst-receipt-brand-name">{GST_COMPANY.legalName}</h2>
+                  <p className="gst-receipt-brand-gstin">GSTIN {GST_COMPANY.gstin} · {GST_COMPANY.location}</p>
                 </div>
               </div>
               <div className="gst-receipt-brand-right">
@@ -79,7 +82,7 @@ export const GSTFilingReceipt = ({ details, onBack }: GSTFilingReceiptProps) => 
                 </div>
                 <div className="gst-receipt-info-row">
                   <span className="gst-receipt-info-k">Place of Supply:</span>
-                  <span className="gst-receipt-info-v">{user?.state || 'Maharashtra'}</span>
+                  <span className="gst-receipt-info-v">{user?.state || '—'}</span>
                 </div>
               </div>
             </div>

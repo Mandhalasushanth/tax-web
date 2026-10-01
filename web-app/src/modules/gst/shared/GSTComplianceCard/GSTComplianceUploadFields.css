@@ -349,3 +349,8 @@
 }
 
 
+
+.gst-notice-input.has-error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}

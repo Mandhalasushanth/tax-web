@@ -25,27 +25,6 @@
 }
 
 /* Validation Alert */
-.gst-docs-validation-alert {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  background-color: #fef2f2;
-  border: 1.5px solid #fca5a5;
-  color: #b91c1c;
-  padding: 0.75rem 1.15rem;
-  border-radius: 10px;
-  font-size: 0.86rem;
-  font-weight: 500;
-  margin-bottom: 1.5rem;
-}
-
-.gst-docs-alert-icon {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  color: #dc2626;
-}
-
 /* Document Sections */
 .gst-docs-section {
   display: flex;

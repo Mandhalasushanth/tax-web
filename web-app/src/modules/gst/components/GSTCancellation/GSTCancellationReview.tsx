@@ -1,4 +1,7 @@
+import { GSTSaveDraftButton } from '@modules/gst/shared/GSTSaveDraftButton'
+import { formatGstFileSize } from '@modules/gst/utils/gstFile'
 import React, { useState } from 'react'
+import { orNotAvailable } from '@modules/gst/services/gstProfileService'
 import type { CancellationFormData } from './GSTCancellationCard'
 import './GSTCancellationReview.css'
 
@@ -6,6 +9,7 @@ interface GSTCancellationReviewProps {
   formData: CancellationFormData
   isSubmitting?: boolean
   onBack: () => void
+  onSaveDraft?: () => void
   onSubmit: () => void
 }
 
@@ -23,6 +27,7 @@ export const GSTCancellationReview: React.FC<GSTCancellationReviewProps> = ({
   isSubmitting = false,
   onBack,
   onSubmit,
+  onSaveDraft,
 }) => {
   const [isDeclared, setIsDeclared] = useState(false)
   const [declarationError, setDeclarationError] = useState(false)
@@ -37,11 +42,11 @@ export const GSTCancellationReview: React.FC<GSTCancellationReviewProps> = ({
     onSubmit()
   }
 
-  const fileName = formData.file?.name || 'Screenshot_2026-09-16-15-12-35_f73b71075b1de7323614b647fe394240.jpg'
-  const fileSizeMb = formData.file ? (formData.file.size / (1024 * 1024)).toFixed(1) : '0.5'
+  const fileName = orNotAvailable(formData.file?.name)
+  const fileSize = formatGstFileSize(formData.file?.size ?? 0)
 
   const formatDateDisplay = (dateStr: string) => {
-    if (!dateStr) return '15 Aug 2026'
+    if (!dateStr) return orNotAvailable('')
     try {
       const d = new Date(dateStr)
       if (isNaN(d.getTime())) return dateStr
@@ -86,12 +91,12 @@ export const GSTCancellationReview: React.FC<GSTCancellationReviewProps> = ({
 
               <div className="gst-canc-summary-row">
                 <span className="gst-canc-summary-label">GSTIN</span>
-                <span className="gst-canc-summary-val font-bold">{formData.gstin || '29AAAAA0000A1Z5'}</span>
+                <span className="gst-canc-summary-val font-bold">{orNotAvailable(formData.gstin)}</span>
               </div>
 
               <div className="gst-canc-summary-row">
                 <span className="gst-canc-summary-label">Reason for Cancellation</span>
-                <span className="gst-canc-summary-val font-bold">{formData.reason || 'Discontinuance / Closure of Business'}</span>
+                <span className="gst-canc-summary-val font-bold">{orNotAvailable(formData.reason)}</span>
               </div>
 
               <div className="gst-canc-summary-row">
@@ -101,7 +106,7 @@ export const GSTCancellationReview: React.FC<GSTCancellationReviewProps> = ({
 
               <div className="gst-canc-summary-row">
                 <span className="gst-canc-summary-label">Details of Closing Stock & Input Tax Reversal</span>
-                <span className="gst-canc-summary-val font-bold">{formData.closingStockDetails || 'D gshdhjfj jss keep khajanchi jayraj'}</span>
+                <span className="gst-canc-summary-val font-bold">{orNotAvailable(formData.closingStockDetails)}</span>
               </div>
 
               <div className="gst-canc-summary-row">
@@ -111,7 +116,7 @@ export const GSTCancellationReview: React.FC<GSTCancellationReviewProps> = ({
 
               <div className="gst-canc-summary-row">
                 <span className="gst-canc-summary-label">Last GSTR-3B Filed ARN / Period</span>
-                <span className="gst-canc-summary-val font-bold">{formData.lastGstr3bFiled || '29AAAAA0000A1Z5 / July 2026'}</span>
+                <span className="gst-canc-summary-val font-bold">{orNotAvailable(formData.lastGstr3bFiled)}</span>
               </div>
 
               <div className="gst-canc-summary-row gst-canc-doc-row">
@@ -123,7 +128,7 @@ export const GSTCancellationReview: React.FC<GSTCancellationReviewProps> = ({
                     </svg>
                   </span>
                   <span className="gst-canc-doc-name" title={fileName}>{fileName}</span>
-                  <span className="gst-canc-doc-size">({fileSizeMb} MB)</span>
+                  <span className="gst-canc-doc-size">({fileSize})</span>
                 </div>
               </div>
             </div>
@@ -195,13 +200,16 @@ export const GSTCancellationReview: React.FC<GSTCancellationReviewProps> = ({
             Back
           </button>
 
-          <button type="submit" disabled={isSubmitting} className="gst-canc-submit-orange-btn">
-            {isSubmitting ? 'Submitting...' : 'Submit Application'}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </button>
+          <div className="gst-actions-group">
+            {onSaveDraft && <GSTSaveDraftButton onClick={onSaveDraft} />}
+            <button type="submit" disabled={isSubmitting} className="gst-canc-submit-orange-btn">
+              {isSubmitting ? 'Submitting...' : 'Submit Application'}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </button>
+          </div>
         </div>
       </form>
     </div>

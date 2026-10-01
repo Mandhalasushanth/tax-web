@@ -1,4 +1,10 @@
-import React, { useState, useRef, type ChangeEvent, type FormEvent } from 'react'
+import { GSTSaveDraftButton } from '@modules/gst/shared/GSTSaveDraftButton'
+import { GST_FILE_MESSAGES, gstFileSizeError } from '@modules/gst/utils/gstFile'
+import { collectGstErrors } from '@modules/gst/validation/gstFieldRules'
+import React, { useState, useRef, type ChangeEvent, type FormEvent, useMemo } from 'react'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
+import { gstFieldRules as rules } from '@modules/gst/validation/gstFieldRules'
+import { getCurrentSignatoryDetails } from '@modules/gst/services/gstProfileDetails'
 import GSTAmendmentProofUpload from './GSTAmendmentProofUpload'
 import GSTSignatoriesSidebar from './GSTSignatoriesSidebar'
 import GSTSignatoriesReadonly from './GSTSignatoriesReadonly'
@@ -14,23 +20,18 @@ interface GSTSignatoriesFormProps {
   }
   isSubmitting?: boolean
   onBack: () => void
+  onSaveDraft?: () => void
   onSubmit: (payload: { newValue: string; file: File | null; signatoryDetails?: Record<string, string> }) => void
 }
 
-const DEFAULT_CURRENT = {
-  name: 'Akhil Kumar',
-  pan: 'AKHIL1234K',
-  designation: 'Proprietor',
-  mobile: '+91 98765 43210',
-  email: 'akhil@business.com',
-}
-
 export const GSTSignatoriesForm: React.FC<GSTSignatoriesFormProps> = ({
-  currentDetails = DEFAULT_CURRENT,
+  currentDetails: currentDetailsProp,
   isSubmitting = false,
   onBack,
   onSubmit,
+  onSaveDraft,
 }) => {
+  const currentDetails = useMemo(() => currentDetailsProp ?? getCurrentSignatoryDetails(), [currentDetailsProp])
   const [name, setName] = useState('')
   const [designation, setDesignation] = useState('')
   const [pan, setPan] = useState('')
@@ -45,8 +46,9 @@ export const GSTSignatoriesForm: React.FC<GSTSignatoriesFormProps> = ({
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
-      if (file.size > 10 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, file: 'File size must be under 10 MB.' }))
+      const sizeError = gstFileSizeError(file)
+      if (sizeError) {
+        setErrors((prev) => ({ ...prev, file: sizeError }))
         return
       }
       setSelectedFile(file)
@@ -63,14 +65,15 @@ export const GSTSignatoriesForm: React.FC<GSTSignatoriesFormProps> = ({
 
   const handleSubmitForm = (e: FormEvent) => {
     e.preventDefault()
-    const newErrors: Record<string, string> = {}
-    if (!name.trim()) newErrors.name = 'Please enter signatory name.'
-    if (!designation.trim()) newErrors.designation = 'Please enter designation.'
-    if (!pan.trim()) newErrors.pan = 'Please enter signatory PAN.'
-    if (!mobile.trim()) newErrors.mobile = 'Please enter mobile number.'
-    if (!dob.trim()) newErrors.dob = 'Please select date of birth.'
-    if (!email.trim()) newErrors.email = 'Please enter email address.'
-    if (!selectedFile) newErrors.file = 'Please upload a supporting proof document.'
+    const newErrors = collectGstErrors({
+      name: rules.personName('Signatory name')(name),
+      designation: rules.designation(designation),
+      pan: rules.pan(pan),
+      mobile: rules.mobile(mobile),
+      dob: rules.signatoryDob(dob),
+      email: rules.email(email),
+    })
+    if (!selectedFile) newErrors.file = GST_FILE_MESSAGES.proofRequired
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
@@ -123,7 +126,7 @@ export const GSTSignatoriesForm: React.FC<GSTSignatoriesFormProps> = ({
                     placeholder="Full name"
                     value={name}
                     onChange={(e) => {
-                      setName(e.target.value)
+                      setName(gstInput.letters(e.target.value))
                       if (errors.name) setErrors((prev) => ({ ...prev, name: '' }))
                     }}
                     className={`gst-amend-text-input ${errors.name ? 'has-error' : ''}`}
@@ -141,7 +144,7 @@ export const GSTSignatoriesForm: React.FC<GSTSignatoriesFormProps> = ({
                     placeholder="Enter designation"
                     value={designation}
                     onChange={(e) => {
-                      setDesignation(e.target.value)
+                      setDesignation(gstInput.designation(e.target.value))
                       if (errors.designation) setErrors((prev) => ({ ...prev, designation: '' }))
                     }}
                     className={`gst-amend-text-input ${errors.designation ? 'has-error' : ''}`}
@@ -162,7 +165,7 @@ export const GSTSignatoriesForm: React.FC<GSTSignatoriesFormProps> = ({
                     placeholder="ABCDE1234F"
                     value={pan}
                     onChange={(e) => {
-                      setPan(e.target.value.toUpperCase())
+                      setPan(gstInput.pan(e.target.value))
                       if (errors.pan) setErrors((prev) => ({ ...prev, pan: '' }))
                     }}
                     className={`gst-amend-text-input ${errors.pan ? 'has-error' : ''}`}
@@ -180,7 +183,7 @@ export const GSTSignatoriesForm: React.FC<GSTSignatoriesFormProps> = ({
                     placeholder="8749594844"
                     value={mobile}
                     onChange={(e) => {
-                      setMobile(e.target.value)
+                      setMobile(gstInput.mobile(e.target.value))
                       if (errors.mobile) setErrors((prev) => ({ ...prev, mobile: '' }))
                     }}
                     className={`gst-amend-text-input ${errors.mobile ? 'has-error' : ''}`}
@@ -234,7 +237,7 @@ export const GSTSignatoriesForm: React.FC<GSTSignatoriesFormProps> = ({
                     placeholder="name@business.com"
                     value={email}
                     onChange={(e) => {
-                      setEmail(e.target.value)
+                      setEmail(gstInput.email(e.target.value))
                       if (errors.email) setErrors((prev) => ({ ...prev, email: '' }))
                     }}
                     className={`gst-amend-text-input ${errors.email ? 'has-error' : ''}`}
@@ -263,13 +266,16 @@ export const GSTSignatoriesForm: React.FC<GSTSignatoriesFormProps> = ({
                 </svg>
                 Back
               </button>
-              <button type="submit" disabled={isSubmitting} className="gst-amend-submit-orange-btn">
-                {isSubmitting ? 'Submitting...' : 'Review Changes'}
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
-                </svg>
-              </button>
+              <div className="gst-actions-group">
+                {onSaveDraft && <GSTSaveDraftButton onClick={onSaveDraft} />}
+                <button type="submit" disabled={isSubmitting} className="gst-amend-submit-orange-btn">
+                  {isSubmitting ? 'Submitting...' : 'Review Changes'}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
 

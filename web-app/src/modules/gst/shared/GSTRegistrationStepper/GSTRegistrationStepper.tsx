@@ -5,7 +5,7 @@ export interface StepItem {
   label: string
 }
 
-export const REGISTRATION_STEPS: StepItem[] = [
+const REGISTRATION_STEPS: StepItem[] = [
   { id: 1, label: 'Business' },
   { id: 2, label: 'Documents' },
   { id: 3, label: 'Review' },

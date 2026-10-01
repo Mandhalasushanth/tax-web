@@ -1,4 +1,5 @@
 import React from 'react'
+import { formatCurrencyString } from '@modules/loans/utils/loanInputFormatters'
 import type { SecurityItem } from '@modules/loans/types/projectFinance.types'
 import {
   TYPE_OF_SECURITY_OPTIONS,
@@ -29,9 +30,8 @@ export const SecurityCollateralCard: React.FC<SecurityCollateralCardProps> = ({
     onChange({ ...item, [field]: val })
   }
 
-  const handleNumericInput = (field: keyof SecurityItem, rawValue: string) => {
-    const sanitized = rawValue.replace(/\D/g, '')
-    onChange({ ...item, [field]: sanitized })
+  const handleAmountInput = (field: keyof SecurityItem, rawValue: string) => {
+    onChange({ ...item, [field]: formatCurrencyString(rawValue) })
   }
 
   return (
@@ -100,7 +100,7 @@ export const SecurityCollateralCard: React.FC<SecurityCollateralCardProps> = ({
           className={`pf-custom-input ${errors[`${prefix}_estimatedValue`] ? 'pf-custom-input--error' : ''}`}
           placeholder="Enter amount"
           value={item.estimatedValue || ''}
-          onChange={(e) => handleNumericInput('estimatedValue', e.target.value)}
+          onChange={(e) => handleAmountInput('estimatedValue', e.target.value)}
         />
         {errors[`${prefix}_estimatedValue`] && (
           <span className="pf-field-error-msg">{errors[`${prefix}_estimatedValue`]}</span>

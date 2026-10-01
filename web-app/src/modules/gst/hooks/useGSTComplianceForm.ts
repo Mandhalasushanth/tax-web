@@ -1,7 +1,11 @@
 import { useState } from 'react'
+import { gstFieldRules } from '@modules/gst/validation/gstFieldRules'
+import { FINANCIAL_YEAR_OPTIONS } from '@modules/gst/utils/gstPeriodOptions'
+import { generateGstReference } from '@modules/gst/utils/gstFormat'
+import { gstProfileService } from '@modules/gst/services/gstProfileService'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { routePaths } from '@core/config'
-import type { ComplianceFormData } from '../shared/GSTComplianceCard/GSTComplianceCard'
+import type { ComplianceFormData } from '@modules/gst/shared/GSTComplianceCard/GSTComplianceCard'
 
 export interface UseGSTComplianceFormProps {
   initialGstin?: string
@@ -11,15 +15,15 @@ export interface UseGSTComplianceFormProps {
 }
 
 export function useGSTComplianceForm({
-  initialGstin = '27AXTPD4419K1ZP',
-  initialFinancialYear = 'FY 2026-27',
+  initialGstin,
+  initialFinancialYear,
   initialRequestType = 'Reconciliation Support',
   onSubmit,
 }: UseGSTComplianceFormProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  const [gstin, setGstin] = useState(initialGstin)
-  const [financialYear, setFinancialYear] = useState(initialFinancialYear)
+  const [gstin, setGstin] = useState(() => initialGstin ?? gstProfileService.get().gstin)
+  const [financialYear, setFinancialYear] = useState(() => initialFinancialYear ?? FINANCIAL_YEAR_OPTIONS[0]?.value ?? '')
   const [requestType, setRequestType] = useState<'Reconciliation Support' | 'Notice Response'>(
     initialRequestType
   )
@@ -37,7 +41,7 @@ export function useGSTComplianceForm({
   const isSubmitted =
     location.pathname === routePaths.gst.complianceSubmitted ||
     location.search.includes('submitted')
-  const [applicationId] = useState('GST-2026-00132')
+  const [applicationId] = useState(() => generateGstReference('GSTC'))
 
   const clearErr = (k: string) =>
     setErrors((p) => {
@@ -58,16 +62,14 @@ export function useGSTComplianceForm({
   const validateForm = () => {
     const errs: Record<string, string> = {}
     const g = gstin.trim().toUpperCase()
-    if (!g) errs.gstin = 'GSTIN or PAN is required'
-    else if (g.length === 10 && !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(g))
-      errs.gstin = 'Invalid 10-character PAN format (e.g. AXTPD4419K)'
-    else if (g.length !== 15 && g.length !== 10)
-      errs.gstin = `Must be 15-character GSTIN or 10-character PAN (currently ${g.length} characters)`
-    else if (
-      g.length === 15 &&
-      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(g)
-    )
-      errs.gstin = 'Invalid GSTIN format (e.g. 27AXTPD4419K1ZP with valid 10-char PAN)'
+    const idError = !g
+      ? 'GSTIN or PAN is required'
+      : g.length === 10
+        ? gstFieldRules.pan(g)
+        : g.length === 15
+          ? gstFieldRules.gstin(g)
+          : `Must be 15-character GSTIN or 10-character PAN (currently ${g.length} characters)`
+    if (idError) errs.gstin = idError
 
     if (!financialYear) errs.financialYear = 'Financial Year is required'
     if (!requestType) errs.requestType = 'Request Type is required'
@@ -78,12 +80,11 @@ export function useGSTComplianceForm({
       if (!gstr2bRef.trim() && !gstr2bFile)
         errs.gstr2bRef = 'GSTR-2B Reference number or statement file is required'
     } else {
-      if (!noticeNumber.trim() || noticeNumber.trim().length < 5)
-        errs.noticeNumber = !noticeNumber.trim()
-          ? 'Department Notice Number is required'
-          : 'Department Notice Number must be at least 5 characters'
+      const noticeError = gstFieldRules.reference('Department notice number')(noticeNumber)
+      if (noticeError) errs.noticeNumber = noticeError
       if (!noticeFile) errs.noticeFile = 'Notice document upload is required'
-      if (!dueDate) errs.dueDate = 'Response due date is required'
+      const dueDateError = gstFieldRules.futureDate('Response due date')(dueDate)
+      if (dueDateError) errs.dueDate = dueDateError
     }
     setErrors(errs)
     return Object.keys(errs).length === 0

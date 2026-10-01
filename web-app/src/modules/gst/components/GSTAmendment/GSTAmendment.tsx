@@ -10,8 +10,9 @@ import {
   GSTAmendmentReview,
   GSTAmendmentSubmitted,
 } from './index'
-import { AMENDMENT_CONFIGS } from './amendmentConfigs'
-import { useGSTAmendmentFlow } from '../../hooks/useGSTAmendmentFlow'
+import { getAmendmentConfig } from './amendmentConfigs'
+import { formatGstDateTime } from '@modules/gst/utils/gstFormat'
+import { useGSTAmendmentFlow } from '@modules/gst/hooks/useGSTAmendmentFlow'
 import { buildReviewData } from './gstAmendmentReviewHelpers'
 import './GSTAmendment.css'
 
@@ -27,6 +28,7 @@ export const GSTAmendment = () => {
     isSubmitting,
     submittedRecord,
     isModalOpen,
+    openDraftModal,
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
@@ -37,23 +39,16 @@ export const GSTAmendment = () => {
 
   if (submittedRecord) {
     const sectionTitle = selectedOption
-      ? AMENDMENT_CONFIGS[selectedOption.id]?.title || selectedOption.title
+      ? getAmendmentConfig(selectedOption.id, selectedOption.title).title
       : 'Legal Business Name'
-
-    const isSignatory = selectedOption?.id === 'authorised_signatories'
-    const isBank = selectedOption?.id === 'bank_accounts'
-    const isAdditional = selectedOption?.id === 'additional_place'
-
-    const defaultArn = isSignatory ? 'AA2993899201' : isBank ? 'AA2993845112' : isAdditional ? 'AA2993724646' : 'AA2993887949'
-    const defaultDate = isSignatory ? '16 Sep 2026, 12:40 PM' : isBank ? '16 Sep 2026, 11:48 AM' : isAdditional ? '16 Sep 2026, 10:05 AM' : '15 Sep 2026, 04:38 PM'
 
     return (
       <GSTAmendmentSubmitted
-        arnNumber={submittedRecord.reference || defaultArn}
-        submissionDateText={defaultDate}
+        arnNumber={submittedRecord.reference}
+        submissionDateText={formatGstDateTime(submittedRecord.createdAt)}
         requestedSection={sectionTitle}
         onTrackAmendment={() =>
-          navigate(routePaths.gst.track(submittedRecord.reference || defaultArn))
+          navigate(routePaths.gst.track(submittedRecord.reference))
         }
         onOpenMyApplications={handleBackToDashboard}
       />
@@ -61,13 +56,7 @@ export const GSTAmendment = () => {
   }
 
   if (selectedOption && formData) {
-    const config = AMENDMENT_CONFIGS[selectedOption.id] || {
-      title: selectedOption.title,
-      currentValue: 'Current details',
-      inputLabel: 'New Value',
-      placeholder: 'Enter new value',
-      proofs: [],
-    }
+    const config = getAmendmentConfig(selectedOption.id, selectedOption.title)
 
     const reviewData = buildReviewData(selectedOption, formData, gstin, config.title)
 
@@ -89,10 +78,11 @@ export const GSTAmendment = () => {
           requestedContactDetails={reviewData.requestedContact}
           fileName={reviewData.fileName}
           fileSizeText={reviewData.fileSizeText}
-          uploadDateText="Uploaded on 16 Sep 2026"
+          uploadDateText={`Uploaded on ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`}
           isSubmitting={isSubmitting}
           onBack={() => setFormData(null)}
           onSubmit={handleFinalSubmit}
+          onSaveDraft={openDraftModal}
         />
         <DraftConfirmModal
           isOpen={isModalOpen}
@@ -106,13 +96,7 @@ export const GSTAmendment = () => {
   }
 
   if (selectedOption) {
-    const config = AMENDMENT_CONFIGS[selectedOption.id] || {
-      title: selectedOption.title,
-      currentValue: 'Current details',
-      inputLabel: 'New Value',
-      placeholder: 'Enter new value',
-      proofs: [],
-    }
+    const config = getAmendmentConfig(selectedOption.id, selectedOption.title)
 
     const isAddressType =
       selectedOption.id === 'principal_place' || selectedOption.id === 'additional_place'
@@ -124,18 +108,21 @@ export const GSTAmendment = () => {
             isSubmitting={isSubmitting}
             onBack={() => setSelectedOption(null)}
             onSubmit={handleDetailFormSubmit}
+            onSaveDraft={openDraftModal}
           />
         ) : selectedOption.id === 'authorised_signatories' ? (
           <GSTSignatoriesForm
             isSubmitting={isSubmitting}
             onBack={() => setSelectedOption(null)}
             onSubmit={handleDetailFormSubmit}
+            onSaveDraft={openDraftModal}
           />
         ) : selectedOption.id === 'contact_details' ? (
           <GSTContactDetailsForm
             isSubmitting={isSubmitting}
             onBack={() => setSelectedOption(null)}
             onSubmit={handleDetailFormSubmit}
+            onSaveDraft={openDraftModal}
           />
         ) : isAddressType ? (
           <GSTAmendmentAddressForm
@@ -143,6 +130,7 @@ export const GSTAmendment = () => {
             isSubmitting={isSubmitting}
             onBack={() => setSelectedOption(null)}
             onSubmit={handleDetailFormSubmit}
+            onSaveDraft={openDraftModal}
           />
         ) : (
           <GSTAmendmentDetailForm
@@ -154,6 +142,7 @@ export const GSTAmendment = () => {
             isSubmitting={isSubmitting}
             onBack={() => setSelectedOption(null)}
             onSubmit={handleDetailFormSubmit}
+            onSaveDraft={openDraftModal}
           />
         )}
         <DraftConfirmModal

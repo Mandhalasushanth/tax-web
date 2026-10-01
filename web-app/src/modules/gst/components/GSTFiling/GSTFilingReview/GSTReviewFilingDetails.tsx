@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ReviewDetailsData, DocumentSummaryItem } from '../../../utils/gstReviewData'
+import type { ReviewDetailsData, DocumentSummaryItem } from '@modules/gst/utils/gstReviewData'
 import './GSTReviewFilingDetails.css'
 
 interface GSTReviewFilingDetailsProps {

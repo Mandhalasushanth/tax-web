@@ -1,6 +1,7 @@
 import React, { type ChangeEvent } from 'react'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
 import type { GstBusinessFormData } from '../GSTStepBusiness/GSTStepBusiness'
-import { INDIAN_STATES_AND_UTS } from '../../../utils/gstBusinessDetails.constants'
+import { INDIAN_STATES_AND_UTS } from '@modules/gst/utils/gstBusinessDetails.constants'
 
 export interface GSTBusinessAddressSectionProps {
   data: Pick<
@@ -19,19 +20,17 @@ export const GSTBusinessAddressSection: React.FC<GSTBusinessAddressSectionProps>
   onClearError,
 }) => {
   const handleBusinessAddressChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    onChange('businessAddress', e.target.value)
+    onChange('businessAddress', gstInput.address(e.target.value))
     onClearError?.('businessAddress')
   }
 
   const handleCityChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.replace(/[^a-zA-Z\s]/g, '')
-    onChange('city', cleaned)
+    onChange('city', gstInput.letters(e.target.value, 50))
     onClearError?.('city')
   }
 
   const handleDistrictChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.replace(/[^a-zA-Z\s]/g, '')
-    onChange('district', cleaned)
+    onChange('district', gstInput.letters(e.target.value, 50))
     onClearError?.('district')
   }
 
@@ -41,14 +40,12 @@ export const GSTBusinessAddressSection: React.FC<GSTBusinessAddressSectionProps>
   }
 
   const handlePinCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.replace(/\D/g, '').slice(0, 6)
-    onChange('pinCode', cleaned)
+    onChange('pinCode', gstInput.pinCode(e.target.value))
     onClearError?.('pinCode')
   }
 
   const handleHsnSacChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.trim().slice(0, 10)
-    onChange('hsnSacCode', cleaned)
+    onChange('hsnSacCode', gstInput.hsnSac(e.target.value))
     onClearError?.('hsnSacCode')
   }
 

@@ -1,4 +1,6 @@
+import { formatGstFileSize } from '@modules/gst/utils/gstFile'
 import React from 'react'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
 import {
   FieldRow,
   FileDropzone,
@@ -6,6 +8,7 @@ import {
   EyeIcon,
   TrashIcon,
 } from './GSTComplianceFileDropzone'
+import '@modules/gst/styles/gstTones.css'
 
 export interface GSTComplianceReconFieldsProps {
   purchaseFile: File | null
@@ -113,7 +116,7 @@ export const GSTComplianceReconFields: React.FC<GSTComplianceReconFieldsProps> =
                     {gstr2bFile.name}
                   </span>
                   <span className="compliance-attached-filesize">
-                    {(gstr2bFile.size / (1024 * 1024)).toFixed(2)} MB · Statement attached
+                    {formatGstFileSize(gstr2bFile.size)} · Statement attached
                   </span>
                 </div>
               </div>
@@ -151,7 +154,7 @@ export const GSTComplianceReconFields: React.FC<GSTComplianceReconFieldsProps> =
                 placeholder="Paste the GSTR-2B reference number, or upload the statement"
                 value={gstr2bRef}
                 onChange={(e) => {
-                  setGstr2bRef(e.target.value.toUpperCase())
+                  setGstr2bRef(gstInput.reference(e.target.value))
                   clearErr('gstr2bRef')
                 }}
                 className={`compliance-text-input ${errors.gstr2bRef ? 'has-error' : ''}`}
@@ -169,7 +172,7 @@ export const GSTComplianceReconFields: React.FC<GSTComplianceReconFieldsProps> =
                       clearErr('gstr2bRef')
                     }
                   }}
-                  style={{ display: 'none' }}
+                  className="gst-hidden-input"
                 />
                 <UploadIcon /> Upload
               </label>

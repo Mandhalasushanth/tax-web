@@ -12,7 +12,7 @@ export interface GSTComplianceSubmittedProps {
 
 export const GSTComplianceSubmitted: React.FC<GSTComplianceSubmittedProps> = ({
   applicationId,
-  gstin = '29AAAAA0000A1Z5',
+  gstin = '',
   requestType = 'Notice Response',
   onAllForms,
 }) => {

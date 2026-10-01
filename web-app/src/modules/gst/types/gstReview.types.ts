@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { GstBusinessFormData } from '../components/GSTRegistration/GSTStepBusiness/GSTStepBusiness'
 import type { DocumentItem } from './gstDocuments.types'
+import type { GstIconTone } from '@modules/gst/types/gstDocuments.types'
 
 export interface ReviewField {
   label: string
@@ -11,7 +12,7 @@ export interface ReviewSectionData {
   id: string
   title: string
   icon: ReactNode
-  iconBg: string
+  tone: GstIconTone
   fields: ReviewField[]
   onEdit?: () => void
 }

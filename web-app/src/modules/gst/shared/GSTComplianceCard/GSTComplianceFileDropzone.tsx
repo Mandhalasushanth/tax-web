@@ -1,4 +1,6 @@
+import { formatGstFileSize } from '@modules/gst/utils/gstFile'
 import React from 'react'
+import '@modules/gst/styles/gstTones.css'
 
 export const ChevronIcon = () => (
   <span className="compliance-select-chevron" aria-hidden="true">
@@ -122,7 +124,7 @@ export const FileDropzone: React.FC<{
         </div>
         <div className="compliance-upload-meta">
           <span className="compliance-upload-title">{file.name}</span>
-          <span className="compliance-upload-subtitle">{`${(file.size / (1024 * 1024)).toFixed(2)} MB · File uploaded`}</span>
+          <span className="compliance-upload-subtitle">{`${formatGstFileSize(file.size)} · File uploaded`}</span>
         </div>
       </div>
       <div className="compliance-upload-actions">
@@ -165,7 +167,7 @@ export const FileDropzone: React.FC<{
           if (e.target.files?.[0]) onFileSelect(e.target.files[0])
           e.target.value = ''
         }}
-        style={{ display: 'none' }}
+        className="gst-hidden-input"
       />
       <div className="compliance-upload-left">
         <div className="compliance-upload-icon-box" aria-hidden="true">

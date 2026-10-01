@@ -1,5 +1,5 @@
-export { GSTRegistrationStepper } from '../../shared/GSTRegistrationStepper/GSTRegistrationStepper'
-export type { StepItem } from '../../shared/GSTRegistrationStepper/GSTRegistrationStepper'
+export { GSTRegistrationStepper } from '@modules/gst/shared/GSTRegistrationStepper/GSTRegistrationStepper'
+export type { StepItem } from '@modules/gst/shared/GSTRegistrationStepper/GSTRegistrationStepper'
 
 export { GSTStepBusiness } from './GSTStepBusiness/GSTStepBusiness'
 export type { GstBusinessFormData, BusinessFormData } from './GSTStepBusiness/GSTStepBusiness'
@@ -22,8 +22,8 @@ export type { PaymentResult } from './GSTStepPayment/GSTStepPayment'
 export { GSTStepReview } from './GSTStepReview/GSTStepReview'
 
 export { GSTPaymentSuccess } from './GSTPaymentSuccess/GSTPaymentSuccess'
-export { GSTOrderSummary } from '../../shared/GSTOrderSummary/GSTOrderSummary'
-export type { GSTOrderSummaryProps } from '../../shared/GSTOrderSummary/GSTOrderSummary'
+export { GSTOrderSummary } from '@modules/gst/shared/GSTOrderSummary/GSTOrderSummary'
+export type { GSTOrderSummaryProps } from '@modules/gst/shared/GSTOrderSummary/GSTOrderSummary'
 
-export { GSTSidebar } from '../../shared/GSTSidebar/GSTSidebar'
-export type { GSTSidebarProps } from '../../shared/GSTSidebar/GSTSidebar'
+export { GSTSidebar } from '@modules/gst/shared/GSTSidebar/GSTSidebar'
+export type { GSTSidebarProps } from '@modules/gst/shared/GSTSidebar/GSTSidebar'

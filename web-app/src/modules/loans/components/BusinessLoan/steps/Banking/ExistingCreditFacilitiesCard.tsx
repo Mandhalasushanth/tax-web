@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react'
+import {
+  formatCurrencyString,
+  handleNumericKeyDown,
+} from '@modules/loans/utils/loanInputFormatters'
 import type { BusinessLoanFormData } from '@modules/loans/types/businessLoan.types'
 import { useDropdown } from '@modules/loans/hooks/useDropdown'
 import { LoanDropdownOption } from '../LoanDropdownOption'
-import {
-  formatDigitsOnly,
-  handleNumericKeyDown,
-} from '@modules/loans/utils/loanInputFormatters'
 
 export interface ExistingCreditFacilitiesCardProps {
   data: BusinessLoanFormData
@@ -158,7 +158,7 @@ export const ExistingCreditFacilitiesCard: React.FC<ExistingCreditFacilitiesCard
             placeholder="e.g. 2000000"
             value={data.totalActiveLoanLimit || ''}
             onChange={(e) =>
-              onChange({ totalActiveLoanLimit: formatDigitsOnly(e.target.value) })
+              onChange({ totalActiveLoanLimit: formatCurrencyString(e.target.value) })
             }
             onKeyDown={handleNumericKeyDown}
             aria-label="Total Active Loan Limit"

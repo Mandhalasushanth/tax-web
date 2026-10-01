@@ -1,4 +1,5 @@
 import React from 'react'
+import { formatCurrencyString } from '@modules/loans/utils/loanInputFormatters'
 import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 import { TYPE_OF_INSURANCE_OPTIONS } from './securityComplianceConstants'
 
@@ -32,9 +33,8 @@ export const InsuranceDetailsSection: React.FC<InsuranceDetailsSectionProps> = (
   onToggle,
   errors = {},
 }) => {
-  const handleNumericInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    const sanitized = rawValue.replace(/\D/g, '')
-    onChange({ [field]: sanitized })
+  const handleAmountInput = (field: keyof ProjectFinanceData, rawValue: string) => {
+    onChange({ [field]: formatCurrencyString(rawValue) })
   }
 
   return (
@@ -85,7 +85,7 @@ export const InsuranceDetailsSection: React.FC<InsuranceDetailsSectionProps> = (
               className={`pf-custom-input ${errors.insuranceCoverageAmount ? 'pf-custom-input--error' : ''}`}
               placeholder="Enter amount"
               value={data.insuranceCoverageAmount || ''}
-              onChange={(e) => handleNumericInput('insuranceCoverageAmount', e.target.value)}
+              onChange={(e) => handleAmountInput('insuranceCoverageAmount', e.target.value)}
             />
             {errors.insuranceCoverageAmount && (
               <span className="pf-field-error-msg">{errors.insuranceCoverageAmount}</span>

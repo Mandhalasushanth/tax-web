@@ -18,6 +18,7 @@ const OCCUPATION_OPTIONS: { id: HomeLoanOccupation; label: string }[] = [
 
 const INCOME_RANGES = [
   'Below ₹10,000',
+  '₹10,000 - ₹15,000',
   '₹15,000 - ₹30,000',
   '₹30,000 - ₹50,000',
   '₹50,000 - ₹1,00,000',

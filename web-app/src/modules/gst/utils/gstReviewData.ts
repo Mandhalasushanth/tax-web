@@ -2,7 +2,7 @@ import type { FilingPeriodData } from '../components/GSTFiling/GSTFilingPeriod/G
 
 export interface TaxComputationItem {
   particulars: string
-  amount: number
+  amount: number | null
 }
 
 export interface DocumentSummaryItem {
@@ -27,32 +27,23 @@ export interface ReviewDetailsData {
   attachedDocsCount: number
 }
 
-export const DEFAULT_REVIEW_DETAILS: ReviewDetailsData = {
-  gstin: '29AAAAA0000A1Z4',
-  businessName: 'Shree Deshmukh Traders',
-  financialYear: 'FY 2024–25',
-  filingPeriod: 'December 2025',
+const DEFAULT_REVIEW_DETAILS = {
   scheme: 'Regular Scheme',
   frequency: 'Monthly',
   filingType: 'Regular Return',
-  returnForm: 'gstr1_3b_monthly',
-  attachedDocsCount: 11,
+  returnForm: 'combo',
 }
 
-export const DEFAULT_TAX_COMPUTATION: TaxComputationItem[] = [
-  { particulars: 'Gross Taxable Turnover', amount: 425000 },
-  { particulars: 'Output GST (18%)', amount: 76500 },
-  { particulars: 'Eligible ITC (GSTR-2B)', amount: 60750 },
-]
+const TAX_COMPUTATION_LABELS = ['Gross Taxable Turnover', 'Output GST', 'Eligible ITC (GSTR-2B)']
 
-export const NET_TAX_LIABILITY = 15750
-
-export const DEFAULT_FILING_FEES: TaxComputationItem[] = [
-  { particulars: 'CA Consultancy & Reconciliation', amount: 2500 },
-  { particulars: 'Platform GST (18%)', amount: 450 },
-]
-
-export const TOTAL_PAYABLE_FEE = 2950
+/**
+ * Tax figures are computed by the TaxEdge CA from the uploaded documents, so they are
+ * shown as pending (null) until then. A nil return has no liability.
+ */
+export const getTaxComputationRows = (isNilReturn: boolean): { items: TaxComputationItem[]; netLiability: number | null } => ({
+  items: TAX_COMPUTATION_LABELS.map((particulars) => ({ particulars, amount: isNilReturn ? 0 : null })),
+  netLiability: isNilReturn ? 0 : null,
+})
 
 export const DEFAULT_DOC_SUMMARY: DocumentSummaryItem[] = [
   { id: '1', label: 'Required Documents', completed: 3, total: 3, type: 'required', status: 'verified', statusText: 'Verified' },
@@ -73,15 +64,15 @@ export const getResolvedReviewDetails = (
   attachedDocsCount?: number
 ): ReviewDetailsData => {
   return {
-    gstin: filingData?.gstin?.trim() || DEFAULT_REVIEW_DETAILS.gstin,
-    businessName: filingData?.businessName?.trim() || DEFAULT_REVIEW_DETAILS.businessName,
-    financialYear: filingData?.financialYear?.trim() || DEFAULT_REVIEW_DETAILS.financialYear,
-    filingPeriod: filingData?.selectedMonth?.trim() || DEFAULT_REVIEW_DETAILS.filingPeriod,
+    gstin: filingData?.gstin?.trim() || '',
+    businessName: filingData?.businessName?.trim() || '',
+    financialYear: filingData?.financialYear?.trim() || '',
+    filingPeriod: filingData?.selectedMonth?.trim() || '',
     scheme: DEFAULT_REVIEW_DETAILS.scheme,
     frequency: filingData?.frequency?.trim() || DEFAULT_REVIEW_DETAILS.frequency,
     filingType: filingData?.filingType === 'nil' ? 'Nil Return' : DEFAULT_REVIEW_DETAILS.filingType,
     returnForm: filingData?.returnType?.trim() || DEFAULT_REVIEW_DETAILS.returnForm,
-    attachedDocsCount: typeof attachedDocsCount === 'number' ? attachedDocsCount : DEFAULT_REVIEW_DETAILS.attachedDocsCount,
+    attachedDocsCount: attachedDocsCount ?? 0,
   }
 }
 

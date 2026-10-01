@@ -1,5 +1,5 @@
 import React from 'react'
-import { TAX_CALCULATION_METHOD_OPTIONS } from '../../../utils/gstPeriodOptions'
+import { TAX_CALCULATION_METHOD_OPTIONS } from '@modules/gst/utils/gstPeriodOptions'
 import './GSTCalculationMethod.css'
 
 interface GSTCalculationMethodProps {

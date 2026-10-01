@@ -1,4 +1,10 @@
-import React, { useState, type ChangeEvent, type FormEvent } from 'react'
+import { GSTSaveDraftButton } from '@modules/gst/shared/GSTSaveDraftButton'
+import { GST_FILE_MESSAGES, gstFileSizeError } from '@modules/gst/utils/gstFile'
+import { collectGstErrors } from '@modules/gst/validation/gstFieldRules'
+import React, { useState, type ChangeEvent, type FormEvent, useMemo } from 'react'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
+import { gstFieldRules as rules } from '@modules/gst/validation/gstFieldRules'
+import { getCurrentAddressDetails } from '@modules/gst/services/gstProfileDetails'
 import GSTAmendmentProofsCard from './GSTAmendmentProofsCard'
 import GSTAmendmentAddressFields from './GSTAmendmentAddressFields'
 import GSTAmendmentProofUpload from './GSTAmendmentProofUpload'
@@ -18,12 +24,11 @@ interface GSTAmendmentAddressFormProps {
   currentDetails?: AddressDetails
   isSubmitting?: boolean
   onBack: () => void
+  onSaveDraft?: () => void
   onSubmit: (payload: { newValue: string; file: File | null; addressDetails?: AddressDetails }) => void
 }
 
 import {
-  DEFAULT_PRINCIPAL_DETAILS,
-  DEFAULT_ADDITIONAL_DETAILS,
   ADDITIONAL_PROOFS,
   PRINCIPAL_PROOFS,
 } from './gstAmendmentAddress.constants'
@@ -34,9 +39,13 @@ export const GSTAmendmentAddressForm: React.FC<GSTAmendmentAddressFormProps> = (
   isSubmitting = false,
   onBack,
   onSubmit,
+  onSaveDraft,
 }) => {
   const isAdditionalPlace = title === 'Additional Place of Business'
-  const activeDetails = currentDetails || (isAdditionalPlace ? DEFAULT_ADDITIONAL_DETAILS : DEFAULT_PRINCIPAL_DETAILS)
+  const activeDetails = useMemo(
+    () => currentDetails || getCurrentAddressDetails(isAdditionalPlace),
+    [currentDetails, isAdditionalPlace]
+  )
 
   const [address, setAddress] = useState('')
   const [city, setCity] = useState('')
@@ -58,8 +67,9 @@ export const GSTAmendmentAddressForm: React.FC<GSTAmendmentAddressFormProps> = (
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
-      if (file.size > 10 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, file: 'File size must be under 10 MB.' }))
+      const sizeError = gstFileSizeError(file)
+      if (sizeError) {
+        setErrors((prev) => ({ ...prev, file: sizeError }))
         return
       }
       setSelectedFile(file)
@@ -69,15 +79,15 @@ export const GSTAmendmentAddressForm: React.FC<GSTAmendmentAddressFormProps> = (
 
   const handleSubmitForm = (e: FormEvent) => {
     e.preventDefault()
-    const newErrors: Record<string, string> = {}
-
-    if (!address.trim()) newErrors.address = 'Please enter new business address.'
-    if (!city.trim()) newErrors.city = 'Please enter city.'
-    if (!isAdditionalPlace && !district.trim()) newErrors.district = 'Please enter district.'
-    if (!isAdditionalPlace && !stateUt) newErrors.stateUt = 'Please select state / UT.'
-    if (!pinCode || pinCode.length < 6) newErrors.pinCode = 'Please enter a valid 6-digit PIN code.'
+    const newErrors = collectGstErrors({
+      address: rules.address('Business address')(address),
+      city: rules.placeName('City')(city),
+      district: isAdditionalPlace ? undefined : rules.placeName('District')(district),
+      stateUt: isAdditionalPlace || stateUt ? undefined : 'Please select state / UT.',
+      pinCode: rules.pinCode(pinCode),
+    })
     if (!natureOfPremises) newErrors.natureOfPremises = 'Please select nature of premises.'
-    if (!selectedFile) newErrors.file = 'Please upload a supporting proof document.'
+    if (!selectedFile) newErrors.file = GST_FILE_MESSAGES.proofRequired
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
@@ -190,11 +200,11 @@ export const GSTAmendmentAddressForm: React.FC<GSTAmendmentAddressFormProps> = (
                   </div>
                   <div className="gst-amend-readonly-row">
                     <span className="gst-amend-readonly-label">District</span>
-                    <span className="gst-amend-readonly-value">{activeDetails.district || 'Bengaluru Urban'}</span>
+                    <span className="gst-amend-readonly-value">{activeDetails.district || '—'}</span>
                   </div>
                   <div className="gst-amend-readonly-row">
                     <span className="gst-amend-readonly-label">State</span>
-                    <span className="gst-amend-readonly-value">{activeDetails.state || 'Karnataka'}</span>
+                    <span className="gst-amend-readonly-value">{activeDetails.state || '—'}</span>
                   </div>
                   <div className="gst-amend-readonly-row">
                     <span className="gst-amend-readonly-label">PIN Code</span>
@@ -215,15 +225,15 @@ export const GSTAmendmentAddressForm: React.FC<GSTAmendmentAddressFormProps> = (
               natureOfPremises={natureOfPremises}
               errors={errors}
               onAddressChange={(val) => {
-                setAddress(val)
+                setAddress(gstInput.address(val))
                 if (errors.address) setErrors((prev) => ({ ...prev, address: '' }))
               }}
               onCityChange={(val) => {
-                setCity(val)
+                setCity(gstInput.letters(val, 50))
                 if (errors.city) setErrors((prev) => ({ ...prev, city: '' }))
               }}
               onDistrictChange={(val) => {
-                setDistrict(val)
+                setDistrict(gstInput.letters(val, 50))
                 if (errors.district) setErrors((prev) => ({ ...prev, district: '' }))
               }}
               onStateUtChange={(val) => {
@@ -265,13 +275,16 @@ export const GSTAmendmentAddressForm: React.FC<GSTAmendmentAddressFormProps> = (
             Back
           </button>
 
-          <button type="submit" disabled={isSubmitting} className="gst-amend-submit-orange-btn">
-            {isSubmitting ? 'Submitting...' : 'Review Changes'}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </button>
+          <div className="gst-actions-group">
+            {onSaveDraft && <GSTSaveDraftButton onClick={onSaveDraft} />}
+            <button type="submit" disabled={isSubmitting} className="gst-amend-submit-orange-btn">
+              {isSubmitting ? 'Submitting...' : 'Review Changes'}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </button>
+          </div>
         </div>
       </form>
     </div>

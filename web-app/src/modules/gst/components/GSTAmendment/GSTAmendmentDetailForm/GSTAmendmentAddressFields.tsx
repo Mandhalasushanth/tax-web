@@ -1,4 +1,5 @@
 import React, { type ChangeEvent } from 'react'
+import { INDIAN_STATES_AND_UTS } from '@modules/gst/utils/gstBusinessDetails.constants'
 import './GSTAmendmentAddressFields.css'
 
 interface GSTAmendmentAddressFieldsProps {
@@ -17,23 +18,6 @@ interface GSTAmendmentAddressFieldsProps {
   onPinCodeChange: (e: ChangeEvent<HTMLInputElement>) => void
   onNatureOfPremisesChange: (val: string) => void
 }
-
-const INDIAN_STATES = [
-  'Karnataka',
-  'Maharashtra',
-  'Telangana',
-  'Andhra Pradesh',
-  'Tamil Nadu',
-  'Delhi',
-  'Gujarat',
-  'West Bengal',
-  'Kerala',
-  'Rajasthan',
-  'Uttar Pradesh',
-  'Haryana',
-  'Punjab',
-  'Madhya Pradesh',
-]
 
 const PREMISES_NATURE_OPTIONS = [
   'Owned',
@@ -172,7 +156,7 @@ export const GSTAmendmentAddressFields: React.FC<GSTAmendmentAddressFieldsProps>
                   className={`gst-amend-select-input ${errors.stateUt ? 'has-error' : ''}`}
                 >
                   <option value="">Select an option</option>
-                  {INDIAN_STATES.map((st) => (
+                  {INDIAN_STATES_AND_UTS.map((st) => (
                     <option key={st} value={st}>
                       {st}
                     </option>

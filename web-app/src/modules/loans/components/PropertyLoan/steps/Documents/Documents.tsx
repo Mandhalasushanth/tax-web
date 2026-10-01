@@ -1,4 +1,5 @@
 import React from 'react'
+import { LoanDocumentGrid } from '@modules/loans/shared'
 import { DocumentSection, UploadDocument } from '@shared/components'
 import type { PropertyLoanStepProps } from '@modules/loans/types/propertyLoan.types'
 import { loanDocumentService, createDocDef } from '@modules/loans/documents'
@@ -124,6 +125,7 @@ export const Documents: React.FC<PropertyLoanStepProps> = ({
   const progressPercent = Math.round((uploadedMandatoryCount / totalMandatory) * 100)
 
   const handleUpload = (id: string, file: File) => {
+    if (!loanDocumentService.acceptFile(file)) return
     const entry = loanDocumentService.createDocumentEntry(id, file)
     onChange({ uploadedDocs: { ...uploadedDocs, [id]: entry } })
   }
@@ -193,22 +195,30 @@ export const Documents: React.FC<PropertyLoanStepProps> = ({
 
       {/* 1. IDENTITY & ADDRESS */}
       <DocumentSection title="IDENTITY & ADDRESS">
-        {IDENTITY_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {IDENTITY_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
 
       {/* 2. INCOME & BANKING */}
       <DocumentSection title="INCOME & BANKING">
-        {INCOME_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {INCOME_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
 
       {/* 3. BUSINESS & TAX */}
       <DocumentSection title="BUSINESS & TAX">
-        {BUSINESS_TAX_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {BUSINESS_TAX_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
 
       {/* 4. COLLATERAL & OTHERS */}
       <DocumentSection title="COLLATERAL & OTHERS">
-        {COLLATERAL_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {COLLATERAL_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
     </div>
   )

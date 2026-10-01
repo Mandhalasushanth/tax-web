@@ -129,13 +129,6 @@
   width: 100%;
 }
 
-.business-doc-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.95rem;
-  width: 100%;
-}
-
 /* Styling override for DocumentCard inside Business Loan: Full Width & Fluid Content */
 .business-loan-doc-card.supporting-doc-item {
   width: 100%;

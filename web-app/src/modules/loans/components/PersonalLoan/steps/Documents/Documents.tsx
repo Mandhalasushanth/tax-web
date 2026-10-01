@@ -1,4 +1,5 @@
 import React from 'react'
+import { LoanDocumentGrid } from '@modules/loans/shared'
 import { DocumentSection, UploadDocument } from '@shared/components'
 import type { PersonalLoanStepProps } from '@modules/loans/types/personalLoan.types'
 import { loanDocumentService } from '@modules/loans/documents/loanDocumentService'
@@ -17,6 +18,7 @@ export const Documents: React.FC<PersonalLoanStepProps> = ({
   const progressPercent = Math.round((uploadedCount / totalCount) * 100)
 
   const handleUpload = (docId: string, file: File) => {
+    if (!loanDocumentService.acceptFile(file)) return
     const entry = loanDocumentService.createDocumentEntry(docId, file)
     onChange({
       uploadedDocs: {
@@ -93,16 +95,16 @@ export const Documents: React.FC<PersonalLoanStepProps> = ({
 
       {/* Group 1: IDENTITY & ADDRESS */}
       <DocumentSection title="IDENTITY & ADDRESS">
-        <div className="personal-doc-group__list">
+        <LoanDocumentGrid>
           {identityDocs.map(renderDocCard)}
-        </div>
+        </LoanDocumentGrid>
       </DocumentSection>
 
       {/* Group 2: INCOME & BANKING */}
       <DocumentSection title="INCOME & BANKING">
-        <div className="personal-doc-group__list">
+        <LoanDocumentGrid>
           {incomeDocs.map(renderDocCard)}
-        </div>
+        </LoanDocumentGrid>
       </DocumentSection>
     </div>
   )

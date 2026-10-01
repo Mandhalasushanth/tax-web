@@ -1,12 +1,13 @@
 import { useState } from 'react'
+import { gstProfileService } from '@modules/gst/services/gstProfileService'
 import { useNavigate } from 'react-router-dom'
 import { routePaths } from '@core/config'
 import { useAppStore } from '@store/index'
-import { useDraftBlocker } from '@shared/hooks'
-import { userStorage } from '@core/storage/userStorage'
-import { AMENDMENT_CONFIGS } from '../components/GSTAmendment/amendmentConfigs'
-import { gstService } from '../services/gstService'
-import type { GstAmendmentPayload, GstAmendmentRecord, GstAmendmentFieldKey } from '../types/gst.types'
+import { useGstDraft, readGstDraft } from '@modules/gst/hooks/useGstDraft'
+import { AMENDMENT_OPTIONS } from '@modules/gst/constants/gstAmendmentOptions'
+import { getAmendmentConfig } from '@modules/gst/components/GSTAmendment/amendmentConfigs'
+import { gstService } from '@modules/gst/services/gstService'
+import type { GstAmendmentPayload, GstAmendmentRecord, GstAmendmentFieldKey } from '@modules/gst/types/gst.types'
 import type { AmendmentCardItem, AddressDetailsItem } from '../components/GSTAmendment/index'
 
 export interface GSTAmendmentFormData {
@@ -18,48 +19,38 @@ export interface GSTAmendmentFormData {
   contactDetails?: Record<string, string>
 }
 
+/** Draft keeps the GSTIN and the chosen amendment; the detail form and proof are entered again */
+interface AmendmentDraft {
+  gstin: string
+  selectedOptionId?: string
+}
+
+const SERVICE_ID = 'gst-amendment'
+
 export const useGSTAmendmentFlow = () => {
   const navigate = useNavigate()
   const pushToast = useAppStore((state) => state.pushToast)
 
-  const [gstin, setGstin] = useState('')
-  const [selectedOption, setSelectedOption] = useState<AmendmentCardItem | null>(null)
+  const [restored] = useState(() => readGstDraft<AmendmentDraft>(SERVICE_ID)?.formData)
+  const [gstin, setGstin] = useState(restored?.gstin || '')
+  const [selectedOption, setSelectedOption] = useState<AmendmentCardItem | null>(
+    () => AMENDMENT_OPTIONS.find((option) => option.id === restored?.selectedOptionId) || null
+  )
   const [formData, setFormData] = useState<GSTAmendmentFormData | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submittedRecord, setSubmittedRecord] = useState<GstAmendmentRecord | null>(null)
 
-  const isDirty = Boolean(selectedOption) && !submittedRecord
-
-  const {
-    isModalOpen,
-    handleSaveAndExit,
-    handleDiscardAndExit,
-    handleKeepEditing,
-  } = useDraftBlocker({
-    shouldBlock: isDirty,
-    onSaveDraft: () => {
-      userStorage.saveDraft({
-        serviceId: 'gst-amendment',
-        serviceTitle: 'GST Amendment',
-        currentStep: formData ? 2 : 1,
-        totalSteps: 2,
-        stepLabel: selectedOption ? selectedOption.title : 'Amendment Details',
-        formData: {
-          gstin,
-          selectedOptionId: selectedOption?.id,
-          formData,
-        },
-        savedAt: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }),
-        savedTimestamp: Date.now(),
-        resumeRoute: routePaths.gst.amendment,
-      })
-      pushToast('GST Amendment draft saved', 'success')
-    },
-    onDiscardDraft: () => {
-      userStorage.deleteDraft('gst-amendment')
-      pushToast('Draft discarded', 'info')
-    },
-    defaultExitRoute: routePaths.gst.root,
+  const draft = useGstDraft<AmendmentDraft>({
+    serviceId: SERVICE_ID,
+    serviceTitle: 'GST Amendment',
+    totalSteps: 3,
+    currentStep: formData ? 3 : selectedOption ? 2 : 1,
+    stepLabel: selectedOption ? selectedOption.title : 'Amendment Details',
+    resumeRoute: routePaths.gst.amendment,
+    exitRoute: routePaths.gst.root,
+    formData: { gstin, selectedOptionId: selectedOption?.id },
+    hasEnteredData: Boolean(gstin.trim() || selectedOption),
+    isComplete: Boolean(submittedRecord),
   })
 
   const handleDetailFormSubmit = (data: GSTAmendmentFormData) => {
@@ -70,16 +61,10 @@ export const useGSTAmendmentFlow = () => {
   const handleFinalSubmit = async () => {
     if (!selectedOption || !formData) return
 
-    const config = AMENDMENT_CONFIGS[selectedOption.id] || {
-      title: selectedOption.title,
-      currentValue: 'Current details',
-      inputLabel: 'New Value',
-      placeholder: 'Enter new value',
-      proofs: [],
-    }
+    const config = getAmendmentConfig(selectedOption.id, selectedOption.title)
 
     const payload: GstAmendmentPayload = {
-      gstin: gstin || '29AAAAA0000A1Z5',
+      gstin: gstin || gstProfileService.get().gstin,
       fieldBeingChanged: config.title,
       fieldKey: (selectedOption.id as GstAmendmentFieldKey) || 'business_name',
       oldValue: config.currentValue,
@@ -92,7 +77,7 @@ export const useGSTAmendmentFlow = () => {
       setIsSubmitting(true)
       const record = await gstService.submitAmendment(payload)
       setSubmittedRecord(record)
-      userStorage.deleteDraft('gst-amendment')
+      draft.clearDraft()
       pushToast(
         `Amendment request for ${config.title} submitted successfully (${record.reference})`,
         'success'
@@ -119,10 +104,11 @@ export const useGSTAmendmentFlow = () => {
     setFormData,
     isSubmitting,
     submittedRecord,
-    isModalOpen,
-    handleSaveAndExit,
-    handleDiscardAndExit,
-    handleKeepEditing,
+    isModalOpen: draft.isDraftModalOpen,
+    openDraftModal: draft.openDraftModal,
+    handleSaveAndExit: draft.handleSaveAndExit,
+    handleDiscardAndExit: draft.handleDiscardAndExit,
+    handleKeepEditing: draft.handleKeepEditing,
     handleDetailFormSubmit,
     handleFinalSubmit,
     handleBackToDashboard,

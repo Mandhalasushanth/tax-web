@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react'
+import { loanDocumentService } from '@modules/loans/documents/loanDocumentService'
 import type { UploadedLoanDocument } from '@modules/loans/documents/loanDocument.types'
 import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 import { PROJECT_FINANCE_DOC_LIST, type UploadDocItem } from '@modules/loans/constants/projectFinanceDocuments.constants'
@@ -103,14 +104,8 @@ export const UploadDocumentsSection: React.FC<UploadDocumentsSectionProps> = ({
   const fileInputsRef = useRef<Record<string, HTMLInputElement | null>>({})
 
   const handleFileUpload = (docId: string, file: File | null) => {
-    if (!file) return
-    const uploadedDoc: UploadedLoanDocument = {
-      id: docId,
-      name: file.name,
-      size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
-      file,
-      uploadedAt: new Date().toISOString(),
-    }
+    if (!file || !loanDocumentService.acceptFile(file)) return
+    const uploadedDoc: UploadedLoanDocument = loanDocumentService.createDocumentEntry(docId, file)
     const updatedDocs = {
       ...(data.uploadedDocs || {}),
       [docId]: uploadedDoc,

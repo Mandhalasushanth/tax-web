@@ -3,7 +3,6 @@ import type { GstBusinessFormData } from '../GSTStepBusiness/GSTStepBusiness'
 import { GSTBusinessGeneralSection } from './GSTBusinessGeneralSection'
 import { GSTBusinessAddressSection } from './GSTBusinessAddressSection'
 
-export * from '../../../utils/gstBusinessDetails.constants'
 
 export interface GSTBusinessDetailsProps {
   data: Pick<

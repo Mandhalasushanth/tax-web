@@ -1,12 +1,14 @@
+import { GSTStepErrorBanner } from '@modules/gst/shared/GSTStepErrorBanner'
+import { GST_STEP_ERROR } from '@modules/gst/validation/gstFieldRules'
 import { useState, type FormEvent, type ChangeEvent } from 'react'
 import { StepActionBar } from '@shared/components'
 import { GSTBusinessDetails } from '../GSTBusinessDetails/GSTBusinessDetails'
 import { GSTBankDetails } from '../GSTBankDetails/GSTBankDetails'
 import { GSTAuthorisedSignatory } from '../GSTAuthorisedSignatory/GSTAuthorisedSignatory'
-import { validateGstBusinessForm } from '../../../validation/gstStepBusiness.validator'
+import { validateGstBusinessForm } from '@modules/gst/validation/gstStepBusiness.validator'
 import './GSTStepBusiness.css'
 
-import { type GstBusinessFormData, type BusinessFormData } from '../../../types/gstBusiness.types'
+import { type GstBusinessFormData, type BusinessFormData } from '@modules/gst/types/gstBusiness.types'
 export type { GstBusinessFormData, BusinessFormData }
 
 interface GSTStepBusinessProps {
@@ -25,8 +27,10 @@ export const GSTStepBusiness = ({
   onSaveDraft,
 }: GSTStepBusinessProps) => {
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [stepError, setStepError] = useState<string | null>(null)
 
   const clearErr = (k: string) => {
+    setStepError(null)
     setErrors((prev) => {
       if (!prev[k]) return prev
       const { [k]: _, ...rest } = prev
@@ -44,6 +48,7 @@ export const GSTStepBusiness = ({
     const errs = validateGstBusinessForm(data)
     if (Object.keys(errs).length > 0) {
       setErrors(errs)
+      setStepError(GST_STEP_ERROR)
       const firstErrorField = Object.keys(errs)[0]
       const el = document.querySelector(`[name="${firstErrorField}"], #${firstErrorField}`)
       el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -141,13 +146,14 @@ export const GSTStepBusiness = ({
         </div>
       </div>
 
+      <GSTStepErrorBanner message={stepError} />
+
       {/* Action Buttons */}
       <StepActionBar
         onBack={onCancel}
         onSaveDraft={onSaveDraft}
         onNext={handleSubmit}
         nextLabel="Continue"
-        nextDisabled={Object.keys(validateGstBusinessForm(data)).length > 0}
       />
     </form>
   )

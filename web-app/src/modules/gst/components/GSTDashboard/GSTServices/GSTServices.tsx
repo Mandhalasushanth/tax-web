@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { routePaths } from '@core/config'
 import { useAuthStore } from '@store/index'
 import { CompleteProfileModal } from '@shared/components'
-import type { GstService } from '../../../hooks/useGstDashboardData'
+import { GST_SERVICE_ROUTES, type GstService } from '@modules/gst/constants/gstServices.constants'
 import './GSTServices.css'
 
 export interface GSTServicesProps {
-  services: GstService[]
+  services: readonly GstService[]
 }
 
 const getServiceIcon = (type: GstService['iconType']) => {
@@ -67,26 +67,8 @@ export const GSTServices = ({ services }: GSTServicesProps) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
   const [selectedTarget, setSelectedTarget] = useState('')
 
-  const getTargetRoute = (service: GstService): string => {
-    const titleLower = service.title.toLowerCase()
-    if (service.iconType === 'registration' || titleLower.includes('registration')) {
-      return routePaths.gst.registration
-    } else if (service.iconType === 'filing' || titleLower.includes('filing')) {
-      return routePaths.gst.filing
-    } else if (service.iconType === 'compliance' || titleLower.includes('compliance')) {
-      return routePaths.gst.compliance
-    } else if (service.iconType === 'amendment' || titleLower.includes('amendment')) {
-      return routePaths.gst.amendment
-    } else if (service.iconType === 'cancellation' || titleLower.includes('cancellation')) {
-      return routePaths.gst.cancellation
-    } else if (service.iconType === 'certificate' || titleLower.includes('certificate')) {
-      return routePaths.gst.certificate
-    }
-    return routePaths.gst.registration
-  }
-
   const handleStart = (service: GstService) => {
-    const target = getTargetRoute(service)
+    const target = GST_SERVICE_ROUTES[service.iconType]
     if (!user?.isProfileComplete) {
       setSelectedTarget(target)
       setIsProfileModalOpen(true)

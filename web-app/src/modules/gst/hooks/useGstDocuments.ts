@@ -1,6 +1,6 @@
-import { useState, useRef, useMemo, useEffect, type ChangeEvent } from 'react'
-import type { DocumentItem, DocumentCategory, DocPreviewState } from '../types/gstDocuments.types'
-import { INITIAL_DOCUMENTS } from '../utils/gstDocuments.constants'
+import { useState, useRef, useMemo, type ChangeEvent } from 'react'
+import type { DocumentItem, DocumentCategory, DocPreviewState } from '@modules/gst/types/gstDocuments.types'
+import { INITIAL_DOCUMENTS } from '@modules/gst/utils/gstDocuments.constants'
 
 export const useGstDocuments = (
   initialDocs?: DocumentItem[],
@@ -12,11 +12,12 @@ export const useGstDocuments = (
   const [previewDoc, setPreviewDoc] = useState<DocPreviewState | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (initialDocs && initialDocs.length > 0) {
-      setDocuments(initialDocs)
-    }
-  }, [initialDocs])
+  // Adopt a new initialDocs list from the parent (during render, no extra effect pass)
+  const [syncedInitialDocs, setSyncedInitialDocs] = useState(initialDocs)
+  if (syncedInitialDocs !== initialDocs) {
+    setSyncedInitialDocs(initialDocs)
+    if (initialDocs && initialDocs.length > 0) setDocuments(initialDocs)
+  }
 
   const updateDocuments = (updater: (prev: DocumentItem[]) => DocumentItem[]) => {
     setDocuments((prev) => {
@@ -105,10 +106,10 @@ export const useGstDocuments = (
       return
     }
 
-    const unuploaded = documents.filter((d) => !d.isUploaded)
-    if (unuploaded.length > 0) {
+    const pendingDocs = documents.filter((d) => !d.isUploaded)
+    if (pendingDocs.length > 0) {
       setValidationError(
-        `Please upload all required documents (${unuploaded.map((d) => d.title).join(', ')}) before proceeding.`
+        `Please upload all required documents (${pendingDocs.map((d) => d.title).join(', ')}) before proceeding.`
       )
       return
     }

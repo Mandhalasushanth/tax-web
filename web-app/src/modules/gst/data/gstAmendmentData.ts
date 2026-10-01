@@ -1,4 +1,12 @@
-import type { GstAmendmentFieldKey } from '../types/gst.types'
+import type { GstAmendmentFieldKey } from '@modules/gst/types/gst.types'
+import {
+  formatProfileAddress,
+  formatProfileBank,
+  formatProfileBusinessName,
+  formatProfileContact,
+  formatProfileSignatory,
+  type GstBusinessProfile,
+} from '@modules/gst/services/gstProfileService'
 
 export interface AmendmentFieldOption {
   key: GstAmendmentFieldKey
@@ -9,18 +17,11 @@ export interface AmendmentFieldOption {
   docHint: string
 }
 
-export const GST_AMENDMENT_CUSTOMER_RECORD = {
-  gstin: '27AXTPD4419K1ZP',
-  legalName: 'Shree Deshmukh Traders',
-  tradeName: 'Deshmukh Traders',
-  registeredDate: '18 Jul 2026',
-} as const
-
 export const GST_AMENDMENT_FIELD_OPTIONS: AmendmentFieldOption[] = [
   {
     key: 'business_address',
     label: 'Business Address',
-    oldValue: 'Shop 14, Laxmi Complex, FC Road, Pune, Maharashtra 411004',
+    oldValue: '',
     placeholder: 'Enter the updated address with PIN code',
     helperHint: 'Business name, address, business type, bank details, authorized signatory, additional place of business',
     docHint: 'Proof of the change — e.g. new rental agreement, name-change certificate',
@@ -28,7 +29,7 @@ export const GST_AMENDMENT_FIELD_OPTIONS: AmendmentFieldOption[] = [
   {
     key: 'business_name',
     label: 'Business Name / Trade Name',
-    oldValue: 'Shree Deshmukh Traders (Trade Name: Deshmukh Traders)',
+    oldValue: '',
     placeholder: 'Enter the updated legal or trade name',
     helperHint: 'Update registered trade name or legal business entity name',
     docHint: 'Proof of the change — e.g. amended partnership deed, certificate of incorporation, or name-change affidavit',
@@ -36,7 +37,7 @@ export const GST_AMENDMENT_FIELD_OPTIONS: AmendmentFieldOption[] = [
   {
     key: 'authorized_signatory',
     label: 'Authorized Signatory',
-    oldValue: 'Rohit Kulkarni (Primary Signatory & Proprietor)',
+    oldValue: '',
     placeholder: 'Enter the updated signatory name, PAN and designation',
     helperHint: 'Add, update or replace authorized signatory on record',
     docHint: 'Proof of the change — e.g. board resolution, letter of authorization, or PAN card copy',
@@ -44,7 +45,7 @@ export const GST_AMENDMENT_FIELD_OPTIONS: AmendmentFieldOption[] = [
   {
     key: 'bank_account',
     label: 'Bank Account Details',
-    oldValue: 'Primary bank account on record',
+    oldValue: '',
     placeholder: 'Enter updated bank name, account number, and IFSC',
     helperHint: 'Update primary or secondary business bank account',
     docHint: 'Proof of the change — e.g. cancelled cheque, bank statement with name & IFSC',
@@ -60,7 +61,7 @@ export const GST_AMENDMENT_FIELD_OPTIONS: AmendmentFieldOption[] = [
   {
     key: 'contact_details',
     label: 'Contact Details (Email / Mobile)',
-    oldValue: 'Registered contact details on record',
+    oldValue: '',
     placeholder: 'Enter updated mobile number and primary email address',
     helperHint: 'Update mobile number and email address for OTP and department notifications',
     docHint: 'Proof of the change — e.g. letterhead request with KYC proof',
@@ -74,3 +75,19 @@ export const GST_AMENDMENT_FIELD_OPTIONS: AmendmentFieldOption[] = [
     docHint: 'Proof of the change — e.g. partnership deed / certificate of incorporation',
   },
 ]
+
+/** Current-value resolvers for fields whose value comes from the user's GST profile */
+const PROFILE_OLD_VALUES: Partial<Record<GstAmendmentFieldKey, (p: GstBusinessProfile) => string>> = {
+  business_address: formatProfileAddress,
+  business_name: formatProfileBusinessName,
+  authorized_signatory: formatProfileSignatory,
+  bank_account: formatProfileBank,
+  contact_details: formatProfileContact,
+}
+
+/** Amendment field options with "current value" filled from the user's profile */
+export const getAmendmentFieldOptions = (profile: GstBusinessProfile): AmendmentFieldOption[] =>
+  GST_AMENDMENT_FIELD_OPTIONS.map((opt) => {
+    const resolve = PROFILE_OLD_VALUES[opt.key]
+    return resolve ? { ...opt, oldValue: resolve(profile) } : opt
+  })

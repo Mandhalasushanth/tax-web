@@ -1,10 +1,10 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { localStore } from '@core/storage/localStorage'
 import { userStorage } from '@core/storage/userStorage'
 import { useDraftBlocker } from '@shared/hooks'
 import { useAppStore, useAuthStore } from '@store/index'
-import { loanApplicationService } from '@modules/loans/services/loanApplicationService'
+import { loanApplicationService, loanStorageKey } from '@modules/loans/services/loanApplicationService'
 
 export interface UseLoanApplicationOptions {
   serviceTitle?: string
@@ -53,6 +53,20 @@ export function hasUserEnteredData<T extends object>(formData: T, initialValues:
   })
 }
 
+/**
+ * Uploaded files cannot be written to browser storage, so a restored draft only
+ * has their names. Drop those entries so the user re-uploads instead of seeing
+ * documents that look uploaded but have no file behind them.
+ */
+function withoutUnsavedFiles<T extends object>(data: T): T {
+  const docs = (data as { uploadedDocs?: Record<string, unknown> }).uploadedDocs
+  if (!docs || typeof docs !== 'object') return data
+  const kept = Object.fromEntries(
+    Object.entries(docs).filter(([, doc]) => doc instanceof File || (doc as { file?: unknown })?.file instanceof File)
+  )
+  return { ...data, uploadedDocs: kept }
+}
+
 export function useLoanApplication<T extends object>(
   loanType: string,
   initialValues: T,
@@ -61,7 +75,7 @@ export function useLoanApplication<T extends object>(
   const pushToast = useAppStore((state) => state.pushToast)
   const user = useAuthStore((state) => state.user)
   const navigate = useNavigate()
-  const stepStorageKey = `taxedge_loan_step_${loanType}`
+  const stepStorageKey = loanStorageKey(`step_${loanType}`)
 
   // Redirect to marketplace to complete registration if profile is incomplete
   useEffect(() => {
@@ -77,12 +91,12 @@ export function useLoanApplication<T extends object>(
     // 1. Check userStorage central draft first
     const centralDraft = userStorage.getDraft(loanType)
     if (centralDraft && centralDraft.formData) {
-      return { ...initialValues, ...(centralDraft.formData as T) }
+      return withoutUnsavedFiles({ ...initialValues, ...(centralDraft.formData as T) })
     }
 
     // 2. Fallback to loan application service storage
     const saved = loanApplicationService.getDraft<T>(loanType)
-    return saved ? { ...initialValues, ...saved } : initialValues
+    return saved ? withoutUnsavedFiles({ ...initialValues, ...saved }) : initialValues
   })
 
   const [currentStep, setCurrentStepState] = useState<number>(() => {
@@ -215,6 +229,9 @@ export function useLoanApplication<T extends object>(
   const hasEnteredData = isDirty || currentStep > 1 || hasUserEnteredData(formData, initialValues)
   const shouldBlock = !isSubmitted && !isSubmitting && hasEnteredData
 
+  // Set once the user picks "Save & Exit" or "Discard & Exit", so the exit navigation itself isn't blocked again
+  const isExitingRef = useRef(false)
+
   const draftBlocker = useDraftBlocker({
     shouldBlock,
     onSaveDraft: () => {
@@ -224,29 +241,24 @@ export function useLoanApplication<T extends object>(
       discardDraft()
     },
     defaultExitRoute: '/loans',
-    isNavigationAllowed: (nextLocation) => {
-      if (isSubmitted) return true
-      if (nextLocation.pathname.includes('/loans/status')) return true
-      if (nextLocation.pathname === '/loans' || nextLocation.pathname === '/loans/all') {
-        if (isSubmitted) return true
-      }
-      return false
-    },
+    isNavigationAllowed: (nextLocation) =>
+      isExitingRef.current || isSubmitted || nextLocation.pathname.includes('/loans/status'),
   })
 
   const isDraftModalOpen = isManualDraftModalOpen || draftBlocker.isModalOpen
 
+  // The blocker calls onSaveDraft / onDiscardDraft itself, so they must not be called here as well
   const handleSaveAndExit = useCallback(() => {
-    saveDraft()
+    isExitingRef.current = true
     setIsManualDraftModalOpen(false)
     draftBlocker.handleSaveAndExit()
-  }, [saveDraft, draftBlocker])
+  }, [draftBlocker])
 
   const handleDiscardAndExit = useCallback(() => {
-    discardDraft()
+    isExitingRef.current = true
     setIsManualDraftModalOpen(false)
     draftBlocker.handleDiscardAndExit()
-  }, [discardDraft, draftBlocker])
+  }, [draftBlocker])
 
   const handleKeepEditing = useCallback(() => {
     setIsManualDraftModalOpen(false)

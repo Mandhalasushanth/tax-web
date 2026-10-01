@@ -1,4 +1,5 @@
 import React, { type ChangeEvent } from 'react'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
 import type { GstBusinessFormData } from '../GSTStepBusiness/GSTStepBusiness'
 import {
   CONSTITUTION_OF_BUSINESS_OPTIONS,
@@ -6,7 +7,7 @@ import {
   REASON_FOR_REGISTRATION_OPTIONS,
   COMPOSITION_SCHEME_OPTIONS,
   PLACE_OF_BUSINESS_OPTIONS,
-} from '../../../utils/gstBusinessDetails.constants'
+} from '@modules/gst/utils/gstBusinessDetails.constants'
 
 export interface GSTBusinessGeneralSectionProps {
   data: Pick<
@@ -32,18 +33,12 @@ export const GSTBusinessGeneralSection: React.FC<GSTBusinessGeneralSectionProps>
   onClearError,
 }) => {
   const handleLegalNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    let cleaned = e.target.value.replace(/[^a-zA-Z\s]/g, '')
-    cleaned = cleaned.replace(/\s{2,}/g, ' ')
-    if (cleaned.startsWith(' ')) cleaned = cleaned.trimStart()
-    onChange('legalName', cleaned)
+    onChange('legalName', gstInput.businessName(e.target.value))
     onClearError?.('legalName')
   }
 
   const handleTradeNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    let cleaned = e.target.value
-    cleaned = cleaned.replace(/\s{2,}/g, ' ')
-    if (cleaned.startsWith(' ')) cleaned = cleaned.trimStart()
-    onChange('tradeName', cleaned)
+    onChange('tradeName', gstInput.businessName(e.target.value))
     onClearError?.('tradeName')
   }
 

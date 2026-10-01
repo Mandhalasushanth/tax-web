@@ -1,10 +1,9 @@
 import {
   GSTHeroBanner,
-  GSTStats,
   GSTServices,
   GSTApplicationList,
 } from './index'
-import { useGstDashboardData } from '../../hooks/useGstDashboardData'
+import { useGstDashboardData } from '@modules/gst/hooks/useGstDashboardData'
 import './GSTDashboard.css'
 
 export const GSTDashboard = () => {
@@ -15,7 +14,6 @@ export const GSTDashboard = () => {
       <GSTHeroBanner />
 
       <div className="gst-dashboard__overview">
-        <GSTStats stats={dashboardData.stats} />
         <GSTServices services={dashboardData.services} />
         <GSTApplicationList applications={dashboardData.applications} />
       </div>

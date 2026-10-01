@@ -2,7 +2,7 @@ import { Badge, Card, EmptyState, Loader } from '@shared/components'
 import { STATUS_LABELS, STATUS_TONES } from '@shared/constants'
 import { formatCurrency, formatDate } from '@shared/utils'
 
-import { useGstReturns } from '../../hooks/useGstReturns'
+import { useGstReturns } from '@modules/gst/hooks/useGstReturns'
 import './GSTReturn.css'
 
 export const GSTReturn = () => {

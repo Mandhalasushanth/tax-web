@@ -1,3 +1,4 @@
+import { GSTSaveDraftButton } from '@modules/gst/shared/GSTSaveDraftButton'
 import React, { useState } from 'react'
 import { getAddressRows, getBankRows, getContactRows, getSignatoryRows, type RowItem } from './getComparisonRows'
 import './GSTAmendmentReview.css'
@@ -52,15 +53,16 @@ interface GSTAmendmentReviewProps {
   uploadDateText?: string
   isSubmitting?: boolean
   onBack: () => void
+  onSaveDraft?: () => void
   onSubmit: () => void
 }
 
 export const GSTAmendmentReview: React.FC<GSTAmendmentReviewProps> = ({
-  gstin = '29AAAAA0000A1Z6',
+  gstin,
   sectionTitle = 'Additional Place of Business',
   amendmentType = 'core',
-  currentValue = 'Peenya Industrial Area',
-  requestedValue = 'Nellore',
+  currentValue,
+  requestedValue,
   currentAddressDetails,
   requestedAddressDetails,
   currentBankDetails,
@@ -69,11 +71,12 @@ export const GSTAmendmentReview: React.FC<GSTAmendmentReviewProps> = ({
   requestedSignatoryDetails,
   currentContactDetails,
   requestedContactDetails,
-  fileName = 'Screenshot_2026-09-16-09-49-45-99_f7.png',
-  fileSizeText = '0.5 MB',
+  fileName = '',
+  fileSizeText = '',
   isSubmitting = false,
   onBack,
   onSubmit,
+  onSaveDraft,
 }) => {
   const [isDeclared, setIsDeclared] = useState(false)
   const [declarationError, setDeclarationError] = useState(false)
@@ -242,13 +245,16 @@ export const GSTAmendmentReview: React.FC<GSTAmendmentReviewProps> = ({
             Back
           </button>
 
-          <button type="submit" disabled={isSubmitting} className="gst-amend-review-submit-btn">
-            {isSubmitting ? 'Submitting...' : 'Submit Amendment Request'}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </button>
+          <div className="gst-actions-group">
+            {onSaveDraft && <GSTSaveDraftButton onClick={onSaveDraft} />}
+            <button type="submit" disabled={isSubmitting} className="gst-amend-review-submit-btn">
+              {isSubmitting ? 'Submitting...' : 'Submit Amendment Request'}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </button>
+          </div>
         </div>
       </form>
     </div>

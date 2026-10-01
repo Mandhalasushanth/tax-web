@@ -1,8 +1,8 @@
 import React from "react";
 import {
-  formatDigitsOnly,
+  formatCurrencyString,
   handleNumericKeyDown,
-} from "@modules/loans/utils/loanInputFormatters";
+} from '@modules/loans/utils/loanInputFormatters'
 
 export interface LoanRequirementsSectionProps {
   requiredLoanAmount: string;
@@ -45,7 +45,7 @@ export const LoanRequirementsSection: React.FC<
   };
 
   const handleRevenueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({ revenueOrTurnover: formatDigitsOnly(e.target.value) });
+    onChange({ revenueOrTurnover: formatCurrencyString(e.target.value) });
   };
 
   return (

@@ -1,4 +1,5 @@
 import React from 'react'
+import { formatCurrencyString } from '@modules/loans/utils/loanInputFormatters'
 import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 import {
   REPAYMENT_PERIOD_OPTIONS,
@@ -71,6 +72,10 @@ export const RepaymentDetailsSection: React.FC<RepaymentDetailsSectionProps> = (
   onToggleSources,
   errors = {},
 }) => {
+  const handleAmountInput = (field: keyof ProjectFinanceData, rawValue: string) => {
+    onChange({ [field]: formatCurrencyString(rawValue) })
+  }
+
   const handleNumericInput = (field: keyof ProjectFinanceData, rawValue: string) => {
     const sanitized = rawValue.replace(/[^\d.]/g, '')
     onChange({ [field]: sanitized })
@@ -200,7 +205,7 @@ export const RepaymentDetailsSection: React.FC<RepaymentDetailsSectionProps> = (
                 className="pf-custom-input"
                 placeholder="Enter amount"
                 value={data.preferredEmiInstalment || ''}
-                onChange={(e) => handleNumericInput('preferredEmiInstalment', e.target.value)}
+                onChange={(e) => handleAmountInput('preferredEmiInstalment', e.target.value)}
               />
               <span className="pf-helper-text">
                 Optional. If left blank, the auto-calculated EMI will be applied.

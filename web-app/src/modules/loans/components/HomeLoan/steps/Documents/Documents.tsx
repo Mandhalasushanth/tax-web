@@ -1,4 +1,5 @@
 import React from 'react'
+import { LoanDocumentGrid } from '@modules/loans/shared'
 import { DocumentSection, UploadDocument } from '@shared/components'
 import { loanDocumentService } from '@modules/loans/documents/loanDocumentService'
 import { createDocDef } from '@modules/loans/documents/loanDocument.types'
@@ -142,6 +143,7 @@ export const Documents: React.FC<DocumentsProps> = ({
   const hasDocErrors = Object.keys(errors).length > 0
 
   const handleUpload = (id: string, file: File) => {
+    if (!loanDocumentService.acceptFile(file)) return
     const entry = loanDocumentService.createDocumentEntry(id, file)
     updateData({
       uploadedDocs: { ...currentData.uploadedDocs, [id]: entry },
@@ -227,21 +229,27 @@ export const Documents: React.FC<DocumentsProps> = ({
         title="IDENTITY & ADDRESS"
         icon={ID_SECTION_ICON}
       >
-        {IDENTITY_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {IDENTITY_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
 
       <DocumentSection
         title="INCOME & BANKING"
         icon={WALLET_ICON}
       >
-        {INCOME_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {INCOME_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
 
       <DocumentSection
         title="PROPERTY & COLLATERAL"
         icon={HOUSE_ICON}
       >
-        {PROPERTY_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {PROPERTY_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
     </div>
   )

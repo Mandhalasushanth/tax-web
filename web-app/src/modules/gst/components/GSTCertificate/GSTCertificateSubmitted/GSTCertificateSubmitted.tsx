@@ -11,7 +11,7 @@ interface GSTCertificateSubmittedProps {
 }
 
 export const GSTCertificateSubmitted: React.FC<GSTCertificateSubmittedProps> = ({
-  gstin = '29AAAAA0000A1Z5',
+  gstin,
 }) => {
   const pushToast = useAppStore((state) => state.pushToast)
 

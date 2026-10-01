@@ -1,12 +1,13 @@
 import type { FC } from 'react'
+import { GST_FEES } from '@modules/gst/constants/gstBusiness.constants'
 import { PaymentCheckout } from '@shared/components'
-import type { GSTStepPaymentProps } from '../../../types/gstPayment.types'
+import type { GSTStepPaymentProps } from '@modules/gst/types/gstPayment.types'
 import './GSTStepPayment.css'
 
-export type { GSTStepPaymentProps, PaymentResult } from '../../../types/gstPayment.types'
+export type { GSTStepPaymentProps, PaymentResult } from '@modules/gst/types/gstPayment.types'
 
 export const GSTStepPayment: FC<GSTStepPaymentProps> = ({
-  amount = 1499,
+  amount = GST_FEES.registration,
   applicationRef = '',
   serviceTitle = 'GST Registration Filing',
   applicantName = 'Applicant',

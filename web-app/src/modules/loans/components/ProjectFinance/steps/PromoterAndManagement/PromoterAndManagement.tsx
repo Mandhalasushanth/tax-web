@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { formatCurrencyString } from '@modules/loans/utils/loanInputFormatters'
 import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 import { RepaymentDetailsSection } from './RepaymentDetailsSection'
 import {
@@ -44,9 +45,8 @@ export const PromoterAndManagement: React.FC<PromoterAndManagementProps> = ({
   const totalCost = data.totalEstimatedProjectCost || data.loanRequirementTotalCost || ''
   const ownContribution = data.promotersEquityContribution || data.loanRequirementOwnContribution || ''
 
-  const handleNumericInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    const sanitized = rawValue.replace(/\D/g, '')
-    onChange({ [field]: sanitized })
+  const handleAmountInput = (field: keyof ProjectFinanceData, rawValue: string) => {
+    onChange({ [field]: formatCurrencyString(rawValue) })
   }
 
   const renderLoanRequirementCard = () => (
@@ -100,7 +100,7 @@ export const PromoterAndManagement: React.FC<PromoterAndManagementProps> = ({
               className={`pf-custom-input ${errors.loanRequiredAmount ? 'pf-custom-input--error' : ''}`}
               placeholder="Enter amount"
               value={data.loanRequiredAmount || ''}
-              onChange={(e) => handleNumericInput('loanRequiredAmount', e.target.value)}
+              onChange={(e) => handleAmountInput('loanRequiredAmount', e.target.value)}
             />
             {errors.loanRequiredAmount && (
               <span className="pf-field-error-msg">{errors.loanRequiredAmount}</span>

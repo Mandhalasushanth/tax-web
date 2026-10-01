@@ -1,5 +1,5 @@
 import { formatCurrency } from '@shared/utils'
-import type { PaymentResult } from '../../../types/gst.types'
+import type { PaymentResult } from '@modules/gst/types/gst.types'
 
 interface GSTReceiptSummaryCardProps {
   details: PaymentResult

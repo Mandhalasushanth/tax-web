@@ -1,4 +1,5 @@
 import type { BusinessLoanFormData } from '@modules/loans/types/businessLoan.types'
+import { loanDocumentService } from '@modules/loans/documents/loanDocumentService'
 import { LOAN_PATTERNS, commonLoanValidation, loanFieldRules, toAmount, toStepResult } from './commonLoanValidation'
 import type { LoanStepValidationResult } from './commonLoanValidation'
 
@@ -152,17 +153,8 @@ export function validateStep3Banking(data: BusinessLoanFormData): LoanStepValida
  * Validates an uploaded document file for type and the 5 MB limit
  */
 export function validateDocumentFile(file: File): { isValid: boolean; error?: string } {
-  const MAX_FILE_SIZE = 5 * 1024 * 1024
-  const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png']
-  const hasValidExt = /\.(pdf|jpe?g|png)$/i.test(file.name)
-
-  if (!ALLOWED_TYPES.includes(file.type) && !hasValidExt) {
-    return { isValid: false, error: 'Invalid file format. Only PDF, JPG, and PNG files are accepted.' }
-  }
-  if (file.size > MAX_FILE_SIZE) {
-    return { isValid: false, error: 'File size exceeds the 5 MB limit. Please upload a smaller file.' }
-  }
-  return { isValid: true }
+  const error = loanDocumentService.validateFile(file)
+  return { isValid: !error, error }
 }
 
 const BUSINESS_REQUIRED_DOCS: { id: string; message: string }[] = [

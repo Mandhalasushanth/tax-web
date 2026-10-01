@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { routePaths } from '@core/config'
-import type { GstAppRecord } from '../../../hooks/useGstDashboardData'
+import type { GstAppRecord } from '@modules/gst/hooks/useGstDashboardData'
 import './GSTApplicationList.css'
+import '@modules/gst/styles/gstTones.css'
 
 export interface GSTApplicationListProps {
   applications: GstAppRecord[]
@@ -127,10 +128,12 @@ export const GSTApplicationList = ({ applications }: GSTApplicationListProps) =>
                   </span>
                   <div className="gst-app-item__progress">
                     <div className="gst-app-item__progress-bar">
-                      <div
-                        className="gst-app-item__progress-fill"
-                        style={{ width: `${Math.min(100, Math.max(0, app.progress))}%` }}
-                      ></div>
+                      <progress
+                        className="gst-progress gst-app-item__progress-fill"
+                        value={Math.min(100, Math.max(0, app.progress))}
+                        max={100}
+                        aria-label={`${app.progress}% complete`}
+                      />
                     </div>
                     <span className="gst-app-item__progress-text">{app.progress}% complete</span>
                   </div>

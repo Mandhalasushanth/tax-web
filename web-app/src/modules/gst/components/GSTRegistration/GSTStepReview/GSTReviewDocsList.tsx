@@ -1,10 +1,10 @@
 import type { FC } from 'react'
-import type { DocumentItem } from '../../../types/gstDocuments.types'
+import type { DocumentItem } from '@modules/gst/types/gstDocuments.types'
 import {
   DocChecklistIcon,
   CheckCircleIcon,
   ViewEyeIcon,
-} from '../../../shared/GSTDocIcons/GSTDocIcons'
+} from '@modules/gst/shared/GSTDocIcons/GSTDocIcons'
 import './GSTReviewDocsList.css'
 
 interface GSTReviewDocsListProps {

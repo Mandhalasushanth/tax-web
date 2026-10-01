@@ -1,13 +1,16 @@
+import { GSTSaveDraftButton } from '@modules/gst/shared/GSTSaveDraftButton'
+import { GSTStepErrorBanner } from '@modules/gst/shared/GSTStepErrorBanner'
+import { GST_STEP_ERROR } from '@modules/gst/validation/gstFieldRules'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { routePaths } from '@core/config'
 import { DraftConfirmModal } from '@shared/components'
-import { GSTAmendmentProofUpload as GSTProofUpload } from '../../shared/GSTProofUpload'
+import { GSTAmendmentProofUpload as GSTProofUpload } from '@modules/gst/shared/GSTProofUpload'
 import { GSTCancellationSubmitted } from './GSTCancellationSubmitted'
 import { GSTCancellationSidebar } from './GSTCancellationSidebar'
 import { GSTCancellationFields } from './GSTCancellationFields'
 import { GSTCancellationReview } from './GSTCancellationReview'
-import { useGSTCancellationForm, type CancellationFormData } from '../../hooks/useGSTCancellationForm'
+import { useGSTCancellationForm, type CancellationFormData } from '@modules/gst/hooks/useGSTCancellationForm'
 import './GSTCancellationCard.css'
 
 export type { CancellationFormData }
@@ -50,7 +53,9 @@ export const GSTCancellationCard: React.FC<GSTCancellationCardProps> = ({
     isSubmitting,
     isSubmitted,
     setIsSubmitted,
+    referenceNumber,
     isModalOpen,
+    openDraftModal,
     handleSaveAndExit,
     handleDiscardAndExit,
     handleKeepEditing,
@@ -59,8 +64,8 @@ export const GSTCancellationCard: React.FC<GSTCancellationCardProps> = ({
   if (isSubmitted) {
     return (
       <GSTCancellationSubmitted
-        applicationId="AA290926430313"
-        gstin={gstin || '29AAAAA0000A1Z6'}
+        applicationId={referenceNumber}
+        gstin={gstin}
         cancellationDate={cancellationDate}
         onBackToForm={() => setIsSubmitted(false)}
         onAllForms={onAllForms ?? (() => navigate(routePaths.gst.root))}
@@ -85,6 +90,7 @@ export const GSTCancellationCard: React.FC<GSTCancellationCardProps> = ({
           isSubmitting={isSubmitting}
           onBack={() => setIsReviewing(false)}
           onSubmit={handleFinalSubmit}
+          onSaveDraft={openDraftModal}
         />
         <DraftConfirmModal
           isOpen={isModalOpen}
@@ -177,6 +183,8 @@ export const GSTCancellationCard: React.FC<GSTCancellationCardProps> = ({
           </span>
         )}
 
+        <GSTStepErrorBanner message={Object.keys(errors).length > 0 ? GST_STEP_ERROR : null} />
+
         <div className="gst-canc-actions-row">
           <button
             type="button"
@@ -189,17 +197,20 @@ export const GSTCancellationCard: React.FC<GSTCancellationCardProps> = ({
             Back
           </button>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="gst-canc-submit-orange-btn"
-          >
-            {isSubmitting ? 'Submitting...' : 'Review Cancellation'}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </button>
+          <div className="gst-actions-group">
+            <GSTSaveDraftButton onClick={openDraftModal} />
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="gst-canc-submit-orange-btn"
+            >
+              {isSubmitting ? 'Submitting...' : 'Review Cancellation'}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </button>
+          </div>
         </div>
       </form>
       <DraftConfirmModal

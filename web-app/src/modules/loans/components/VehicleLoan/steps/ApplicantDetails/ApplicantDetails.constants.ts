@@ -8,6 +8,7 @@ export const OCCUPATION_OPTIONS: VehicleOccupationType[] = [
 
 export const INCOME_RANGE_OPTIONS: VehicleIncomeRange[] = [
   'Below ₹10,000',
+  '₹10,000 - ₹15,000',
   '₹15,000 - ₹30,000',
   '₹30,000 - ₹50,000',
   '₹50,000 - ₹1,00,000',

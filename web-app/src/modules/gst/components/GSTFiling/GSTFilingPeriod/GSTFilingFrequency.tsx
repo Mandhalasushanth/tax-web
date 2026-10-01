@@ -1,5 +1,5 @@
 import React from 'react'
-import { FILING_FREQUENCY_OPTIONS } from '../../../utils/gstPeriodOptions'
+import { FILING_FREQUENCY_OPTIONS } from '@modules/gst/utils/gstPeriodOptions'
 import './GSTFilingFrequency.css'
 
 interface GSTFilingFrequencyProps {

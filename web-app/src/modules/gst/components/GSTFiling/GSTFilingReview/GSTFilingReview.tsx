@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { GSTFilingStepper } from '../../../shared/GSTFilingStepper/GSTFilingStepper'
+import { GST_FEES, withPlatformGst } from '@modules/gst/constants/gstBusiness.constants'
+import { GSTFilingStepper } from '@modules/gst/shared/GSTFilingStepper/GSTFilingStepper'
 import type { FilingPeriodData } from '../GSTFilingPeriod/GSTFilingPeriod'
 import { GSTReviewFilingDetailsCard } from './GSTReviewFilingDetails'
 import {
@@ -9,15 +10,14 @@ import {
 import { GSTRequestChangesModal } from './GSTRequestChangesModal'
 import {
   getResolvedReviewDetails,
-  DEFAULT_TAX_COMPUTATION,
-  NET_TAX_LIABILITY,
-} from '../../../utils/gstReviewData'
+  getTaxComputationRows,
+} from '@modules/gst/utils/gstReviewData'
 import {
   DEFAULT_DOCUMENT_ITEMS,
   DEFAULT_FILING_UPLOADED_FILES,
   calculateDocumentSummary,
   type UploadedFileInfo,
-} from '../../../utils/gstDocumentsData'
+} from '@modules/gst/utils/gstDocumentsData'
 import { StepActionBar } from '@shared/components'
 import './GSTFilingReview.css'
 
@@ -81,9 +81,9 @@ export const GSTFilingReview: React.FC<GSTFilingReviewProps> = ({
 
 
 
-  const effectiveBaseFee = filingData?.baseFee && filingData.baseFee > 0 ? filingData.baseFee : 2500
-  const gstAmount = Math.round(effectiveBaseFee * 0.18)
-  const totalPayableFee = effectiveBaseFee + gstAmount
+  const effectiveBaseFee = filingData?.baseFee && filingData.baseFee > 0 ? filingData.baseFee : GST_FEES.filingCombo
+  const { gst: gstAmount, total: totalPayableFee } = withPlatformGst(effectiveBaseFee)
+  const taxComputation = getTaxComputationRows(filingData?.filingType === 'nil')
 
   const filingFeeItems = [
     { particulars: 'CA Consultancy & Reconciliation', amount: effectiveBaseFee },
@@ -135,8 +135,8 @@ export const GSTFilingReview: React.FC<GSTFilingReviewProps> = ({
         {/* 2nd Section: Tax Computation & Professional Filing Fee (Side by Side) */}
         <div className="gst-review-side-by-side-row">
           <GSTReviewTaxComputationCard
-            items={DEFAULT_TAX_COMPUTATION}
-            netLiability={NET_TAX_LIABILITY}
+            items={taxComputation.items}
+            netLiability={taxComputation.netLiability}
           />
           <GSTReviewFilingFeeCard
             items={filingFeeItems}

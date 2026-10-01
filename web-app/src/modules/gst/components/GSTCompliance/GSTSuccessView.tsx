@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { orNotAvailable } from '@modules/gst/services/gstProfileService'
 import { useNavigate } from 'react-router-dom'
 import { routePaths } from '@core/config'
 import { userStorage } from '@core/storage/userStorage'
@@ -34,9 +35,7 @@ export const GSTSuccessView: React.FC<GSTSuccessViewProps> = ({
     hour12: true,
   })
 
-  const refId = applicationId.startsWith('GSTC-')
-    ? applicationId
-    : `GSTC-2026-${applicationId.replace('GST-', '')}`
+  const refId = applicationId
 
   // Scroll to top immediately when success view mounts
   useEffect(() => {
@@ -201,8 +200,8 @@ export const GSTSuccessView: React.FC<GSTSuccessViewProps> = ({
             </div>
             <div className="gst-meta-content">
               <span className="gst-success-meta-label">GSTIN</span>
-              <span className="gst-success-meta-value gst-mono-text" title={gstin || '29AAAAA0000A1Z5'}>
-                {gstin || '29AAAAA0000A1Z5'}
+              <span className="gst-success-meta-value gst-mono-text" title={orNotAvailable(gstin)}>
+                {orNotAvailable(gstin)}
               </span>
             </div>
           </div>

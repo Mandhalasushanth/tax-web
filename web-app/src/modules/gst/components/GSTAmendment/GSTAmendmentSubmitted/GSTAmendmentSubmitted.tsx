@@ -10,8 +10,8 @@ interface GSTAmendmentSubmittedProps {
 }
 
 export const GSTAmendmentSubmitted: React.FC<GSTAmendmentSubmittedProps> = ({
-  arnNumber = 'AA2993736545',
-  submissionDateText = '15 Sep 2026, 03:22 PM',
+  arnNumber = '',
+  submissionDateText = '',
   requestedSection = 'Legal Business Name',
   onTrackAmendment,
   onOpenMyApplications,

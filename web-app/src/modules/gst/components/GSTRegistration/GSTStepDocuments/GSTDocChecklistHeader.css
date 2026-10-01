@@ -71,7 +71,6 @@
 
 .gst-docs-checklist-card__progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--gst-doc-orange, #f97316) 0%, var(--gst-doc-orange-hover, #ea580c) 100%);
+  --gst-progress-color: linear-gradient(90deg, var(--gst-doc-orange, #f97316) 0%, var(--gst-doc-orange-hover, #ea580c) 100%);
   border-radius: 9999px;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }

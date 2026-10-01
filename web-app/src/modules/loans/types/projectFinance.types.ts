@@ -1,4 +1,4 @@
-import type { UploadedLoanDocument } from '../documents/loanDocument.types'
+import type { UploadedLoanDocument } from '@modules/loans/documents/loanDocument.types'
 
 /**
  * Promoter / Sponsor entry in Step 1
@@ -466,8 +466,3 @@ export interface SecurityItem {
   existingChargeDetails?: string
 }
 
-export interface StepValidationResult {
-  isValid: boolean
-  error?: string
-  errors: Record<string, string>
-}

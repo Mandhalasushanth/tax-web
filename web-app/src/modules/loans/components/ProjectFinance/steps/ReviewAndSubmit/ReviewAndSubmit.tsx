@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 import { UploadDocumentsSection } from './UploadDocumentsSection'
 import { ReviewApplicationSection } from './ReviewApplicationSection'
 import { DeclarationAndSubmitSection } from './DeclarationAndSubmitSection'

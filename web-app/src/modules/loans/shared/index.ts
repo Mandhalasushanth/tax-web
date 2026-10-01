@@ -8,3 +8,5 @@ export type { LoanPageNavigationProps } from './LoanPageNavigation/LoanPageNavig
 export { LoanSubmitSuccessModal } from './LoanSubmitSuccessModal/LoanSubmitSuccessModal'
 export type { LoanSubmitSuccessModalProps } from './LoanSubmitSuccessModal/LoanSubmitSuccessModal'
 export * from './LoanApplicationStatus'
+export { LoanStepErrorBanner } from './LoanStepFlow/LoanStepErrorBanner'
+export { LoanStepFlowFooter } from './LoanStepFlow/LoanStepFlowFooter'

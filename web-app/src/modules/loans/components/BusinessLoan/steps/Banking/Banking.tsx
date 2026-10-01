@@ -1,5 +1,5 @@
 import React from 'react'
-import type { BankingProps } from '../../../../types/businessLoan.types'
+import type { BankingProps } from '@modules/loans/types/businessLoan.types'
 import { BankingTaxRecordsCard } from './BankingTaxRecordsCard'
 import { ExistingCreditFacilitiesCard } from './ExistingCreditFacilitiesCard'
 import { BusinessTaxFilingsCard } from './BusinessTaxFilingsCard'

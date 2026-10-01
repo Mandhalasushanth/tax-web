@@ -7,7 +7,7 @@ import type {
   LoanAndApplicantProps,
   EmploymentProfileType,
   ExistingLoansType,
-} from '../../../../types/businessLoan.types'
+} from '@modules/loans/types/businessLoan.types'
 import './LoanAndApplicant.css'
 
 /**

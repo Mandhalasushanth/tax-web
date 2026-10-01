@@ -1,10 +1,10 @@
 import React from 'react'
-import type { BusinessLoanFormData } from '../../../../types/businessLoan.types'
+import type { BusinessLoanFormData } from '@modules/loans/types/businessLoan.types'
 import {
   formatDigitsOnly,
   handleNumericKeyDown,
   LOAN_FIELD_LIMITS,
-} from '../../../../utils/loanInputFormatters'
+} from '@modules/loans/utils/loanInputFormatters'
 
 export interface BusinessTaxFilingsCardProps {
   data: BusinessLoanFormData

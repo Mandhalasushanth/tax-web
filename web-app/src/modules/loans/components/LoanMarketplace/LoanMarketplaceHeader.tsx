@@ -1,6 +1,6 @@
 import React from 'react'
-import { WalletIcon } from '../../constants/loanMarketplace.constants'
-import type { LoanMarketplaceHeaderProps } from '../../types/loanMarketplace.types'
+import { WalletIcon } from '@modules/loans/constants/loanMarketplace.icons'
+import type { LoanMarketplaceHeaderProps } from '@modules/loans/types/loanMarketplace.types'
 
 /**
  * Header component for the Loan Marketplace page.

@@ -1,12 +1,17 @@
 import React from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
+import {
+  TARGET_MARKET_OPTIONS,
+  MARKET_TYPE_OPTIONS,
+  CUSTOMER_SEGMENT_OPTIONS,
+} from './financialProjectionsConstants'
 
 export interface MarketDetailsSectionProps {
   data: ProjectFinanceData
   onChange: (fields: Partial<ProjectFinanceData>) => void
   isOpen: boolean
   onToggle: () => void
-  onOpenPicker: (field: 'targetMarket' | 'marketType' | 'customerSegment') => void
+  onOpenPicker?: (field: 'targetMarket' | 'marketType' | 'customerSegment') => void
   errors?: Record<string, string>
 }
 
@@ -31,24 +36,10 @@ export const MarketDetailsSection: React.FC<MarketDetailsSectionProps> = ({
   onChange,
   isOpen,
   onToggle,
-  onOpenPicker,
   errors = {},
 }) => {
   const handleTextInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    try {
-      onChange({ [field]: rawValue })
-    } catch (err) {
-      console.error(`Error updating field ${String(field)}:`, err)
-    }
-  }
-
-  const handleNumericInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    try {
-      const sanitized = rawValue.replace(/\D/g, '')
-      onChange({ [field]: sanitized })
-    } catch (err) {
-      console.error(`Error updating field ${String(field)}:`, err)
-    }
+    onChange({ [field]: rawValue })
   }
 
   return (
@@ -73,19 +64,17 @@ export const MarketDetailsSection: React.FC<MarketDetailsSectionProps> = ({
             <label htmlFor="targetMarket" className="pf-field-label">
               Target Market <span className="pf-required-star">*</span>
             </label>
-            <button
+            <select
               id="targetMarket"
-              type="button"
-              className={`pf-custom-select-btn ${errors.targetMarket ? 'pf-custom-select-btn--error' : ''}`}
-              onClick={() => onOpenPicker('targetMarket')}
+              className={`pf-custom-select ${errors.targetMarket ? 'pf-custom-select--error' : ''}`}
+              value={data.targetMarket || ''}
+              onChange={(e) => onChange({ targetMarket: e.target.value })}
             >
-              <span className={data.targetMarket ? 'pf-select-value' : 'pf-select-placeholder'}>
-                {data.targetMarket || 'Select option'}
-              </span>
-              <span className="pf-select-chevron">
-                <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-              </span>
-            </button>
+              <option value="" disabled>Select option</option>
+              {TARGET_MARKET_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
             {errors.targetMarket && (
               <span className="pf-field-error-msg">{errors.targetMarket}</span>
             )}
@@ -95,19 +84,17 @@ export const MarketDetailsSection: React.FC<MarketDetailsSectionProps> = ({
             <label htmlFor="marketType" className="pf-field-label">
               Market Type <span className="pf-required-star">*</span>
             </label>
-            <button
+            <select
               id="marketType"
-              type="button"
-              className={`pf-custom-select-btn ${errors.marketType ? 'pf-custom-select-btn--error' : ''}`}
-              onClick={() => onOpenPicker('marketType')}
+              className={`pf-custom-select ${errors.marketType ? 'pf-custom-select--error' : ''}`}
+              value={data.marketType || ''}
+              onChange={(e) => onChange({ marketType: e.target.value })}
             >
-              <span className={data.marketType ? 'pf-select-value' : 'pf-select-placeholder'}>
-                {data.marketType || 'Select type'}
-              </span>
-              <span className="pf-select-chevron">
-                <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-              </span>
-            </button>
+              <option value="" disabled>Select type</option>
+              {MARKET_TYPE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
             {errors.marketType && (
               <span className="pf-field-error-msg">{errors.marketType}</span>
             )}
@@ -134,64 +121,54 @@ export const MarketDetailsSection: React.FC<MarketDetailsSectionProps> = ({
             <label htmlFor="customerSegment" className="pf-field-label">
               Customer Segment <span className="pf-required-star">*</span>
             </label>
-            <button
+            <select
               id="customerSegment"
-              type="button"
-              className={`pf-custom-select-btn ${errors.customerSegment ? 'pf-custom-select-btn--error' : ''}`}
-              onClick={() => onOpenPicker('customerSegment')}
+              className={`pf-custom-select ${errors.customerSegment ? 'pf-custom-select--error' : ''}`}
+              value={data.customerSegment || ''}
+              onChange={(e) => onChange({ customerSegment: e.target.value })}
             >
-              <span className={data.customerSegment ? 'pf-select-value' : 'pf-select-placeholder'}>
-                {data.customerSegment || 'Select segment'}
-              </span>
-              <span className="pf-select-chevron">
-                <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-              </span>
-            </button>
+              <option value="" disabled>Select segment</option>
+              {CUSTOMER_SEGMENT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
             {errors.customerSegment && (
               <span className="pf-field-error-msg">{errors.customerSegment}</span>
             )}
           </div>
 
           <div className="pf-field-group">
-            <label htmlFor="expectedMarketSharePercent" className="pf-field-label">
-              Expected Market Share (%)
-            </label>
-            <input
-              id="expectedMarketSharePercent"
-              type="text"
-              className="pf-custom-input"
-              placeholder="Enter percentage"
-              value={data.expectedMarketSharePercent || ''}
-              onChange={(e) => handleNumericInput('expectedMarketSharePercent', e.target.value)}
-            />
-          </div>
-
-          <div className="pf-field-group">
             <label htmlFor="majorCompetitors" className="pf-field-label">
-              Major Competitors
+              Major Competitors <span className="pf-required-star">*</span>
             </label>
             <input
               id="majorCompetitors"
               type="text"
-              className="pf-custom-input"
+              className={`pf-custom-input ${errors.majorCompetitors ? 'pf-custom-input--error' : ''}`}
               placeholder="Enter competitors"
               value={data.majorCompetitors || ''}
               onChange={(e) => handleTextInput('majorCompetitors', e.target.value)}
             />
+            {errors.majorCompetitors && (
+              <span className="pf-field-error-msg">{errors.majorCompetitors}</span>
+            )}
           </div>
 
           <div className="pf-field-group">
             <label htmlFor="competitiveAdvantage" className="pf-field-label">
-              Competitive Advantage
+              Competitive Advantage <span className="pf-required-star">*</span>
             </label>
-            <input
+            <textarea
               id="competitiveAdvantage"
-              type="text"
-              className="pf-custom-input"
-              placeholder="Enter competitive advantage"
+              rows={3}
+              className={`pf-custom-textarea ${errors.competitiveAdvantage ? 'pf-custom-textarea--error' : ''}`}
+              placeholder="Describe your competitive edge"
               value={data.competitiveAdvantage || ''}
               onChange={(e) => handleTextInput('competitiveAdvantage', e.target.value)}
             />
+            {errors.competitiveAdvantage && (
+              <span className="pf-field-error-msg">{errors.competitiveAdvantage}</span>
+            )}
           </div>
         </div>
       )}

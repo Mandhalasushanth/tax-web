@@ -1,12 +1,40 @@
 import React from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import type {
+  ProjectFinanceData,
+  ApplicantEntityType,
+  BankingRelationshipType,
+  PrimaryBusinessActivityType,
+} from '@modules/loans/types/projectFinance.types'
+
+const ENTITY_TYPES = [
+  { label: 'Private Limited Company', value: 'Private Limited Company' },
+  { label: 'Public Limited Company', value: 'Public Limited Company' },
+  { label: 'Partnership Firm', value: 'Partnership Firm' },
+  { label: 'Limited Liability Partnership', value: 'Limited Liability Partnership' },
+  { label: 'Proprietorship', value: 'Proprietorship' },
+  { label: 'Trust / Society', value: 'Trust / Society' },
+]
+
+const BANKING_RELATIONSHIPS = [
+  { label: 'Existing Borrower', value: 'Existing Borrower' },
+  { label: 'Deposit Customer', value: 'Deposit Customer' },
+  { label: 'New to Bank', value: 'New to Bank' },
+]
+
+const PRIMARY_BUSINESS_ACTIVITIES = [
+  { label: 'Manufacturing', value: 'Manufacturing' },
+  { label: 'Services', value: 'Services' },
+  { label: 'Trading', value: 'Trading' },
+  { label: 'Infrastructure', value: 'Infrastructure' },
+  { label: 'Agriculture / Allied', value: 'Agriculture / Allied' },
+]
 
 export interface ApplicantDetailsSectionProps {
   data: ProjectFinanceData
   onChange: (fields: Partial<ProjectFinanceData>) => void
   isOpen: boolean
   onToggle: () => void
-  onOpenPicker: (picker: 'entityType' | 'bankingRelationship' | 'primaryBusinessActivity') => void
+  onOpenPicker?: (picker: 'entityType' | 'bankingRelationship' | 'primaryBusinessActivity') => void
   errors?: Record<string, string>
 }
 
@@ -15,7 +43,6 @@ export const ApplicantDetailsSection: React.FC<ApplicantDetailsSectionProps> = (
   onChange,
   isOpen,
   onToggle,
-  onOpenPicker,
   errors = {},
 }) => {
   return (
@@ -52,21 +79,22 @@ export const ApplicantDetailsSection: React.FC<ApplicantDetailsSectionProps> = (
 
           {/* Constitution / Entity Type */}
           <div className="pf-field-group">
-            <label className="pf-field-label">
+            <label htmlFor="entityType" className="pf-field-label">
               Constitution / Entity Type <span className="pf-req">*</span>
             </label>
-            <button
-              type="button"
-              className={`pf-custom-select-btn ${errors.entityType ? 'pf-custom-select-btn--error' : ''}`}
-              onClick={() => onOpenPicker('entityType')}
+            <select
+              id="entityType"
+              className={`pf-custom-select ${errors.entityType ? 'pf-custom-select--error' : ''}`}
+              value={data.entityType || ''}
+              onChange={(e) => onChange({ entityType: e.target.value as ApplicantEntityType })}
             >
-              <span className={data.entityType ? 'pf-select-value' : 'pf-select-placeholder'}>
-                {data.entityType || 'Select entity type'}
-              </span>
-              <span className="pf-select-chevron">
-                <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-              </span>
-            </button>
+              <option value="" disabled>Select entity type</option>
+              {ENTITY_TYPES.map((opt: { label: string, value: string }) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
             {errors.entityType && <span className="pf-field-error">{errors.entityType}</span>}
           </div>
 
@@ -156,38 +184,40 @@ export const ApplicantDetailsSection: React.FC<ApplicantDetailsSectionProps> = (
 
           {/* Banking Relationship */}
           <div className="pf-field-group">
-            <label className="pf-field-label">Banking Relationship</label>
-            <button
-              type="button"
-              className="pf-custom-select-btn"
-              onClick={() => onOpenPicker('bankingRelationship')}
+            <label htmlFor="bankingRelationship" className="pf-field-label">Banking Relationship</label>
+            <select
+              id="bankingRelationship"
+              className="pf-custom-select"
+              value={data.bankingRelationship || ''}
+              onChange={(e) => onChange({ bankingRelationship: e.target.value as BankingRelationshipType })}
             >
-              <span className={data.bankingRelationship ? 'pf-select-value' : 'pf-select-placeholder'}>
-                {data.bankingRelationship || 'Select relationship'}
-              </span>
-              <span className="pf-select-chevron">
-                <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-              </span>
-            </button>
+              <option value="" disabled>Select relationship</option>
+              {BANKING_RELATIONSHIPS.map((opt: { label: string, value: string }) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Primary Business Activity */}
           <div className="pf-field-group">
-            <label className="pf-field-label">
+            <label htmlFor="primaryBusinessActivity" className="pf-field-label">
               Primary Business Activity <span className="pf-req">*</span>
             </label>
-            <button
-              type="button"
-              className={`pf-custom-select-btn ${errors.primaryBusinessActivity ? 'pf-custom-select-btn--error' : ''}`}
-              onClick={() => onOpenPicker('primaryBusinessActivity')}
+            <select
+              id="primaryBusinessActivity"
+              className={`pf-custom-select ${errors.primaryBusinessActivity ? 'pf-custom-select--error' : ''}`}
+              value={data.primaryBusinessActivity || ''}
+              onChange={(e) => onChange({ primaryBusinessActivity: e.target.value as PrimaryBusinessActivityType })}
             >
-              <span className={data.primaryBusinessActivity ? 'pf-select-value' : 'pf-select-placeholder'}>
-                {data.primaryBusinessActivity || 'Select primary business activity'}
-              </span>
-              <span className="pf-select-chevron">
-                <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-              </span>
-            </button>
+              <option value="" disabled>Select primary business activity</option>
+              {PRIMARY_BUSINESS_ACTIVITIES.map((opt: { label: string, value: string }) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
             {errors.primaryBusinessActivity && (
               <span className="pf-field-error">{errors.primaryBusinessActivity}</span>
             )}

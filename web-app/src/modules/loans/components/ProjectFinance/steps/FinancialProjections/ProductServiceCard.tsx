@@ -1,5 +1,10 @@
 import React from 'react'
-import type { ProductServiceItem } from '../../../../types/projectFinance.types'
+import type { ProductServiceItem } from '@modules/loans/types/projectFinance.types'
+import {
+  CATEGORY_OPTIONS,
+  UNIT_OPTIONS,
+  DOMESTIC_EXPORT_OPTIONS,
+} from './financialProjectionsConstants'
 
 export interface ProductServiceCardProps {
   item: ProductServiceItem
@@ -7,7 +12,7 @@ export interface ProductServiceCardProps {
   totalCount: number
   onChange: (updated: ProductServiceItem) => void
   onRemove: () => void
-  onOpenPicker: (field: 'category' | 'unit' | 'domesticExport') => void
+  onOpenPicker?: (field: 'category' | 'unit' | 'domesticExport') => void
   errors?: Record<string, string>
 }
 
@@ -17,26 +22,17 @@ export const ProductServiceCard: React.FC<ProductServiceCardProps> = ({
   totalCount,
   onChange,
   onRemove,
-  onOpenPicker,
   errors = {},
 }) => {
   const prefix = `product_${index}`
 
   const handleFieldChange = (field: keyof ProductServiceItem, value: string) => {
-    try {
-      onChange({ ...item, [field]: value })
-    } catch (err) {
-      console.error(`Error updating product service field ${field}:`, err)
-    }
+    onChange({ ...item, [field]: value })
   }
 
   const handleNumericFieldChange = (field: keyof ProductServiceItem, value: string) => {
-    try {
-      const sanitized = value.replace(/\D/g, '')
-      onChange({ ...item, [field]: sanitized })
-    } catch (err) {
-      console.error(`Error updating product service numeric field ${field}:`, err)
-    }
+    const sanitized = value.replace(/\D/g, '')
+    onChange({ ...item, [field]: sanitized })
   }
 
   return (
@@ -76,19 +72,17 @@ export const ProductServiceCard: React.FC<ProductServiceCardProps> = ({
         <label htmlFor={`${prefix}_category`} className="pf-field-label">
           Category <span className="pf-required-star">*</span>
         </label>
-        <button
+        <select
           id={`${prefix}_category`}
-          type="button"
-          className={`pf-custom-select-btn ${errors[`${prefix}_category`] ? 'pf-custom-select-btn--error' : ''}`}
-          onClick={() => onOpenPicker('category')}
+          className={`pf-custom-select ${errors[`${prefix}_category`] ? 'pf-custom-select--error' : ''}`}
+          value={item.category || ''}
+          onChange={(e) => handleFieldChange('category', e.target.value)}
         >
-          <span className={item.category ? 'pf-select-value' : 'pf-select-placeholder'}>
-            {item.category || 'Select category'}
-          </span>
-          <span className="pf-select-chevron">
-            <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-          </span>
-        </button>
+          <option value="" disabled>Select category</option>
+          {CATEGORY_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
         {errors[`${prefix}_category`] && (
           <span className="pf-field-error-msg">{errors[`${prefix}_category`]}</span>
         )}
@@ -98,19 +92,17 @@ export const ProductServiceCard: React.FC<ProductServiceCardProps> = ({
         <label htmlFor={`${prefix}_unit`} className="pf-field-label">
           Unit <span className="pf-required-star">*</span>
         </label>
-        <button
+        <select
           id={`${prefix}_unit`}
-          type="button"
-          className={`pf-custom-select-btn ${errors[`${prefix}_unit`] ? 'pf-custom-select-btn--error' : ''}`}
-          onClick={() => onOpenPicker('unit')}
+          className={`pf-custom-select ${errors[`${prefix}_unit`] ? 'pf-custom-select--error' : ''}`}
+          value={item.unit || ''}
+          onChange={(e) => handleFieldChange('unit', e.target.value)}
         >
-          <span className={item.unit ? 'pf-select-value' : 'pf-select-placeholder'}>
-            {item.unit || 'Select unit'}
-          </span>
-          <span className="pf-select-chevron">
-            <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-          </span>
-        </button>
+          <option value="" disabled>Select unit</option>
+          {UNIT_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
         {errors[`${prefix}_unit`] && (
           <span className="pf-field-error-msg">{errors[`${prefix}_unit`]}</span>
         )}
@@ -161,7 +153,7 @@ export const ProductServiceCard: React.FC<ProductServiceCardProps> = ({
             id={`${prefix}_capacityUtilisationPercent`}
             type="text"
             className={`pf-custom-input ${errors[`${prefix}_capacityUtilisationPercent`] ? 'pf-custom-input--error' : ''}`}
-            placeholder="Enter percentage"
+            placeholder="Enter %"
             value={item.capacityUtilisationPercent || ''}
             onChange={(e) => handleNumericFieldChange('capacityUtilisationPercent', e.target.value)}
           />
@@ -172,7 +164,7 @@ export const ProductServiceCard: React.FC<ProductServiceCardProps> = ({
 
         <div className="pf-field-group">
           <label htmlFor={`${prefix}_sellingPrice`} className="pf-field-label">
-            Selling Price (₹) <span className="pf-required-star">*</span>
+            Selling Price / Unit (₹) <span className="pf-required-star">*</span>
           </label>
           <input
             id={`${prefix}_sellingPrice`}
@@ -188,45 +180,24 @@ export const ProductServiceCard: React.FC<ProductServiceCardProps> = ({
         </div>
       </div>
 
-      <div className="pf-grid-2">
-        <div className="pf-field-group">
-          <label htmlFor={`${prefix}_domesticExport`} className="pf-field-label">
-            Domestic / Export <span className="pf-required-star">*</span>
-          </label>
-          <button
-            id={`${prefix}_domesticExport`}
-            type="button"
-            className={`pf-custom-select-btn ${errors[`${prefix}_domesticExport`] ? 'pf-custom-select-btn--error' : ''}`}
-            onClick={() => onOpenPicker('domesticExport')}
-          >
-            <span className={item.domesticExport ? 'pf-select-value' : 'pf-select-placeholder'}>
-              {item.domesticExport || 'Select option'}
-            </span>
-            <span className="pf-select-chevron">
-              <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-            </span>
-          </button>
-          {errors[`${prefix}_domesticExport`] && (
-            <span className="pf-field-error-msg">{errors[`${prefix}_domesticExport`]}</span>
-          )}
-        </div>
-
-        <div className="pf-field-group">
-          <label htmlFor={`${prefix}_productMixPercent`} className="pf-field-label">
-            Product Mix (%) <span className="pf-required-star">*</span>
-          </label>
-          <input
-            id={`${prefix}_productMixPercent`}
-            type="text"
-            className={`pf-custom-input ${errors[`${prefix}_productMixPercent`] ? 'pf-custom-input--error' : ''}`}
-            placeholder="Enter percentage"
-            value={item.productMixPercent || ''}
-            onChange={(e) => handleNumericFieldChange('productMixPercent', e.target.value)}
-          />
-          {errors[`${prefix}_productMixPercent`] && (
-            <span className="pf-field-error-msg">{errors[`${prefix}_productMixPercent`]}</span>
-          )}
-        </div>
+      <div className="pf-field-group">
+        <label htmlFor={`${prefix}_domesticExport`} className="pf-field-label">
+          Domestic / Export <span className="pf-required-star">*</span>
+        </label>
+        <select
+          id={`${prefix}_domesticExport`}
+          className={`pf-custom-select ${errors[`${prefix}_domesticExport`] ? 'pf-custom-select--error' : ''}`}
+          value={item.domesticExport || ''}
+          onChange={(e) => handleFieldChange('domesticExport', e.target.value)}
+        >
+          <option value="" disabled>Select option</option>
+          {DOMESTIC_EXPORT_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+        {errors[`${prefix}_domesticExport`] && (
+          <span className="pf-field-error-msg">{errors[`${prefix}_domesticExport`]}</span>
+        )}
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
-import { commonLoanValidation } from './commonLoanValidation'
-import type { WorkingCapitalLoanData } from '../types/workingCapitalLoan.types'
-import type { StepValidationResult } from './machineryLoanValidation'
+import { commonLoanValidation, loanFieldRules, toStepResult } from './commonLoanValidation'
+import type { WorkingCapitalLoanData } from '@modules/loans/types/workingCapitalLoan.types'
+import type { LoanStepValidationResult } from './commonLoanValidation'
 
 export const WORKING_CAPITAL_DOCUMENT_CONFIGS = [
   // IDENTITY & ADDRESS
@@ -25,7 +25,7 @@ export const WORKING_CAPITAL_DOCUMENT_CONFIGS = [
 ]
 
 export const workingCapitalLoanValidation = {
-  validateStep1: (data: WorkingCapitalLoanData): StepValidationResult => {
+  validateStep1: (data: WorkingCapitalLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
 
     const amountNum = Number(String(data.requiredCreditLimit || '').replace(/[^\d]/g, ''))
@@ -50,20 +50,22 @@ export const workingCapitalLoanValidation = {
       }
     }
 
-    const firstError = Object.values(errors)[0]
-    return {
-      isValid: Object.keys(errors).length === 0,
-      error: firstError,
-      errors,
-    }
+    return toStepResult(errors)
   },
 
-  validateStep2: (data: WorkingCapitalLoanData): StepValidationResult => {
+  validateStep2: (data: WorkingCapitalLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
 
     // Section 1: Business Operations & Financials
     if (!data.registeredBusinessName || !data.registeredBusinessName.trim()) {
       errors.registeredBusinessName = 'Please enter registered enterprise / business name'
+    } else if (data.registeredBusinessName.trim().length < 3) {
+      errors.registeredBusinessName = 'Business name must be at least 3 characters'
+    }
+
+    const udyamError = loanFieldRules.optionalUdyam(data.udyamRegistrationNumber)
+    if (udyamError) {
+      errors.udyamRegistrationNumber = udyamError
     }
 
     const gstinTrimmed = (data.gstinNumber || '').trim().toUpperCase()
@@ -87,11 +89,14 @@ export const workingCapitalLoanValidation = {
     const profitClean = (data.annualNetProfitBeforeTax || '').replace(/[^\d]/g, '')
     if (!profitClean) {
       errors.annualNetProfitBeforeTax = 'Please enter annual net profit before tax'
+    } else if (turnoverClean && Number(profitClean) > Number(turnoverClean)) {
+      errors.annualNetProfitBeforeTax = 'Net profit cannot be greater than annual turnover'
     }
 
     // Section 2: Operating Current Account & Taxation
-    if (!data.currentAccountBankName || !data.currentAccountBankName.trim()) {
-      errors.currentAccountBankName = 'Please enter current account bank name'
+    const bankNameError = loanFieldRules.bankName(data.currentAccountBankName)
+    if (bankNameError) {
+      errors.currentAccountBankName = bankNameError
     }
 
     const accTrimmed = (data.currentAccountNumber || '').trim()
@@ -110,56 +115,34 @@ export const workingCapitalLoanValidation = {
 
     if (!data.itrFilingStatus || !data.itrFilingStatus.trim()) {
       errors.itrFilingStatus = 'Please select ITR filing status'
+    } else if (data.itrFilingStatus === 'Filed') {
+      const ackError = loanFieldRules.optionalItrAck(data.itrAcknowledgementNumber)
+      if (ackError) errors.itrAcknowledgementNumber = ackError
     }
 
-    const firstError = Object.values(errors)[0]
-    return {
-      isValid: Object.keys(errors).length === 0,
-      error: firstError,
-      errors,
-    }
+    return toStepResult(errors)
   },
 
-  validateStep3: (data: WorkingCapitalLoanData): StepValidationResult => {
+  validateStep3: (data: WorkingCapitalLoanData): LoanStepValidationResult => {
     const uploadedDocs = data.uploadedDocs || {}
     const requiredDocs = WORKING_CAPITAL_DOCUMENT_CONFIGS.filter((d) => d.isRequired)
 
-    const { errors, missingDocs } = requiredDocs.reduce<{
-      errors: Record<string, string>
-      missingDocs: string[]
-    }>(
-      (acc, doc) => {
-        if (!uploadedDocs[doc.id]) {
-          acc.errors[doc.id] = `${doc.name} is required`
-          acc.missingDocs.push(doc.name)
-        }
-        return acc
-      },
-      { errors: {}, missingDocs: [] }
-    )
-
-    const firstMissing = missingDocs[0]
-    const errorMsg = firstMissing
-      ? `Please upload mandatory documents (${missingDocs.slice(0, 3).join(', ')}${missingDocs.length > 3 ? '...' : ''})`
+    const missing = requiredDocs.filter((doc) => !uploadedDocs[doc.id])
+    const errors = Object.fromEntries(missing.map((doc) => [doc.id, `${doc.name} is required`]))
+    const names = missing.map((doc) => doc.name)
+    const summary = names.length
+      ? `Please upload mandatory documents (${names.slice(0, 3).join(', ')}${names.length > 3 ? '...' : ''})`
       : undefined
 
-    return {
-      isValid: Object.keys(errors).length === 0,
-      error: errorMsg,
-      errors,
-    }
+    return toStepResult(errors, summary)
   },
 
-  validateStep4: (data: WorkingCapitalLoanData): StepValidationResult => {
+  validateStep4: (data: WorkingCapitalLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
     if (!data.termsAccepted) {
       errors.termsAccepted = 'Please accept the authorization declaration before submitting'
     }
 
-    return {
-      isValid: Object.keys(errors).length === 0,
-      error: errors.termsAccepted,
-      errors,
-    }
+    return toStepResult(errors)
   },
 }

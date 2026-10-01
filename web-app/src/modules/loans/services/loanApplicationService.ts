@@ -1,6 +1,6 @@
 import { localStore } from '@core/storage/localStorage'
 import { userStorage } from '@core/storage/userStorage'
-import type { LoanApplicationBase } from '../types/loanApplication.types'
+import type { LoanApplicationBase } from '@modules/loans/types/loanApplication.types'
 
 const STORAGE_PREFIX = 'taxedge_loan_app_'
 
@@ -33,8 +33,8 @@ export const loanApplicationService = {
       }
 
       return !refNumber ? getLatest() : getByRef()
-    } catch (e) {
-      console.warn('Failed to retrieve loan application', e)
+    } catch {
+      // Stored record is missing or corrupt
       return null
     }
   },
@@ -43,8 +43,8 @@ export const loanApplicationService = {
     try {
       localStorage.setItem(`${STORAGE_PREFIX}record_${app.refNumber}`, JSON.stringify(app))
       localStorage.setItem('taxedge_loan_app_latest', JSON.stringify(app))
-    } catch (e) {
-      console.warn('Failed to persist loan application', e)
+    } catch {
+      // Storage full or unavailable; the in-memory application is still returned
     }
   },
 

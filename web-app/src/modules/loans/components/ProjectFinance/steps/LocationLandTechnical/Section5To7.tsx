@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 import {
   POWER_SOURCE_OPTIONS,
   WATER_SOURCE_OPTIONS,
@@ -12,7 +12,6 @@ import {
   CAPACITY_UNIT_OPTIONS,
   NUMBER_OF_SHIFTS_OPTIONS,
 } from './locationLandTechnicalConstants'
-import { LocationBottomSheet } from './LocationBottomSheet'
 
 export interface Section5To7Props {
   data: ProjectFinanceData
@@ -25,7 +24,6 @@ export const Section5To7: React.FC<Section5To7Props> = ({
   onChange,
   errors = {},
 }) => {
-  const [activePicker, setActivePicker] = useState<string | null>(null)
   const [isUtilitiesOpen, setIsUtilitiesOpen] = useState(true)
   const [isTechnicalOpen, setIsTechnicalOpen] = useState(true)
   const [isCapacityOpen, setIsCapacityOpen] = useState(true)
@@ -49,104 +47,98 @@ export const Section5To7: React.FC<Section5To7Props> = ({
         {isUtilitiesOpen && (
           <div className="pf-collapsible-body">
             <div className="pf-field-group">
-              <label className="pf-field-label">Power Source <span className="pf-req">*</span></label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.powerSource ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => setActivePicker('powerSource')}
+              <label htmlFor="powerSource" className="pf-field-label">Power Source <span className="pf-req">*</span></label>
+              <select
+                id="powerSource"
+                className={`pf-custom-select ${errors.powerSource ? 'pf-custom-select--error' : ''}`}
+                value={data.powerSource || ''}
+                onChange={(e) => onChange({ powerSource: e.target.value })}
               >
-                <span className={data.powerSource ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.powerSource || 'Select power source'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select power source</option>
+                {POWER_SOURCE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
               {errors.powerSource && <span className="pf-field-error">{errors.powerSource}</span>}
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">Water Source <span className="pf-req">*</span></label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.waterSource ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => setActivePicker('waterSource')}
+              <label htmlFor="waterSource" className="pf-field-label">Water Source <span className="pf-req">*</span></label>
+              <select
+                id="waterSource"
+                className={`pf-custom-select ${errors.waterSource ? 'pf-custom-select--error' : ''}`}
+                value={data.waterSource || ''}
+                onChange={(e) => onChange({ waterSource: e.target.value })}
               >
-                <span className={data.waterSource ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.waterSource || 'Select water source'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select water source</option>
+                {WATER_SOURCE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
               {errors.waterSource && <span className="pf-field-error">{errors.waterSource}</span>}
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">Approach Road <span className="pf-req">*</span></label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.approachRoad ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => setActivePicker('approachRoad')}
+              <label htmlFor="approachRoad" className="pf-field-label">Approach Road <span className="pf-req">*</span></label>
+              <select
+                id="approachRoad"
+                className={`pf-custom-select ${errors.approachRoad ? 'pf-custom-select--error' : ''}`}
+                value={data.approachRoad || ''}
+                onChange={(e) => onChange({ approachRoad: e.target.value })}
               >
-                <span className={data.approachRoad ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.approachRoad || 'Select approach road'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select approach road</option>
+                {APPROACH_ROAD_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
               {errors.approachRoad && <span className="pf-field-error">{errors.approachRoad}</span>}
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">Drainage Arrangement <span className="pf-req">*</span></label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.drainageArrangement ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => setActivePicker('drainageArrangement')}
+              <label htmlFor="drainageArrangement" className="pf-field-label">Drainage Arrangement <span className="pf-req">*</span></label>
+              <select
+                id="drainageArrangement"
+                className={`pf-custom-select ${errors.drainageArrangement ? 'pf-custom-select--error' : ''}`}
+                value={data.drainageArrangement || ''}
+                onChange={(e) => onChange({ drainageArrangement: e.target.value })}
               >
-                <span className={data.drainageArrangement ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.drainageArrangement || 'Select drainage'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select drainage</option>
+                {DRAINAGE_ARRANGEMENT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
               {errors.drainageArrangement && <span className="pf-field-error">{errors.drainageArrangement}</span>}
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">Waste / Effluent Arrangement <span className="pf-req">*</span></label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.wasteEffluentArrangement ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => setActivePicker('wasteEffluentArrangement')}
+              <label htmlFor="wasteEffluentArrangement" className="pf-field-label">Waste / Effluent Arrangement <span className="pf-req">*</span></label>
+              <select
+                id="wasteEffluentArrangement"
+                className={`pf-custom-select ${errors.wasteEffluentArrangement ? 'pf-custom-select--error' : ''}`}
+                value={data.wasteEffluentArrangement || ''}
+                onChange={(e) => onChange({ wasteEffluentArrangement: e.target.value })}
               >
-                <span className={data.wasteEffluentArrangement ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.wasteEffluentArrangement || 'Select arrangement'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select arrangement</option>
+                {WASTE_EFFLUENT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
               {errors.wasteEffluentArrangement && <span className="pf-field-error">{errors.wasteEffluentArrangement}</span>}
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">Other Infrastructure</label>
-              <button
-                type="button"
-                className="pf-custom-select-btn"
-                onClick={() => setActivePicker('otherInfrastructure')}
+              <label htmlFor="otherInfrastructure" className="pf-field-label">Other Infrastructure</label>
+              <select
+                id="otherInfrastructure"
+                className="pf-custom-select"
+                value={data.otherInfrastructure || ''}
+                onChange={(e) => onChange({ otherInfrastructure: e.target.value })}
               >
-                <span className={data.otherInfrastructure ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.otherInfrastructure || 'Select option'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select option</option>
+                {OTHER_INFRASTRUCTURE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
             </div>
           </div>
         )}
@@ -169,19 +161,18 @@ export const Section5To7: React.FC<Section5To7Props> = ({
         {isTechnicalOpen && (
           <div className="pf-collapsible-body">
             <div className="pf-field-group">
-              <label className="pf-field-label">Technology Type <span className="pf-req">*</span></label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.technologyType ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => setActivePicker('technologyType')}
+              <label htmlFor="technologyType" className="pf-field-label">Technology Type <span className="pf-req">*</span></label>
+              <select
+                id="technologyType"
+                className={`pf-custom-select ${errors.technologyType ? 'pf-custom-select--error' : ''}`}
+                value={data.technologyType || ''}
+                onChange={(e) => onChange({ technologyType: e.target.value })}
               >
-                <span className={data.technologyType ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.technologyType || 'Select type'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select type</option>
+                {TECHNOLOGY_TYPE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
               {errors.technologyType && <span className="pf-field-error">{errors.technologyType}</span>}
             </div>
 
@@ -199,19 +190,18 @@ export const Section5To7: React.FC<Section5To7Props> = ({
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">Technology Source <span className="pf-req">*</span></label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.technologySource ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => setActivePicker('technologySource')}
+              <label htmlFor="technologySource" className="pf-field-label">Technology Source <span className="pf-req">*</span></label>
+              <select
+                id="technologySource"
+                className={`pf-custom-select ${errors.technologySource ? 'pf-custom-select--error' : ''}`}
+                value={data.technologySource || ''}
+                onChange={(e) => onChange({ technologySource: e.target.value })}
               >
-                <span className={data.technologySource ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.technologySource || 'Select source'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select source</option>
+                {TECHNOLOGY_SOURCE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
               {errors.technologySource && <span className="pf-field-error">{errors.technologySource}</span>}
             </div>
 
@@ -338,19 +328,18 @@ export const Section5To7: React.FC<Section5To7Props> = ({
               </div>
 
               <div className="pf-field-group">
-                <label className="pf-field-label">Capacity Unit <span className="pf-req">*</span></label>
-                <button
-                  type="button"
-                  className={`pf-custom-select-btn ${errors.capacityUnit ? 'pf-custom-select-btn--error' : ''}`}
-                  onClick={() => setActivePicker('capacityUnit')}
+                <label htmlFor="capacityUnit" className="pf-field-label">Capacity Unit <span className="pf-req">*</span></label>
+                <select
+                  id="capacityUnit"
+                  className={`pf-custom-select ${errors.capacityUnit ? 'pf-custom-select--error' : ''}`}
+                  value={data.capacityUnit || ''}
+                  onChange={(e) => onChange({ capacityUnit: e.target.value })}
                 >
-                  <span className={data.capacityUnit ? 'pf-select-value' : 'pf-select-placeholder'}>
-                    {data.capacityUnit || 'Select unit'}
-                  </span>
-                  <span className="pf-select-chevron">
-                    <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                  </span>
-                </button>
+                  <option value="" disabled>Select unit</option>
+                  {CAPACITY_UNIT_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
                 {errors.capacityUnit && <span className="pf-field-error">{errors.capacityUnit}</span>}
               </div>
             </div>
@@ -410,106 +399,23 @@ export const Section5To7: React.FC<Section5To7Props> = ({
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">Number of Shifts <span className="pf-req">*</span></label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.numberOfShifts ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => setActivePicker('numberOfShifts')}
+              <label htmlFor="numberOfShifts" className="pf-field-label">Number of Shifts <span className="pf-req">*</span></label>
+              <select
+                id="numberOfShifts"
+                className={`pf-custom-select ${errors.numberOfShifts ? 'pf-custom-select--error' : ''}`}
+                value={data.numberOfShifts || ''}
+                onChange={(e) => onChange({ numberOfShifts: e.target.value })}
               >
-                <span className={data.numberOfShifts ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.numberOfShifts || 'Select number of shifts'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select number of shifts</option>
+                {NUMBER_OF_SHIFTS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
               {errors.numberOfShifts && <span className="pf-field-error">{errors.numberOfShifts}</span>}
             </div>
           </div>
         )}
       </div>
-
-      {/* Pickers for Sections 5-7 */}
-      <LocationBottomSheet
-        isOpen={activePicker === 'powerSource'}
-        title="Select Power Source"
-        options={POWER_SOURCE_OPTIONS}
-        selectedValue={data.powerSource}
-        onSelect={(val) => onChange({ powerSource: val })}
-        onClose={() => setActivePicker(null)}
-      />
-      <LocationBottomSheet
-        isOpen={activePicker === 'waterSource'}
-        title="Select Water Source"
-        options={WATER_SOURCE_OPTIONS}
-        selectedValue={data.waterSource}
-        onSelect={(val) => onChange({ waterSource: val })}
-        onClose={() => setActivePicker(null)}
-      />
-      <LocationBottomSheet
-        isOpen={activePicker === 'approachRoad'}
-        title="Select Approach Road"
-        options={APPROACH_ROAD_OPTIONS}
-        selectedValue={data.approachRoad}
-        onSelect={(val) => onChange({ approachRoad: val })}
-        onClose={() => setActivePicker(null)}
-      />
-      <LocationBottomSheet
-        isOpen={activePicker === 'drainageArrangement'}
-        title="Select Drainage Arrangement"
-        options={DRAINAGE_ARRANGEMENT_OPTIONS}
-        selectedValue={data.drainageArrangement}
-        onSelect={(val) => onChange({ drainageArrangement: val })}
-        onClose={() => setActivePicker(null)}
-      />
-      <LocationBottomSheet
-        isOpen={activePicker === 'wasteEffluentArrangement'}
-        title="Select Waste / Effluent Arrangement"
-        options={WASTE_EFFLUENT_OPTIONS}
-        selectedValue={data.wasteEffluentArrangement}
-        onSelect={(val) => onChange({ wasteEffluentArrangement: val })}
-        onClose={() => setActivePicker(null)}
-      />
-      <LocationBottomSheet
-        isOpen={activePicker === 'otherInfrastructure'}
-        title="Select Other Infrastructure"
-        options={OTHER_INFRASTRUCTURE_OPTIONS}
-        selectedValue={data.otherInfrastructure}
-        onSelect={(val) => onChange({ otherInfrastructure: val })}
-        onClose={() => setActivePicker(null)}
-      />
-      <LocationBottomSheet
-        isOpen={activePicker === 'technologyType'}
-        title="Select Technology Type"
-        options={TECHNOLOGY_TYPE_OPTIONS}
-        selectedValue={data.technologyType}
-        onSelect={(val) => onChange({ technologyType: val })}
-        onClose={() => setActivePicker(null)}
-      />
-      <LocationBottomSheet
-        isOpen={activePicker === 'technologySource'}
-        title="Select Technology Source"
-        options={TECHNOLOGY_SOURCE_OPTIONS}
-        selectedValue={data.technologySource}
-        onSelect={(val) => onChange({ technologySource: val })}
-        onClose={() => setActivePicker(null)}
-      />
-      <LocationBottomSheet
-        isOpen={activePicker === 'capacityUnit'}
-        title="Select Capacity Unit"
-        options={CAPACITY_UNIT_OPTIONS}
-        selectedValue={data.capacityUnit}
-        onSelect={(val) => onChange({ capacityUnit: val })}
-        onClose={() => setActivePicker(null)}
-      />
-      <LocationBottomSheet
-        isOpen={activePicker === 'numberOfShifts'}
-        title="Select Number of Shifts"
-        options={NUMBER_OF_SHIFTS_OPTIONS}
-        selectedValue={data.numberOfShifts}
-        onSelect={(val) => onChange({ numberOfShifts: val })}
-        onClose={() => setActivePicker(null)}
-      />
     </>
   )
 }

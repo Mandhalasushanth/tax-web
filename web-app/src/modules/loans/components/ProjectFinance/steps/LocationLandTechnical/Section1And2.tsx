@@ -1,5 +1,13 @@
 import React from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
+import {
+  PROJECT_ZONES,
+  LAND_OWNERSHIP_OPTIONS,
+  LAND_USE_OPTIONS,
+  TITLE_STATUS_OPTIONS,
+  ENCUMBRANCE_OPTIONS,
+  NA_CONVERSION_STATUS_OPTIONS,
+} from './locationLandTechnicalConstants'
 
 export interface Section1And2Props {
   data: ProjectFinanceData
@@ -8,7 +16,7 @@ export interface Section1And2Props {
   onToggleLocation: () => void
   isLandDetailsOpen: boolean
   onToggleLandDetails: () => void
-  onOpenPicker: (picker: 'step2ProjectZone' | 'landOwnership' | 'landUse' | 'titleStatus' | 'encumbrance' | 'naConversionStatus') => void
+  onOpenPicker?: (picker: 'step2ProjectZone' | 'landOwnership' | 'landUse' | 'titleStatus' | 'encumbrance' | 'naConversionStatus') => void
   errors?: Record<string, string>
 }
 
@@ -19,7 +27,6 @@ export const Section1And2: React.FC<Section1And2Props> = ({
   onToggleLocation,
   isLandDetailsOpen,
   onToggleLandDetails,
-  onOpenPicker,
   errors = {},
 }) => {
   return (
@@ -118,21 +125,22 @@ export const Section1And2: React.FC<Section1And2Props> = ({
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">
+              <label htmlFor="step2ProjectZone" className="pf-field-label">
                 Project Zone <span className="pf-req">*</span>
               </label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.step2ProjectZone ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => onOpenPicker('step2ProjectZone')}
+              <select
+                id="step2ProjectZone"
+                className={`pf-custom-select ${errors.step2ProjectZone ? 'pf-custom-select--error' : ''}`}
+                value={data.step2ProjectZone || ''}
+                onChange={(e) => onChange({ step2ProjectZone: e.target.value })}
               >
-                <span className={data.step2ProjectZone ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.step2ProjectZone || 'Select zone'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select zone</option>
+                {PROJECT_ZONES.map((zone) => (
+                  <option key={zone.value} value={zone.value}>
+                    {zone.label}
+                  </option>
+                ))}
+              </select>
               {errors.step2ProjectZone && <span className="pf-field-error">{errors.step2ProjectZone}</span>}
             </div>
 
@@ -216,97 +224,102 @@ export const Section1And2: React.FC<Section1And2Props> = ({
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">
+              <label htmlFor="landOwnership" className="pf-field-label">
                 Land Ownership <span className="pf-req">*</span>
               </label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.landOwnership ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => onOpenPicker('landOwnership')}
+              <select
+                id="landOwnership"
+                className={`pf-custom-select ${errors.landOwnership ? 'pf-custom-select--error' : ''}`}
+                value={data.landOwnership || ''}
+                onChange={(e) => onChange({ landOwnership: e.target.value })}
               >
-                <span className={data.landOwnership ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.landOwnership || 'Select ownership'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select ownership</option>
+                {LAND_OWNERSHIP_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
               {errors.landOwnership && <span className="pf-field-error">{errors.landOwnership}</span>}
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">
+              <label htmlFor="landUse" className="pf-field-label">
                 Land Use <span className="pf-req">*</span>
               </label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.landUse ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => onOpenPicker('landUse')}
+              <select
+                id="landUse"
+                className={`pf-custom-select ${errors.landUse ? 'pf-custom-select--error' : ''}`}
+                value={data.landUse || ''}
+                onChange={(e) => onChange({ landUse: e.target.value })}
               >
-                <span className={data.landUse ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.landUse || 'Select land use'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select land use</option>
+                {LAND_USE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
               {errors.landUse && <span className="pf-field-error">{errors.landUse}</span>}
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">
+              <label htmlFor="titleStatus" className="pf-field-label">
                 Title Status <span className="pf-req">*</span>
               </label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.titleStatus ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => onOpenPicker('titleStatus')}
+              <select
+                id="titleStatus"
+                className={`pf-custom-select ${errors.titleStatus ? 'pf-custom-select--error' : ''}`}
+                value={data.titleStatus || ''}
+                onChange={(e) => onChange({ titleStatus: e.target.value })}
               >
-                <span className={data.titleStatus ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.titleStatus || 'Select title status'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select title status</option>
+                {TITLE_STATUS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
               {errors.titleStatus && <span className="pf-field-error">{errors.titleStatus}</span>}
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">
+              <label htmlFor="encumbrance" className="pf-field-label">
                 Encumbrance <span className="pf-req">*</span>
               </label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.encumbrance ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => onOpenPicker('encumbrance')}
+              <select
+                id="encumbrance"
+                className={`pf-custom-select ${errors.encumbrance ? 'pf-custom-select--error' : ''}`}
+                value={data.encumbrance || ''}
+                onChange={(e) => onChange({ encumbrance: e.target.value })}
               >
-                <span className={data.encumbrance ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.encumbrance || 'Select encumbrance'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select encumbrance</option>
+                {ENCUMBRANCE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
               {errors.encumbrance && <span className="pf-field-error">{errors.encumbrance}</span>}
             </div>
 
             <div className="pf-field-group">
-              <label className="pf-field-label">
+              <label htmlFor="naConversionStatus" className="pf-field-label">
                 NA Conversion Status <span className="pf-req">*</span>
               </label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.naConversionStatus ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => onOpenPicker('naConversionStatus')}
+              <select
+                id="naConversionStatus"
+                className={`pf-custom-select ${errors.naConversionStatus ? 'pf-custom-select--error' : ''}`}
+                value={data.naConversionStatus || ''}
+                onChange={(e) => onChange({ naConversionStatus: e.target.value })}
               >
-                <span className={data.naConversionStatus ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.naConversionStatus || 'Select status'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select status</option>
+                {NA_CONVERSION_STATUS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
               {errors.naConversionStatus && <span className="pf-field-error">{errors.naConversionStatus}</span>}
             </div>
           </div>

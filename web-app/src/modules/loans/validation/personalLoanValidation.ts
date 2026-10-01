@@ -1,11 +1,6 @@
-import type { PersonalLoanData } from '../types/personalLoan.types'
-import { commonLoanValidation } from './commonLoanValidation'
-
-export interface ValidationResult {
-  isValid: boolean
-  error?: string
-  errors: Record<string, string>
-}
+import type { PersonalLoanData } from '@modules/loans/types/personalLoan.types'
+import { commonLoanValidation, loanFieldRules, toStepResult } from './commonLoanValidation'
+import type { LoanStepValidationResult } from './commonLoanValidation'
 
 export const PERSONAL_LOAN_REQUIRED_DOC_IDS = [
   'pan_card',
@@ -17,7 +12,7 @@ export const PERSONAL_LOAN_REQUIRED_DOC_IDS = [
 ] as const
 
 export const personalLoanValidation = {
-  validateStep1: (data: PersonalLoanData): ValidationResult => {
+  validateStep1: (data: PersonalLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
 
     const amountNum = Number(String(data.requiredLoanAmount || '').replace(/\D/g, ''))
@@ -29,8 +24,14 @@ export const personalLoanValidation = {
       errors.requiredLoanAmount = 'Maximum loan amount is ₹50,00,000'
     }
 
-    if (!data.purposeOfLoan || !data.purposeOfLoan.trim()) {
+    const purpose = (data.purposeOfLoan || '').trim()
+    if (!purpose) {
       errors.purposeOfLoan = 'Purpose of loan is required'
+    } else if (purpose.toLowerCase() === 'other') {
+      errors.purposeOfLoan = 'Please specify the purpose of your loan'
+    } else {
+      const purposeError = loanFieldRules.text(purpose, 'Purpose of loan', 3, 100)
+      if (purposeError) errors.purposeOfLoan = purposeError
     }
 
     if (!data.preferredTenure || !data.preferredTenure.trim()) {
@@ -42,28 +43,28 @@ export const personalLoanValidation = {
       errors.monthlyNetSalary = 'Monthly net in-hand salary is required'
     } else if (salaryNum < 10000) {
       errors.monthlyNetSalary = 'Minimum monthly salary must be at least ₹10,000'
+    } else if (salaryNum > 100000000) {
+      errors.monthlyNetSalary = 'Please enter a valid monthly salary'
     }
 
     if (data.hasExistingLoans) {
       const emiNum = Number(String(data.existingMonthlyEmi || '').replace(/\D/g, ''))
       if (!data.existingMonthlyEmi || !emiNum) {
         errors.existingMonthlyEmi = 'Please provide current monthly EMI outgo'
+      } else if (salaryNum && emiNum >= salaryNum) {
+        errors.existingMonthlyEmi = 'Existing EMI must be less than your monthly net salary'
       }
     }
 
-    const isValid = Object.keys(errors).length === 0
-    return {
-      isValid,
-      error: isValid ? undefined : Object.values(errors)[0],
-      errors,
-    }
+    return toStepResult(errors)
   },
 
-  validateStep2: (data: PersonalLoanData): ValidationResult => {
+  validateStep2: (data: PersonalLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
 
-    if (!data.primaryBankName || !data.primaryBankName.trim()) {
-      errors.primaryBankName = 'Primary operating bank name is required'
+    const bankNameError = loanFieldRules.bankName(data.primaryBankName)
+    if (bankNameError) {
+      errors.primaryBankName = bankNameError
     }
 
     const accRes = commonLoanValidation.validateAccountNumber(data.bankAccountNumber || '')
@@ -76,15 +77,10 @@ export const personalLoanValidation = {
       errors.bankIfscCode = ifscRes.message || 'Valid 11-digit bank IFSC code is required'
     }
 
-    const isValid = Object.keys(errors).length === 0
-    return {
-      isValid,
-      error: isValid ? undefined : Object.values(errors)[0],
-      errors,
-    }
+    return toStepResult(errors)
   },
 
-  validateStep3: (data: PersonalLoanData): ValidationResult => {
+  validateStep3: (data: PersonalLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
     const uploadedDocs = data.uploadedDocs || {}
 
@@ -94,15 +90,10 @@ export const personalLoanValidation = {
       }
     })
 
-    const isValid = Object.keys(errors).length === 0
-    return {
-      isValid,
-      error: isValid ? undefined : 'Please upload all 6 required documents to expedite sanction.',
-      errors,
-    }
+    return toStepResult(errors, 'Please upload all 6 required documents to expedite sanction.')
   },
 
-  validateStep4: (data: PersonalLoanData): ValidationResult => {
+  validateStep4: (data: PersonalLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
 
     if (!data.confirmAccurate) {
@@ -112,11 +103,6 @@ export const personalLoanValidation = {
       errors.authorizeCreditCheck = 'You must authorize credit bureau checks'
     }
 
-    const isValid = Object.keys(errors).length === 0
-    return {
-      isValid,
-      error: isValid ? undefined : Object.values(errors)[0],
-      errors,
-    }
+    return toStepResult(errors)
   },
 }

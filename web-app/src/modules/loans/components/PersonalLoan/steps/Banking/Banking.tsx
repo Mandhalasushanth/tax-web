@@ -1,7 +1,6 @@
 import React from 'react'
-import type { PersonalLoanStepProps } from '../../../../types/personalLoan.types'
-import { loanInputHelpers } from '../../../../validation/commonLoanValidation'
-import { resolveIfscBranch } from '../../../../utils/loanInputFormatters'
+import type { PersonalLoanStepProps } from '@modules/loans/types/personalLoan.types'
+import { loanInputHelpers, resolveIfscBranch } from '@modules/loans/utils/loanInputFormatters'
 import './Banking.css'
 
 export const Banking: React.FC<PersonalLoanStepProps> = ({
@@ -10,7 +9,7 @@ export const Banking: React.FC<PersonalLoanStepProps> = ({
   errors = {},
 }) => {
   const handleBankNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({ primaryBankName: e.target.value })
+    onChange({ primaryBankName: loanInputHelpers.lettersOnly(e.target.value) })
   }
 
   const handleAccountNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {

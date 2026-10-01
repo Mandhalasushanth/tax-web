@@ -1,9 +1,9 @@
 import React from 'react'
-import type { BusinessLoanFormData } from '../../../../types/businessLoan.types'
+import type { BusinessLoanFormData } from '@modules/loans/types/businessLoan.types'
 import {
   formatDigitsOnly,
   handleNumericKeyDown,
-} from '../../../../utils/loanInputFormatters'
+} from '@modules/loans/utils/loanInputFormatters'
 
 export interface BusinessFinancialsCardProps {
   data: BusinessLoanFormData
@@ -13,7 +13,7 @@ export interface BusinessFinancialsCardProps {
 
 /**
  * Business Financials Card - Annual Turnover & Annual Net Profit
- * Enforces digits-only input with zero loops and external CSS.
+ * Enforces digits-only input.
  */
 export const BusinessFinancialsCard: React.FC<BusinessFinancialsCardProps> = ({
   data,

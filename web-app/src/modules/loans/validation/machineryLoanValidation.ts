@@ -1,11 +1,6 @@
-import { commonLoanValidation, loanInputHelpers } from './commonLoanValidation'
-import type { MachineryLoanData } from '../types/machineryLoan.types'
-
-export interface StepValidationResult {
-  isValid: boolean
-  error?: string
-  errors: Record<string, string>
-}
+import { commonLoanValidation, loanFieldRules, toStepResult } from './commonLoanValidation'
+import type { LoanStepValidationResult } from './commonLoanValidation'
+import type { MachineryLoanData } from '@modules/loans/types/machineryLoan.types'
 
 export const MACHINERY_DOCUMENT_CONFIGS = [
   { id: 'pan_card', name: 'PAN Card', isRequired: true, category: 'identity' },
@@ -17,11 +12,10 @@ export const MACHINERY_DOCUMENT_CONFIGS = [
   { id: 'udyam_certificate', name: 'Udyam Certificate', isRequired: false, category: 'business' },
 ]
 
-export { loanInputHelpers }
 
 
 export const machineryLoanValidation = {
-  validateStep1: (data: MachineryLoanData): StepValidationResult => {
+  validateStep1: (data: MachineryLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
 
     const loanAmountNum = Number(String(data.loanAmount || '').replace(/[^\d]/g, ''))
@@ -39,19 +33,16 @@ export const machineryLoanValidation = {
       errors.repaymentTenure = 'Please select repayment tenure'
     }
 
-    const firstError = Object.values(errors)[0]
-    return {
-      isValid: Object.keys(errors).length === 0,
-      error: firstError,
-      errors,
-    }
+    return toStepResult(errors)
   },
 
-  validateStep2: (data: MachineryLoanData): StepValidationResult => {
+  validateStep2: (data: MachineryLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
 
     if (!data.businessName || !data.businessName.trim()) {
       errors.businessName = 'Please enter your business / plant name'
+    } else if (data.businessName.trim().length < 3) {
+      errors.businessName = 'Business / plant name must be at least 3 characters'
     }
 
     if (!data.businessType || !data.businessType.trim()) {
@@ -81,19 +72,15 @@ export const machineryLoanValidation = {
       }
     }
 
-    const firstError = Object.values(errors)[0]
-    return {
-      isValid: Object.keys(errors).length === 0,
-      error: firstError,
-      errors,
-    }
+    return toStepResult(errors)
   },
 
-  validateStep3: (data: MachineryLoanData): StepValidationResult => {
+  validateStep3: (data: MachineryLoanData): LoanStepValidationResult => {
     const errors: Record<string, string> = {}
 
-    if (!data.bankName || !data.bankName.trim()) {
-      errors.bankName = 'Please enter or select your bank name'
+    const bankNameError = loanFieldRules.bankName(data.bankName)
+    if (bankNameError) {
+      errors.bankName = bankNameError
     }
 
     const accTrimmed = (data.accountNumber || '').trim()
@@ -110,15 +97,10 @@ export const machineryLoanValidation = {
       errors.ifscCode = 'Please enter a valid 11-digit IFSC code (e.g. BKID0008832)'
     }
 
-    const firstError = Object.values(errors)[0]
-    return {
-      isValid: Object.keys(errors).length === 0,
-      error: firstError,
-      errors,
-    }
+    return toStepResult(errors)
   },
 
-  validateStep4: (data: MachineryLoanData): StepValidationResult => {
+  validateStep4: (data: MachineryLoanData): LoanStepValidationResult => {
     const uploadedDocs = data.uploadedDocs || {}
     const mandatoryDocs = MACHINERY_DOCUMENT_CONFIGS.slice(0, 4)
 
@@ -145,10 +127,6 @@ export const machineryLoanValidation = {
       ? `Please upload mandatory documents (${missingDocs.join(', ')})`
       : errors.termsAccepted
 
-    return {
-      isValid: Object.keys(errors).length === 0,
-      error: errorMsg,
-      errors,
-    }
+    return toStepResult(errors, errorMsg)
   },
 }

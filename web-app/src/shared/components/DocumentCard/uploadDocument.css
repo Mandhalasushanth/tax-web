@@ -112,7 +112,7 @@
   text-overflow: ellipsis;
 }
 
-/* Upload Button: Translucent Water / Glass Capsule in Light Navy Blue */
+/* Upload Button: Lavender pill with indigo text (shared across all loans) */
 .supporting-doc-item__btn-group {
   display: flex;
   align-items: center;
@@ -120,40 +120,38 @@
   flex-shrink: 0;
 }
 
-.supporting-doc-item__upload-btn {
+.supporting-doc-item .supporting-doc-item__upload-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, rgba(234, 241, 254, 0.72) 0%, rgba(219, 228, 240, 0.4) 100%);
-  color: #083b75;
-  border: 1.5px solid rgba(8, 59, 117, 0.24);
+  background: #eef0fc;
+  color: #2b2a86;
+  border: 1.5px solid #c9ccf1;
   border-radius: 9999px;
   padding: 0.52rem 1.35rem;
   font-size: 0.84375rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(8, 59, 117, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px rgba(43, 42, 134, 0.06);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
   flex-shrink: 0;
   line-height: 1;
 }
 
-.supporting-doc-item__upload-btn:hover {
-  background: linear-gradient(135deg, rgba(234, 241, 254, 0.95) 0%, rgba(200, 218, 245, 0.65) 100%);
-  border-color: rgba(8, 59, 117, 0.42);
-  color: #052750;
-  box-shadow: 0 4px 14px rgba(8, 59, 117, 0.12), inset 0 1px 1px #ffffff;
+.supporting-doc-item .supporting-doc-item__upload-btn:hover {
+  background: #e3e6fa;
+  border-color: #a9aee8;
+  color: #1f1e6e;
+  box-shadow: 0 4px 12px rgba(43, 42, 134, 0.12);
   transform: translateY(-1px);
 }
 
-.supporting-doc-item__upload-btn:active {
-  background: rgba(8, 59, 117, 0.14);
-  border-color: rgba(8, 59, 117, 0.55);
+.supporting-doc-item .supporting-doc-item__upload-btn:active {
+  background: #d8dcf7;
+  border-color: #959be2;
   transform: translateY(0);
-  box-shadow: 0 1px 3px rgba(8, 59, 117, 0.1);
+  box-shadow: 0 1px 3px rgba(43, 42, 134, 0.1);
 }
 
 .supporting-doc-item__cloud-icon {

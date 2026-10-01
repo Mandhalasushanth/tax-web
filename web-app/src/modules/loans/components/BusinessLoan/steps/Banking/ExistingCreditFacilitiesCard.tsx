@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react'
-import type { BusinessLoanFormData } from '../../../../types/businessLoan.types'
-import { useDropdown } from '../../../../hooks/useDropdown'
+import type { BusinessLoanFormData } from '@modules/loans/types/businessLoan.types'
+import { useDropdown } from '@modules/loans/hooks/useDropdown'
 import { LoanDropdownOption } from '../LoanDropdownOption'
 import {
   formatDigitsOnly,
   handleNumericKeyDown,
-} from '../../../../utils/loanInputFormatters'
+} from '@modules/loans/utils/loanInputFormatters'
 
 export interface ExistingCreditFacilitiesCardProps {
   data: BusinessLoanFormData

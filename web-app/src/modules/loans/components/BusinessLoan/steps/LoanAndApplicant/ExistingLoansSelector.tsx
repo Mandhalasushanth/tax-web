@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ExistingLoansType } from '../../../../types/businessLoan.types'
+import type { ExistingLoansType } from '@modules/loans/types/businessLoan.types'
 
 interface ExistingLoanOptionCardProps {
   type: ExistingLoansType

@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
+process.env.VITE_API_BASE_URL = 'http://localhost:3000'
+
 import '@testing-library/jest-dom/vitest'
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { LoanMarketplace } from '../../src/modules/loans/components/LoanMarketplace/LoanMarketplace'
 import { LOAN_MARKETPLACE_ITEMS } from '../../src/modules/loans/constants/loanMarketplace.constants'
@@ -10,14 +12,38 @@ import {
   isValidLoanMarketplaceItem,
   buildLoanCardAriaLabel,
 } from '../../src/modules/loans/utils/loanMarketplace.utils'
+import { useAuthStore } from '../../src/store/auth/authStore'
+
+const mockNavigate = vi.fn()
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  }
+})
 
 describe('LoanMarketplace Module', () => {
-  it('contains exactly 7 loans in the marketplace catalog matching the specification', () => {
-    expect(LOAN_MARKETPLACE_ITEMS).toHaveLength(7)
+  beforeEach(() => {
+    vi.clearAllMocks()
+    useAuthStore.setState({
+      user: null,
+      isAuthenticated: false,
+    })
+  })
+
+  afterEach(() => {
+    cleanup()
+  })
+
+  it('contains exactly 9 loans in the marketplace catalog matching the specification', () => {
+    expect(LOAN_MARKETPLACE_ITEMS).toHaveLength(9)
 
     const expectedOrder = [
       { id: 'business-loan', title: 'Business Loan', rate: 'From 12% p.a.' },
+      { id: 'personal-loan', title: 'Personal Loan', rate: 'From 10.5% p.a.' },
       { id: 'home-loan', title: 'Home Loan', rate: 'From 8.4% p.a.' },
+      { id: 'property-loan', title: 'Property Loan', rate: 'From 9.5% p.a.' },
       { id: 'vehicle-loan', title: 'Vehicle Loan', rate: 'From 8.75% p.a.' },
       { id: 'working-capital', title: 'Working Capital', rate: 'From 10.0% p.a.' },
       { id: 'machinery-loan', title: 'Machinery Loan', rate: 'From 11.0% p.a.' },
@@ -33,7 +59,7 @@ describe('LoanMarketplace Module', () => {
     })
   })
 
-  it('renders all 7 loan cards and header inside LoanMarketplace', () => {
+  it('renders all 9 loan cards and header inside LoanMarketplace', () => {
     render(
       <MemoryRouter>
         <LoanMarketplace />
@@ -43,19 +69,90 @@ describe('LoanMarketplace Module', () => {
     expect(screen.getByText('Capital & Financing')).toBeInTheDocument()
     expect(screen.getByText('Loan Marketplace & Assistance')).toBeInTheDocument()
 
-    // Verify all 7 loan titles are rendered
+    // Verify all 9 loan titles are rendered
     expect(screen.getByText('Business Loan')).toBeInTheDocument()
+    expect(screen.getByText('Personal Loan')).toBeInTheDocument()
     expect(screen.getByText('Home Loan')).toBeInTheDocument()
+    expect(screen.getByText('Property Loan')).toBeInTheDocument()
     expect(screen.getByText('Vehicle Loan')).toBeInTheDocument()
     expect(screen.getByText('Working Capital')).toBeInTheDocument()
     expect(screen.getByText('Machinery Loan')).toBeInTheDocument()
     expect(screen.getByText('Project Finance')).toBeInTheDocument()
     expect(screen.getByText('MSME Loan')).toBeInTheDocument()
 
-    // Verify all rates are displayed
+    // Verify rates are displayed
     expect(screen.getByText('From 12% p.a.')).toBeInTheDocument()
+    expect(screen.getByText('From 10.5% p.a.')).toBeInTheDocument()
     expect(screen.getByText('Custom Pricing')).toBeInTheDocument()
     expect(screen.getByText('From 7.5% p.a.')).toBeInTheDocument()
+  })
+
+  it('opens CompleteProfileModal when user profile is incomplete on loan click', () => {
+    useAuthStore.setState({
+      user: {
+        id: 'usr_test_1',
+        fullName: 'Test User',
+        mobile: '9876543210',
+        email: 'test@example.com',
+        role: 'customer',
+        isProfileComplete: false,
+      },
+      isAuthenticated: true,
+    })
+
+    render(
+      <MemoryRouter>
+        <LoanMarketplace />
+      </MemoryRouter>
+    )
+
+    // Modal should initially not be open
+    expect(screen.queryByText('Complete Your Profile')).not.toBeInTheDocument()
+
+    // Click Vehicle Loan card
+    const vehicleCard = screen.getByTestId('loan-card-vehicle-loan')
+    fireEvent.click(vehicleCard)
+
+    // Modal should now be visible
+    expect(screen.getByText('Complete Your Profile')).toBeInTheDocument()
+    expect(
+      screen.getByText('Please complete your profile to access TaxEdge services.')
+    ).toBeInTheDocument()
+
+    // Click "Complete Profile" button inside modal
+    const completeBtn = screen.getByRole('button', { name: /complete profile/i })
+    fireEvent.click(completeBtn)
+
+    expect(mockNavigate).toHaveBeenCalledWith('/auth/register', {
+      state: { returnTo: '/loans/vehicle-loan', mobile: '9876543210' },
+    })
+  })
+
+  it('navigates directly to loan when user profile is complete', () => {
+    useAuthStore.setState({
+      user: {
+        id: 'usr_test_2',
+        fullName: 'Verified User',
+        mobile: '9876543210',
+        email: 'verified@example.com',
+        role: 'customer',
+        isProfileComplete: true,
+      },
+      isAuthenticated: true,
+    })
+
+    render(
+      <MemoryRouter>
+        <LoanMarketplace />
+      </MemoryRouter>
+    )
+
+    // Click Home Loan card
+    const homeCard = screen.getByTestId('loan-card-home-loan')
+    fireEvent.click(homeCard)
+
+    expect(screen.queryByText('Complete Your Profile')).not.toBeInTheDocument()
+    expect(mockNavigate).toHaveBeenCalledWith('/loans/home-loan')
   })
 
   it('safely handles exception during navigation in safeNavigateTo', () => {

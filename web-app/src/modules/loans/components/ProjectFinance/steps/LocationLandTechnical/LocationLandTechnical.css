@@ -226,8 +226,7 @@
   color: #ef4444;
 }
 
-.pf-custom-input,
-.pf-custom-select-btn {
+.pf-custom-input {
   width: 100%;
   height: 48px;
   padding: 0 1rem;
@@ -248,45 +247,19 @@
   cursor: not-allowed;
 }
 
-.pf-custom-select-btn {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  text-align: left;
-}
-
-.pf-custom-input:focus,
-.pf-custom-select-btn:focus {
+.pf-custom-input:focus {
   border-color: #ff7a00;
   box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.12);
 }
 
-.pf-custom-input--error,
-.pf-custom-select-btn--error {
+.pf-custom-input--error {
   border-color: #ef4444 !important;
   background-color: #fff5f5 !important;
 }
 
-.pf-custom-input--error:focus,
-.pf-custom-select-btn--error:focus {
+.pf-custom-input--error:focus {
   border-color: #dc2626 !important;
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
-}
-
-.pf-select-value {
-  color: #0f172a;
-  font-weight: 500;
-}
-
-.pf-select-placeholder {
-  color: #94a3b8;
-}
-
-.pf-select-chevron {
-  display: flex;
-  align-items: center;
-  color: #64748b;
 }
 
 .pf-field-error {

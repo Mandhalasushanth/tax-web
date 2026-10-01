@@ -1,5 +1,5 @@
 import React from 'react'
-import type { EmploymentProfileType } from '../../../../types/businessLoan.types'
+import type { EmploymentProfileType } from '@modules/loans/types/businessLoan.types'
 
 interface EmploymentOptionCardProps {
   type: EmploymentProfileType

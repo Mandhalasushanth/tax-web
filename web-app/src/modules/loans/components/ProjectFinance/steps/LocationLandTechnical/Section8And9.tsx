@@ -1,5 +1,10 @@
 import React from 'react'
-import type { ProjectFinanceData, PlantMachineryItem, RawMaterialItem } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData, PlantMachineryItem, RawMaterialItem } from '@modules/loans/types/projectFinance.types'
+import {
+  MACHINERY_CATEGORY_OPTIONS,
+  RAW_MATERIAL_SOURCE_OPTIONS,
+  RAW_MATERIAL_UNIT_OPTIONS,
+} from './locationLandTechnicalConstants'
 
 export interface Section8And9Props {
   data: ProjectFinanceData
@@ -8,7 +13,7 @@ export interface Section8And9Props {
   onToggleMachinery: () => void
   isRawMaterialOpen: boolean
   onToggleRawMaterial: () => void
-  onOpenPicker: (picker: string) => void
+  onOpenPicker?: (picker: string) => void
 }
 
 export const Section8And9: React.FC<Section8And9Props> = ({
@@ -18,7 +23,6 @@ export const Section8And9: React.FC<Section8And9Props> = ({
   onToggleMachinery,
   isRawMaterialOpen,
   onToggleRawMaterial,
-  onOpenPicker,
 }) => {
   const machineryList: PlantMachineryItem[] = data.plantMachineryList && data.plantMachineryList.length > 0
     ? data.plantMachineryList
@@ -155,19 +159,18 @@ export const Section8And9: React.FC<Section8And9Props> = ({
                   </div>
 
                   <div className="pf-field-group">
-                    <label className="pf-field-label">Category <span className="pf-req">*</span></label>
-                    <button
-                      type="button"
-                      className="pf-custom-select-btn"
-                      onClick={() => onOpenPicker(`machinery_cat_${idx}`)}
+                    <label htmlFor={`machineryCategory_${idx}`} className="pf-field-label">Category <span className="pf-req">*</span></label>
+                    <select
+                      id={`machineryCategory_${idx}`}
+                      className="pf-custom-select"
+                      value={item.category || ''}
+                      onChange={(e) => handleUpdateMachinery(idx, { category: e.target.value })}
                     >
-                      <span className={item.category ? 'pf-select-value' : 'pf-select-placeholder'}>
-                        {item.category || 'Select category'}
-                      </span>
-                      <span className="pf-select-chevron">
-                        <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                      </span>
-                    </button>
+                      <option value="" disabled>Select category</option>
+                      {MACHINERY_CATEGORY_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="pf-field-group">
@@ -279,19 +282,18 @@ export const Section8And9: React.FC<Section8And9Props> = ({
 
                   <div className="pf-grid-2">
                     <div className="pf-field-group">
-                      <label className="pf-field-label">Source <span className="pf-req">*</span></label>
-                      <button
-                        type="button"
-                        className="pf-custom-select-btn"
-                        onClick={() => onOpenPicker(`raw_source_${idx}`)}
+                      <label htmlFor={`rawSource_${idx}`} className="pf-field-label">Source <span className="pf-req">*</span></label>
+                      <select
+                        id={`rawSource_${idx}`}
+                        className="pf-custom-select"
+                        value={item.source || ''}
+                        onChange={(e) => handleUpdateRawMaterial(idx, { source: e.target.value })}
                       >
-                        <span className={item.source ? 'pf-select-value' : 'pf-select-placeholder'}>
-                          {item.source || 'Select source'}
-                        </span>
-                        <span className="pf-select-chevron">
-                          <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                        </span>
-                      </button>
+                        <option value="" disabled>Select source</option>
+                        {RAW_MATERIAL_SOURCE_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
                     </div>
 
                     <div className="pf-field-group">
@@ -321,19 +323,18 @@ export const Section8And9: React.FC<Section8And9Props> = ({
                     </div>
 
                     <div className="pf-field-group">
-                      <label className="pf-field-label">Unit <span className="pf-req">*</span></label>
-                      <button
-                        type="button"
-                        className="pf-custom-select-btn"
-                        onClick={() => onOpenPicker(`raw_unit_${idx}`)}
+                      <label htmlFor={`rawUnit_${idx}`} className="pf-field-label">Unit <span className="pf-req">*</span></label>
+                      <select
+                        id={`rawUnit_${idx}`}
+                        className="pf-custom-select"
+                        value={item.unit || ''}
+                        onChange={(e) => handleUpdateRawMaterial(idx, { unit: e.target.value })}
                       >
-                        <span className={item.unit ? 'pf-select-value' : 'pf-select-placeholder'}>
-                          {item.unit || 'Select unit'}
-                        </span>
-                        <span className="pf-select-chevron">
-                          <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                        </span>
-                      </button>
+                        <option value="" disabled>Select unit</option>
+                        {RAW_MATERIAL_UNIT_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 
@@ -343,7 +344,7 @@ export const Section8And9: React.FC<Section8And9Props> = ({
                       <label className="pf-radio-label">
                         <input
                           type="radio"
-                          name={`raw_supply_agree_${idx}`}
+                          name={`raw_supply_agree_${item.id || idx}`}
                           className="pf-radio-input"
                           checked={item.hasSupplyAgreement === true}
                           onChange={() => handleUpdateRawMaterial(idx, { hasSupplyAgreement: true })}
@@ -356,7 +357,7 @@ export const Section8And9: React.FC<Section8And9Props> = ({
                       <label className="pf-radio-label">
                         <input
                           type="radio"
-                          name={`raw_supply_agree_${idx}`}
+                          name={`raw_supply_agree_${item.id || idx}`}
                           className="pf-radio-input"
                           checked={item.hasSupplyAgreement === false}
                           onChange={() => handleUpdateRawMaterial(idx, { hasSupplyAgreement: false })}

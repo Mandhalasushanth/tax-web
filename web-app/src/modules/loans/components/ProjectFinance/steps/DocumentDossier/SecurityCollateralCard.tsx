@@ -1,5 +1,9 @@
 import React from 'react'
-import type { SecurityItem } from '../../../../types/projectFinance.types'
+import type { SecurityItem } from '@modules/loans/types/projectFinance.types'
+import {
+  TYPE_OF_SECURITY_OPTIONS,
+  OWNERSHIP_TYPE_OPTIONS,
+} from './securityComplianceConstants'
 
 export interface SecurityCollateralCardProps {
   item: SecurityItem
@@ -7,7 +11,7 @@ export interface SecurityCollateralCardProps {
   totalCount: number
   onChange: (updated: SecurityItem) => void
   onRemove: () => void
-  onOpenPicker: (field: 'typeOfSecurity' | 'ownershipType') => void
+  onOpenPicker?: (field: 'typeOfSecurity' | 'ownershipType') => void
   errors?: Record<string, string>
 }
 
@@ -17,26 +21,17 @@ export const SecurityCollateralCard: React.FC<SecurityCollateralCardProps> = ({
   totalCount,
   onChange,
   onRemove,
-  onOpenPicker,
   errors = {},
 }) => {
   const prefix = `security_${index}`
 
   const handleFieldChange = (field: keyof SecurityItem, val: string | boolean) => {
-    try {
-      onChange({ ...item, [field]: val })
-    } catch (err) {
-      console.error(`Error updating security item field ${String(field)}:`, err)
-    }
+    onChange({ ...item, [field]: val })
   }
 
   const handleNumericInput = (field: keyof SecurityItem, rawValue: string) => {
-    try {
-      const sanitized = rawValue.replace(/\D/g, '')
-      onChange({ ...item, [field]: sanitized })
-    } catch (err) {
-      console.error(`Error updating numeric field ${String(field)}:`, err)
-    }
+    const sanitized = rawValue.replace(/\D/g, '')
+    onChange({ ...item, [field]: sanitized })
   }
 
   return (
@@ -57,21 +52,20 @@ export const SecurityCollateralCard: React.FC<SecurityCollateralCardProps> = ({
 
       {/* Type of Security */}
       <div className="pf-field-group">
-        <label className="pf-field-label">
+        <label htmlFor={`${prefix}_typeOfSecurity`} className="pf-field-label">
           Type of Security <span className="pf-required-star">*</span>
         </label>
-        <button
-          type="button"
-          className={`pf-custom-select-btn ${errors[`${prefix}_typeOfSecurity`] ? 'pf-custom-select-btn--error' : ''}`}
-          onClick={() => onOpenPicker('typeOfSecurity')}
+        <select
+          id={`${prefix}_typeOfSecurity`}
+          className={`pf-custom-select ${errors[`${prefix}_typeOfSecurity`] ? 'pf-custom-select--error' : ''}`}
+          value={item.typeOfSecurity || ''}
+          onChange={(e) => handleFieldChange('typeOfSecurity', e.target.value)}
         >
-          <span className={item.typeOfSecurity ? 'pf-select-value' : 'pf-select-placeholder'}>
-            {item.typeOfSecurity || 'Select security type'}
-          </span>
-          <span className="pf-select-chevron">
-            <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-          </span>
-        </button>
+          <option value="" disabled>Select security type</option>
+          {TYPE_OF_SECURITY_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
         {errors[`${prefix}_typeOfSecurity`] && (
           <span className="pf-field-error-msg">{errors[`${prefix}_typeOfSecurity`]}</span>
         )}
@@ -115,21 +109,20 @@ export const SecurityCollateralCard: React.FC<SecurityCollateralCardProps> = ({
 
       {/* Ownership Type */}
       <div className="pf-field-group">
-        <label className="pf-field-label">
+        <label htmlFor={`${prefix}_ownershipType`} className="pf-field-label">
           Ownership Type <span className="pf-required-star">*</span>
         </label>
-        <button
-          type="button"
-          className={`pf-custom-select-btn ${errors[`${prefix}_ownershipType`] ? 'pf-custom-select-btn--error' : ''}`}
-          onClick={() => onOpenPicker('ownershipType')}
+        <select
+          id={`${prefix}_ownershipType`}
+          className={`pf-custom-select ${errors[`${prefix}_ownershipType`] ? 'pf-custom-select--error' : ''}`}
+          value={item.ownershipType || ''}
+          onChange={(e) => handleFieldChange('ownershipType', e.target.value)}
         >
-          <span className={item.ownershipType ? 'pf-select-value' : 'pf-select-placeholder'}>
-            {item.ownershipType || 'Select ownership type'}
-          </span>
-          <span className="pf-select-chevron">
-            <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-          </span>
-        </button>
+          <option value="" disabled>Select ownership type</option>
+          {OWNERSHIP_TYPE_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
         {errors[`${prefix}_ownershipType`] && (
           <span className="pf-field-error-msg">{errors[`${prefix}_ownershipType`]}</span>
         )}
@@ -162,7 +155,7 @@ export const SecurityCollateralCard: React.FC<SecurityCollateralCardProps> = ({
           <label className="pf-radio-label">
             <input
               type="radio"
-              name={`${prefix}_valReport`}
+              name={`valuationReport_${index}`}
               className="pf-radio-input"
               checked={item.valuationReportAvailable === true}
               onChange={() => handleFieldChange('valuationReportAvailable', true)}
@@ -175,7 +168,7 @@ export const SecurityCollateralCard: React.FC<SecurityCollateralCardProps> = ({
           <label className="pf-radio-label">
             <input
               type="radio"
-              name={`${prefix}_valReport`}
+              name={`valuationReport_${index}`}
               className="pf-radio-input"
               checked={item.valuationReportAvailable === false}
               onChange={() => handleFieldChange('valuationReportAvailable', false)}
@@ -188,16 +181,16 @@ export const SecurityCollateralCard: React.FC<SecurityCollateralCardProps> = ({
         </div>
       </div>
 
-      {/* Any Existing Charge? */}
+      {/* Existing Charge? */}
       <div className="pf-field-group">
         <label className="pf-field-label">
-          Any Existing Charge? <span className="pf-required-star">*</span>
+          Existing Charge? <span className="pf-required-star">*</span>
         </label>
         <div className="pf-radio-group">
           <label className="pf-radio-label">
             <input
               type="radio"
-              name={`${prefix}_existCharge`}
+              name={`existingCharge_${index}`}
               className="pf-radio-input"
               checked={item.existingCharge === true}
               onChange={() => handleFieldChange('existingCharge', true)}
@@ -210,7 +203,7 @@ export const SecurityCollateralCard: React.FC<SecurityCollateralCardProps> = ({
           <label className="pf-radio-label">
             <input
               type="radio"
-              name={`${prefix}_existCharge`}
+              name={`existingCharge_${index}`}
               className="pf-radio-input"
               checked={item.existingCharge === false}
               onChange={() => handleFieldChange('existingCharge', false)}
@@ -223,23 +216,20 @@ export const SecurityCollateralCard: React.FC<SecurityCollateralCardProps> = ({
         </div>
       </div>
 
-      {/* If Yes, Details */}
+      {/* Existing Charge Details (conditional) */}
       {item.existingCharge && (
         <div className="pf-field-group">
           <label htmlFor={`${prefix}_existingChargeDetails`} className="pf-field-label">
-            If Yes, Details <span className="pf-required-star">*</span>
+            Existing Charge Details
           </label>
-          <input
+          <textarea
             id={`${prefix}_existingChargeDetails`}
-            type="text"
-            className={`pf-custom-input ${errors[`${prefix}_existingChargeDetails`] ? 'pf-custom-input--error' : ''}`}
-            placeholder="Enter details"
+            rows={3}
+            className="pf-custom-textarea"
+            placeholder="Describe the existing charge"
             value={item.existingChargeDetails || ''}
             onChange={(e) => handleFieldChange('existingChargeDetails', e.target.value)}
           />
-          {errors[`${prefix}_existingChargeDetails`] && (
-            <span className="pf-field-error-msg">{errors[`${prefix}_existingChargeDetails`]}</span>
-          )}
         </div>
       )}
     </div>

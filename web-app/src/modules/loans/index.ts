@@ -1,6 +1,6 @@
 // Routes
 export { loansRoutes, default as defaultLoansRoutes } from './routes'
- 
+
 // Hooks
 export { useLoans, useLoanApplication, useDropdown } from './hooks'
 export * from './hooks'
@@ -28,6 +28,8 @@ export {
   BusinessLoan,
   MSMELoan,
   ProjectFinance,
+  PersonalLoan,
+  PropertyLoan,
   Loans,
   LoanMarketplace,
 } from './components'

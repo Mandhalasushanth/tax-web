@@ -1,25 +1,27 @@
 import { lazy } from 'react'
-import { Navigate, type RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router-dom'
 import { routePaths } from '@core/config'
 
-const LoanMarketplace = lazy(() => import('./pages/LoanMarketplace'))
-const Loans = lazy(() => import('./pages/Loans'))
-const HomeLoan = lazy(() => import('./pages/HomeLoan'))
-const BusinessLoan = lazy(() => import('./pages/BusinessLoan'))
-const VehicleLoan = lazy(() => import('./pages/VehicleLoan'))
-const WorkingCapitalLoan = lazy(() => import('./pages/WorkingCapitalLoan'))
-const MachineryLoan = lazy(() => import('./pages/MachineryLoan'))
-const ProjectFinance = lazy(() => import('./pages/ProjectFinance'))
-const MSMELoan = lazy(() => import('./pages/MSMELoan'))
-const LoanApplicationStatus = lazy(() => import('./pages/LoanApplicationStatus'))
+const LoanMarketplace = lazy(() => import('./components/LoanMarketplace/LoanMarketplace'))
+const Loans = lazy(() => import('./components/Loans/Loans'))
+const HomeLoan = lazy(() => import('./components/HomeLoan/HomeLoan'))
+const PersonalLoan = lazy(() => import('./components/PersonalLoan/PersonalLoan'))
+const BusinessLoan = lazy(() => import('./components/BusinessLoan/BusinessLoan'))
+const PropertyLoan = lazy(() => import('./components/PropertyLoan/PropertyLoan'))
+const VehicleLoan = lazy(() => import('./components/VehicleLoan/VehicleLoan'))
+const WorkingCapitalLoan = lazy(() => import('./components/WorkingCapitalLoan/WorkingCapitalLoan'))
+const MachineryLoan = lazy(() => import('./components/MachineryLoan/MachineryLoan'))
+const ProjectFinance = lazy(() => import('./components/ProjectFinance/ProjectFinance'))
+const MSMELoan = lazy(() => import('./components/MSMELoan/MSMELoan'))
+const LoanApplicationStatus = lazy(() => import('./shared/LoanApplicationStatus/LoanApplicationStatus'))
 
 export const loansRoutes: RouteObject[] = [
   { path: routePaths.loans, element: <LoanMarketplace /> },
   { path: '/loans/all', element: <Loans /> },
   { path: routePaths.loansHomeLoan, element: <HomeLoan /> },
-  { path: routePaths.loansPersonalLoan, element: <Navigate to={routePaths.loans} replace /> },
+  { path: routePaths.loansPersonalLoan, element: <PersonalLoan /> },
   { path: routePaths.loansBusinessLoan, element: <BusinessLoan /> },
-  { path: routePaths.loansPropertyLoan, element: <Navigate to={routePaths.loans} replace /> },
+  { path: routePaths.loansPropertyLoan, element: <PropertyLoan /> },
   { path: routePaths.loansVehicleLoan, element: <VehicleLoan /> },
   { path: routePaths.loansWorkingCapitalLoan, element: <WorkingCapitalLoan /> },
   { path: routePaths.loansMachineryLoan, element: <MachineryLoan /> },

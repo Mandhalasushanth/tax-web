@@ -5,12 +5,13 @@ export { VehicleLoan } from './VehicleLoan'
 export { BusinessLoan } from './BusinessLoan'
 export { MSMELoan } from './MSMELoan'
 export { ProjectFinance } from './ProjectFinance'
+export { PersonalLoan } from './PersonalLoan'
+export { PropertyLoan } from './PropertyLoan'
 export { Loans } from './Loans'
 export { LoanMarketplace } from './LoanMarketplace'
 export {
   LoanApplicationStatus,
-  LoanDocumentSection,
   LoanFormSection,
   LoanPageNavigation,
   LoanReviewSection,
-} from '../shared'
+} from '@modules/loans/shared'

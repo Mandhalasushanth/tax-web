@@ -1,6 +1,6 @@
 import React from 'react'
 import { DocumentCard } from '@shared/components'
-import type { UploadedLoanDocument } from '../../../../documents/loanDocument.types'
+import type { UploadedLoanDocument } from '@modules/loans/documents/loanDocument.types'
 
 export type DocumentThemeColor = 'blue' | 'purple' | 'green' | 'pink' | 'orange'
 
@@ -18,16 +18,6 @@ export interface BusinessDocumentItemProps {
   onRemove: (id: string) => void
   onView: (doc: { id: string; title: string; fileName?: string; file?: File }) => void
 }
-
-const CLOUD_UPLOAD_ICON = (
-  <img
-    src="/assets/icons/loans/cloud-upload-orange.svg"
-    alt=""
-    width="17"
-    height="17"
-    aria-hidden="true"
-  />
-)
 
 /**
  * Reusable Document Item Component wrapping shared DocumentCard
@@ -75,7 +65,6 @@ export const BusinessDocumentItem: React.FC<BusinessDocumentItemProps> = ({
       subtitle={subtitle}
       isRequired={isRequired && !isOptional}
       badge={optionalBadge}
-      uploadIcon={CLOUD_UPLOAD_ICON}
       icon={cardIcon}
       accept=".pdf,.jpg,.jpeg,.png"
       isUploaded={isUploaded}

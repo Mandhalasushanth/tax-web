@@ -27,6 +27,7 @@ const LOAN_TYPE_DISPLAY_MAP: Record<string, string> = {
   'Personal Loan': 'Personal Loan',
   property_loan: 'Property Loan',
   'Property Loan': 'Property Loan',
+  'Loan Against Property': 'Property Loan',
 }
 
 function formatLoanTitle(raw?: string): string {
@@ -35,73 +36,90 @@ function formatLoanTitle(raw?: string): string {
 }
 
 function resolvePrimaryDetail(loanKey: string, rawForm: Record<string, unknown>, equipment?: string) {
+  if (loanKey.includes('property')) {
+    const pType = (rawForm.propertyType as string) || ''
+    const purpose = (rawForm.loanPurpose as string) || (equipment !== '—' ? equipment : '') || ''
+    const val = [pType, purpose].filter(Boolean).join(' · ') || '—'
+    return {
+      label: 'Property Type & Purpose',
+      value: val,
+      iconSrc: '/assets/icons/loans/home-blue.svg',
+    }
+  }
   if (loanKey.includes('home')) {
-    const intent = (rawForm.customPropertyIntent || rawForm.propertyIntent || equipment || 'Property Purchase') as string
+    const intent = (rawForm.customPropertyIntent || rawForm.propertyIntent || (equipment !== '—' ? equipment : '') || '—') as string
     const stage = rawForm.propertyStage as string | undefined
     return {
       label: 'Property Purpose',
-      value: stage && !intent.includes(stage) ? `${intent} • ${stage}` : intent,
+      value: stage && intent !== '—' && !intent.includes(stage) ? `${intent} • ${stage}` : intent,
       iconSrc: '/assets/icons/loans/home-blue.svg',
     }
   }
   if (loanKey.includes('vehicle')) {
     return {
       label: 'Vehicle / Model',
-      value: (rawForm.vehicleModel || rawForm.vehicleCategory || equipment || 'Four Wheeler') as string,
+      value: (rawForm.vehicleMakeModel || rawForm.vehicleModel || rawForm.vehicleCategory || (equipment !== '—' ? equipment : '') || '—') as string,
       iconSrc: '/assets/icons/loans/vehicle-blue.svg',
     }
   }
-  if (loanKey.includes('machin')) {
+  if (loanKey.includes('machinery')) {
     return {
       label: 'Equipment',
-      value: (rawForm.machineryName || rawForm.machineryType || equipment || 'CNC / Automation Machinery') as string,
+      value: (rawForm.machineryName || rawForm.machineryType || (equipment !== '—' ? equipment : '') || '—') as string,
       iconSrc: '/assets/icons/loans/equipment-blue.svg',
     }
   }
   if (loanKey.includes('working') || loanKey.includes('capital')) {
     return {
       label: 'Facility Purpose',
-      value: (rawForm.creditPurpose || rawForm.preferredFacilityType || equipment || 'Working Capital') as string,
+      value: (rawForm.creditPurpose || rawForm.preferredFacilityType || (equipment !== '—' ? equipment : '') || '—') as string,
       iconSrc: '/assets/icons/loans/briefcase-blue.svg',
     }
   }
   if (loanKey.includes('project')) {
     return {
       label: 'Project / Sector',
-      value: (rawForm.projectName || rawForm.projectSector || equipment || 'Infrastructure Project') as string,
+      value: (rawForm.projectName || rawForm.projectSector || (equipment !== '—' ? equipment : '') || '—') as string,
       iconSrc: '/assets/icons/loans/project-blue.svg',
     }
   }
   if (loanKey.includes('msme')) {
     return {
       label: 'Enterprise Purpose',
-      value: (rawForm.msmePurpose || rawForm.businessType || equipment || 'MSME Enterprise') as string,
+      value: (rawForm.msmePurpose || rawForm.businessType || (equipment !== '—' ? equipment : '') || '—') as string,
       iconSrc: '/assets/icons/loans/briefcase-blue.svg',
+    }
+  }
+  if (loanKey.includes('personal')) {
+    return {
+      label: 'Loan Purpose',
+      value: (rawForm.purposeOfLoan || rawForm.loanPurpose || (equipment !== '—' ? equipment : '') || '—') as string,
+      iconSrc: '/assets/icons/loans/purpose.svg',
     }
   }
   return {
     label: 'Business Purpose',
-    value: (rawForm.purposeOfLoan || equipment || 'Business Expansion') as string,
+    value: (rawForm.purposeOfLoan || rawForm.businessType || (equipment !== '—' ? equipment : '') || '—') as string,
     iconSrc: '/assets/icons/loans/briefcase-blue.svg',
   }
 }
 
 function resolveTenure(application: LoanApplicationBase, rawForm: Record<string, unknown>): string {
   const rawMonths = application.tenureMonths != null ? String(application.tenureMonths) : ''
-  const years = Number(rawForm.repaymentTenureYears || application.tenureYears || 0)
+  const years = Number(rawForm.repaymentTenureYears || rawForm.tenureYears || application.tenureYears || 0)
   if (rawMonths && rawMonths !== 'Months' && rawMonths !== 'undefined Months' && /\d/.test(rawMonths)) {
     return rawMonths.includes('Month') || rawMonths.includes('Year') ? rawMonths : `${rawMonths} Months`
   }
   if (years > 0) return `${years} Years (${years * 12} Mos)`
   const match = String(rawForm.repaymentTenure || rawForm.preferredTenureMonths || '').match(/\d+/)
-  return match ? `${match[0]} Months` : '20 Years'
+  return match ? `${match[0]} Months` : '—'
 }
 
-function resolveDisbursementBank(rawForm: Record<string, unknown>, fallbackBank: string | undefined, isRetail: boolean): string {
-  const rawBank = (rawForm.bankName || rawForm.operatingBank || rawForm.primaryOperatingBankName || rawForm.currentAccountBankName || fallbackBank) as string | undefined
-  const cleanBank = rawBank && rawBank !== 'Primary Current Bank' ? rawBank : (isRetail ? 'Primary Bank Account' : 'Primary Current Bank')
-  const accNo = String(rawForm.accountNumber || '')
-  return accNo && accNo.length >= 4 && !cleanBank.includes('•••') ? `${cleanBank} (••• ${accNo.slice(-4)})` : cleanBank
+function resolveDisbursementBank(rawForm: Record<string, unknown>, fallbackBank: string | undefined): string {
+  const rawBank = (rawForm.bankName || rawForm.operatingBank || rawForm.primaryOperatingBankName || rawForm.currentAccountBankName || rawForm.primaryBankName || fallbackBank) as string | undefined
+  const cleanBank = rawBank && rawBank !== '—' ? rawBank : '—'
+  const accNo = String(rawForm.accountNumber || rawForm.bankAccountNumber || rawForm.currentAccountNumber || '')
+  return accNo && accNo.length >= 4 && cleanBank !== '—' ? `${cleanBank} (••• ${accNo.slice(-4)})` : cleanBank
 }
 
 export const LoanApplicationStatus: React.FC = () => {
@@ -127,59 +145,66 @@ export const LoanApplicationStatus: React.FC = () => {
         loanApplicationService.getApplication('')
 
       const formData = (stateData?.formData as Record<string, unknown>) || {}
-      const isVehicle = location.pathname.includes('vehicle') || stateData?.loanTitle === 'Vehicle Loan' || Boolean(formData.vehicleCategory || formData.vehicleModel)
+      const isProperty = location.pathname.includes('property') || stateData?.loanTitle === 'Loan Against Property' || Boolean(formData.propertyPincode || formData.propertySubType || formData.propertyAddress)
+      const isVehicle = location.pathname.includes('vehicle') || stateData?.loanTitle === 'Vehicle Loan' || Boolean(formData.vehicleCategory || formData.vehicleModel || formData.vehicleMakeModel)
       const isWorking = location.pathname.includes('working-capital') || Boolean(formData.requiredCreditLimit) || stateData?.loanTitle === 'Working Capital'
       const isHome = location.pathname.includes('home') || stateData?.loanTitle === 'Home Loan' || Boolean(formData.propertyIntent || formData.estimatedPropertyCost)
       const isProject = location.pathname.includes('project') || Boolean(formData.projectSector)
       const isMsme = location.pathname.includes('msme') || Boolean(formData.msmePurpose)
+      const isPersonal = location.pathname.includes('personal') || stateData?.loanTitle === 'Personal Loan' || Boolean(formData.monthlyNetSalary)
 
-      const loanTitle = stateData?.loanTitle || (isHome ? 'Home Loan' : isVehicle ? 'Vehicle Loan' : isWorking ? 'Working Capital Loan' : isProject ? 'Project Finance' : isMsme ? 'MSME Loan' : formData.machineryType ? 'Machinery Loan' : 'Business Loan')
-      const loanAmountRaw = formData.loanAmount || formData.requiredLoanAmount || formData.requiredCreditLimit || 1500000
-      const loanAmountNumber = typeof loanAmountRaw === 'number' ? loanAmountRaw : Number(String(loanAmountRaw).replace(/\D/g, '')) || 1500000
+      const loanTitle = stateData?.loanTitle || (isProperty ? 'Loan Against Property' : isPersonal ? 'Personal Loan' : isHome ? 'Home Loan' : isVehicle ? 'Vehicle Loan' : isWorking ? 'Working Capital Loan' : isProject ? 'Project Finance' : isMsme ? 'MSME Loan' : formData.machineryType ? 'Machinery Loan' : 'Business Loan')
+      const loanAmountRaw = formData.loanAmount || formData.requiredLoanAmount || formData.requiredAmount || formData.requiredCreditLimit || 0
+      const loanAmountNumber = typeof loanAmountRaw === 'number' ? loanAmountRaw : Number(String(loanAmountRaw).replace(/\D/g, '')) || 0
 
-      const equipment = isHome ? (formData.customPropertyIntent as string) || (formData.propertyIntent as string) || 'Property Purchase'
-        : isVehicle ? (formData.vehicleModel as string) || (formData.vehicleCategory as string) || 'Electric Vehicle (EV - 2W / 4W)'
-        : isWorking ? (formData.creditPurpose as string) || (formData.preferredFacilityType as string) || 'Supplier Payments'
-        : isProject ? (formData.projectName as string) || (formData.projectSector as string) || 'Infrastructure Project'
-        : isMsme ? (formData.msmePurpose as string) || 'MSME Enterprise' : (formData.machineryType as string) || 'CNC / Automation Machinery'
+      const equipment = isProperty ? `${(formData.propertyType as string) || ''} ${(formData.loanPurpose as string) || ''}`.trim() || '—'
+        : isPersonal ? (formData.purposeOfLoan as string) || (formData.loanPurpose as string) || '—'
+        : isHome ? (formData.customPropertyIntent as string) || (formData.propertyIntent as string) || '—'
+        : isVehicle ? (formData.vehicleMakeModel as string) || (formData.vehicleModel as string) || (formData.vehicleCategory as string) || '—'
+        : isWorking ? (formData.creditPurpose as string) || (formData.preferredFacilityType as string) || '—'
+        : isProject ? (formData.projectName as string) || (formData.projectSector as string) || '—'
+        : isMsme ? (formData.msmePurpose as string) || (formData.businessType as string) || '—' : (formData.machineryName as string) || (formData.machineryType as string) || '—'
 
-      const yearsNum = Number(formData.repaymentTenureYears || 0)
-      const tenure = yearsNum > 0 ? `${yearsNum} Years (${yearsNum * 12} Mos)` : (formData.repaymentTenure as string) || (formData.tenure as string) || '20 Years'
-      const disbursementBank = (formData.bankName || formData.operatingBank || formData.currentAccountBankName || formData.primaryOperatingBankName || (isHome ? 'State Bank of India' : 'Primary Bank Account')) as string
+      const yearsNum = Number(formData.repaymentTenureYears || formData.tenureYears || 0)
+      const tenure = yearsNum > 0 ? `${yearsNum} Years (${yearsNum * 12} Mos)` : (formData.repaymentTenure as string) || (formData.preferredTenureMonths ? `${formData.preferredTenureMonths} Months` : '—')
+      const disbursementBank = (formData.bankName || formData.operatingBank || formData.currentAccountBankName || formData.primaryOperatingBankName || formData.primaryBankName || '—') as string
+
+      const now = new Date()
+      const formattedDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+      const formattedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
 
       return stored || {
-        id: id || stateData?.refNumber || 'TXE-LN-235646',
-        refNumber: id || stateData?.refNumber || 'TXE-LN-235646',
-        referenceNumber: id || stateData?.refNumber || 'TXE-LN-235646',
+        id: id || stateData?.refNumber || 'Pending',
+        refNumber: id || stateData?.refNumber || 'Pending',
+        referenceNumber: id || stateData?.refNumber || 'Pending',
         loanType: loanTitle,
-        loanCategory: isHome ? 'Housing Finance' : 'Capital & Financing',
+        loanCategory: isProperty ? 'Mortgage & Secured Finance' : isHome ? 'Housing Finance' : 'Capital & Financing',
         loanAmount: loanAmountNumber,
-        tenureYears: yearsNum || 4,
+        tenureYears: yearsNum,
         tenureMonths: tenure,
         equipment,
         disbursementBank,
         loanAgent: 'TaxEdge Loan Agent',
         status: 'submitted',
         statusLabel: 'Documents Received',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: now.toISOString(),
+        updatedAt: now.toISOString(),
         milestones: [
-          { id: 'm1', title: 'Application Submitted', timestamp: '28 Sep 2026  11:24 PM', status: 'completed' },
+          { id: 'm1', title: 'Application Submitted', timestamp: `${formattedDate}  ${formattedTime}`, status: 'completed' },
           { id: 'm2', title: 'Agent Review', timestamp: 'Documents Received', status: 'current' },
           { id: 'm3', title: 'Lender Review', timestamp: 'Pending', status: 'pending' },
           { id: 'm4', title: 'Sanctioned', timestamp: 'Pending', status: 'pending' },
           { id: 'm5', title: 'Disbursed', timestamp: 'Pending', status: 'pending' },
         ],
       }
-    } catch (err) {
-      console.error('[LoanApplicationStatus] Error resolving application:', err)
+    } catch {
       return {
-        id: id || 'TXE-LN-235646',
-        refNumber: id || 'TXE-LN-235646',
-        loanType: 'Home Loan',
-        loanCategory: 'Housing Finance',
-        loanAmount: 1500000,
-        tenureYears: 20,
+        id: id || 'Pending',
+        refNumber: id || 'Pending',
+        loanType: stateData?.loanTitle || 'Loan Application',
+        loanCategory: 'Capital & Financing',
+        loanAmount: 0,
+        tenureYears: 0,
         status: 'submitted',
         statusLabel: 'Documents Received',
         createdAt: new Date().toISOString(),
@@ -190,25 +215,21 @@ export const LoanApplicationStatus: React.FC = () => {
   }, [id, stateData, location.pathname])
 
   const rawForm = useMemo(() => ((application.applicationData || stateData?.formData || {}) as Record<string, unknown>), [application.applicationData, stateData?.formData])
-  const refNumber = application.refNumber || id || 'TXE-LN-235646'
-  const loanTypeRaw = application.loanType || stateData?.loanTitle || 'home_loan'
+  const refNumber = application.refNumber || id || 'Pending'
+  const loanTypeRaw = application.loanType || stateData?.loanTitle || 'loan'
   const formattedLoanType = formatLoanTitle(loanTypeRaw)
-  const loanAmount = application.loanAmount || 1500000
+  const loanAmount = application.loanAmount || 0
   const loanAgent = application.loanAgent || 'TaxEdge Loan Agent'
 
   const loanKey = loanTypeRaw.toLowerCase()
   const primaryDetail = resolvePrimaryDetail(loanKey, rawForm, application.equipment)
   const formattedTenure = resolveTenure(application, rawForm)
-  const formattedBank = resolveDisbursementBank(rawForm, application.disbursementBank, loanKey.includes('home') || loanKey.includes('vehicle'))
+  const formattedBank = resolveDisbursementBank(rawForm, application.disbursementBank)
 
   const handleCopyRef = useCallback(() => {
-    try {
-      navigator.clipboard?.writeText ? navigator.clipboard.writeText(refNumber) : undefined
-      setIsCopied(true)
-      setTimeout(() => setIsCopied(false), 2000)
-    } catch (err) {
-      console.error('[LoanApplicationStatus] Copy error:', err)
-    }
+    navigator.clipboard?.writeText?.(refNumber)
+    setIsCopied(true)
+    setTimeout(() => setIsCopied(false), 2000)
   }, [refNumber])
 
   const handleTrackApplications = useCallback(() => safeNavigateTo(navigate, '/applications'), [navigate])
@@ -245,8 +266,7 @@ Thank you for applying with TaxEdge Fin Solutions.
 
       setToastMessage('Application receipt downloaded successfully.')
       setTimeout(() => setToastMessage(null), 3000)
-    } catch (err) {
-      console.error('[LoanApplicationStatus] Download error:', err)
+    } catch {
       setToastMessage('Download error. Please try again.')
       setTimeout(() => setToastMessage(null), 3000)
     }
@@ -256,6 +276,17 @@ Thank you for applying with TaxEdge Fin Solutions.
     <div className="loan-status-page" data-testid="loan-application-status-page">
       <div className="loan-status-header">
         <div className="loan-status-header__left">
+          <button
+            type="button"
+            className="loan-status-back-btn"
+            onClick={() => navigate('/loans')}
+            aria-label="Back to Loans"
+          >
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </button>
           <h1 className="loan-status-header__title">Loan Application Status</h1>
         </div>
         <button type="button" className="loan-status-help-btn" aria-label="Help and Support" title="Need assistance? Contact support">

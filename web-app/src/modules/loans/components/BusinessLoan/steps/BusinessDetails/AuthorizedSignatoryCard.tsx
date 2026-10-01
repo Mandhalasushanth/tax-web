@@ -1,9 +1,9 @@
 import React from 'react'
-import type { BusinessLoanFormData } from '../../../../types/businessLoan.types'
+import type { BusinessLoanFormData } from '@modules/loans/types/businessLoan.types'
 import {
   formatTextOnly,
   handleTextOnlyKeyDown,
-} from '../../../../utils/loanInputFormatters'
+} from '@modules/loans/utils/loanInputFormatters'
 
 export interface AuthorizedSignatoryCardProps {
   data: BusinessLoanFormData

@@ -1,11 +1,8 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { LoanFormSection } from '@modules/loans/shared'
-import type {
-  VehicleLoanData,
-  VehicleOccupationType,
-  VehicleIncomeRange,
-} from '../../../../types/vehicleLoan.types'
-import { loanInputHelpers } from '../../../../validation/vehicleLoanValidation'
+import type { VehicleLoanData, VehicleIncomeRange } from '@modules/loans/types/vehicleLoan.types'
+import { loanInputHelpers } from '@modules/loans/utils/loanInputFormatters'
+import { OCCUPATION_OPTIONS, INCOME_RANGE_OPTIONS } from './ApplicantDetails.constants'
 import './ApplicantDetails.css'
 
 export interface ApplicantDetailsProps {
@@ -14,27 +11,11 @@ export interface ApplicantDetailsProps {
   errors?: Record<string, string>
 }
 
-export const OCCUPATION_OPTIONS: VehicleOccupationType[] = [
-  'Salaried',
-  'Self-Employed Pro',
-  'Business Owner',
-]
-
-export const INCOME_RANGE_OPTIONS: VehicleIncomeRange[] = [
-  'Below ₹10,000',
-  '₹15,000 - ₹30,000',
-  '₹30,000 - ₹50,000',
-  '₹50,000 - ₹1,00,000',
-  'Above ₹1,00,000',
-]
-
 export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
   data,
   onChange,
   errors = {},
 }) => {
-  const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false)
-
   const handleCurrencyInput = (field: keyof VehicleLoanData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange({ [field]: loanInputHelpers.formatCurrencyString(e.target.value) })
   }
@@ -79,19 +60,22 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
         subtitle="Select monthly take-home income range or specify your exact net income."
       >
         <div className="applicant-form-group">
-          <label className="applicant-label">
+          <label htmlFor="vehicle-monthly-income-select" className="applicant-label">
             Monthly Net Income (₹) <span className="applicant-label__req">*</span>
           </label>
-          <button
-            type="button"
-            className={`vehicle-loan-custom-select ${!data.monthlyIncomeRange ? 'vehicle-loan-custom-select--placeholder' : ''} ${errors.monthlyIncomeRange ? 'vehicle-loan-custom-select--error' : ''}`}
-            onClick={() => setIsIncomeModalOpen(true)}
+          <select
+            id="vehicle-monthly-income-select"
+            className={`applicant-select ${errors.monthlyIncomeRange ? 'applicant-select--error' : ''}`}
+            value={data.monthlyIncomeRange || ''}
+            onChange={(e) => onChange({ monthlyIncomeRange: e.target.value as VehicleIncomeRange })}
           >
-            <span>{data.monthlyIncomeRange || 'Select Monthly Income Range...'}</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="vehicle-loan-select-arrow">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
+            <option value="" disabled>Select Monthly Income Range...</option>
+            {INCOME_RANGE_OPTIONS.map((range) => (
+              <option key={range} value={range}>
+                {range}
+              </option>
+            ))}
+          </select>
           {errors.monthlyIncomeRange && <span className="applicant-field-error" role="alert">{errors.monthlyIncomeRange}</span>}
         </div>
       </LoanFormSection>
@@ -140,11 +124,13 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
             <input
               id="vehicle-biz-udyam"
               type="text"
-              className="applicant-input applicant-input--uppercase"
+              maxLength={19}
+              className={`applicant-input applicant-input--uppercase ${errors.udyamNumber ? 'applicant-input--error' : ''}`}
               placeholder="Enter Udyam number (e.g. UDYAM-MH-01-0012345)"
               value={data.udyamNumber || ''}
-              onChange={(e) => onChange({ udyamNumber: e.target.value.toUpperCase() })}
+              onChange={(e) => onChange({ udyamNumber: loanInputHelpers.cleanUdyam(e.target.value) })}
             />
+            {errors.udyamNumber && <span className="applicant-field-error" role="alert">{errors.udyamNumber}</span>}
           </div>
 
           <div className="applicant-form-group">
@@ -227,43 +213,6 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
           </div>
         )}
       </LoanFormSection>
-
-      {/* Income Modal Sheet */}
-      {isIncomeModalOpen && (
-        <div className="vehicle-modal-overlay" onClick={() => setIsIncomeModalOpen(false)}>
-          <div className="vehicle-modal-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="vehicle-modal-header">
-              <h3 className="vehicle-modal-title">Select Monthly In-Hand Income</h3>
-              <button type="button" className="vehicle-modal-close-btn" onClick={() => setIsIncomeModalOpen(false)}>
-                ✕
-              </button>
-            </div>
-            <div className="vehicle-modal-list">
-              {INCOME_RANGE_OPTIONS.map((range) => {
-                const isSelected = data.monthlyIncomeRange === range
-                return (
-                  <button
-                    key={range}
-                    type="button"
-                    className={`vehicle-modal-item ${isSelected ? 'vehicle-modal-item--selected' : ''}`}
-                    onClick={() => {
-                      onChange({ monthlyIncomeRange: range })
-                      setIsIncomeModalOpen(false)
-                    }}
-                  >
-                    <span>{range}</span>
-                    {isSelected && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="vehicle-modal-check-icon">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

@@ -22,8 +22,8 @@ export type { PaymentResult } from './GSTStepPayment/GSTStepPayment'
 export { GSTStepReview } from './GSTStepReview/GSTStepReview'
 
 export { GSTPaymentSuccess } from './GSTPaymentSuccess/GSTPaymentSuccess'
-export { GSTOrderSummary } from './GSTOrderSummary/GSTOrderSummary'
-export type { GSTOrderSummaryProps } from './GSTOrderSummary/GSTOrderSummary'
+export { GSTOrderSummary } from '../../shared/GSTOrderSummary/GSTOrderSummary'
+export type { GSTOrderSummaryProps } from '../../shared/GSTOrderSummary/GSTOrderSummary'
 
 export { GSTSidebar } from '../../shared/GSTSidebar/GSTSidebar'
 export type { GSTSidebarProps } from '../../shared/GSTSidebar/GSTSidebar'

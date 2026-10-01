@@ -2,13 +2,13 @@ import React, { useCallback } from 'react'
 import type {
   BusinessLoanFormData,
   UdyamOptionType,
-} from '../../../../types/businessLoan.types'
-import { useDropdown } from '../../../../hooks/useDropdown'
+} from '@modules/loans/types/businessLoan.types'
+import { useDropdown } from '@modules/loans/hooks/useDropdown'
 import { LoanDropdownOption } from '../LoanDropdownOption'
 import {
   formatUdyamNumber,
   LOAN_FIELD_LIMITS,
-} from '../../../../utils/loanInputFormatters'
+} from '@modules/loans/utils/loanInputFormatters'
 
 export interface BusinessRegistrationCardProps {
   data: BusinessLoanFormData

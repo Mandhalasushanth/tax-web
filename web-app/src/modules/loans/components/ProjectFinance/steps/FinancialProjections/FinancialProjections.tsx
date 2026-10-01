@@ -3,7 +3,7 @@ import type {
   ProjectFinanceData,
   ProductServiceItem,
   CustomerOfftakerItem,
-} from '../../../../types/projectFinance.types'
+} from '@modules/loans/types/projectFinance.types'
 import { ProductServiceCard } from './ProductServiceCard'
 import { MarketDetailsSection } from './MarketDetailsSection'
 import { CustomerOfftakerSection } from './CustomerOfftakerSection'
@@ -11,21 +11,6 @@ import { Section4And5 } from './Section4And5'
 import { Section6And7 } from './Section6And7'
 import { Section8And9 } from './Section8And9'
 import { Section10And11 } from './Section10And11'
-import { LocationBottomSheet } from '../LocationLandTechnical/LocationBottomSheet'
-import {
-  CATEGORY_OPTIONS,
-  UNIT_OPTIONS,
-  DOMESTIC_EXPORT_OPTIONS,
-  TARGET_MARKET_OPTIONS,
-  MARKET_TYPE_OPTIONS,
-  CUSTOMER_SEGMENT_OPTIONS,
-  CUSTOMER_TYPE_OPTIONS,
-  AGREEMENT_STATUS_OPTIONS,
-  PROJECTION_PERIOD_OPTIONS,
-  HISTORICAL_YEARS_OPTIONS,
-  PROJECTED_YEARS_OPTIONS,
-  STABILISATION_YEAR_OPTIONS,
-} from './financialProjectionsConstants'
 import './FinancialProjections.css'
 
 export interface FinancialProjectionsProps {
@@ -67,24 +52,6 @@ export const FinancialProjections: React.FC<FinancialProjectionsProps> = ({
   const [isFinancialRatiosOpen, setIsFinancialRatiosOpen] = useState<boolean>(true)
   const [isSensitivityAnalysisOpen, setIsSensitivityAnalysisOpen] = useState<boolean>(true)
 
-  const [activeProductPicker, setActiveProductPicker] = useState<{
-    index: number
-    field: 'category' | 'unit' | 'domesticExport'
-  } | null>(null)
-
-  const [activeMarketPicker, setActiveMarketPicker] = useState<
-    'targetMarket' | 'marketType' | 'customerSegment' | null
-  >(null)
-
-  const [activeProjectionPicker, setActiveProjectionPicker] = useState<
-    'projectionPeriodYears' | 'historicalYears' | 'projectedYears' | 'stabilisationYear' | null
-  >(null)
-
-  const [activeCustomerPicker, setActiveCustomerPicker] = useState<{
-    index: number
-    field: 'customerType' | 'unit' | 'agreementStatus'
-  } | null>(null)
-
   const productItems: ProductServiceItem[] = data.productsServicesList && data.productsServicesList.length > 0
     ? data.productsServicesList
     : [
@@ -121,165 +88,106 @@ export const FinancialProjections: React.FC<FinancialProjectionsProps> = ({
       ]
 
   const handleUpdateProduct = (index: number, updated: ProductServiceItem) => {
-    try {
-      const next = productItems.map((it, idx) => (idx === index ? updated : it))
-      onChange({ productsServicesList: next })
-    } catch (err) {
-      console.error('Error updating product item:', err)
-    }
+    const next = productItems.map((it, idx) => (idx === index ? updated : it))
+    onChange({ productsServicesList: next })
   }
 
   const handleAddProduct = () => {
-    try {
-      const newItem: ProductServiceItem = {
-        id: String(Date.now()),
-        name: '',
-        category: '',
-        unit: '',
-        installedCapacity: '',
-        expectedProductionAnnual: '',
-        capacityUtilisationPercent: '',
-        sellingPrice: '',
-        domesticExport: '',
-        productMixPercent: '',
-      }
-      onChange({ productsServicesList: [...productItems, newItem] })
-    } catch (err) {
-      console.error('Error adding product item:', err)
+    const newItem: ProductServiceItem = {
+      id: String(Date.now()),
+      name: '',
+      category: '',
+      unit: '',
+      installedCapacity: '',
+      expectedProductionAnnual: '',
+      capacityUtilisationPercent: '',
+      sellingPrice: '',
+      domesticExport: '',
+      productMixPercent: '',
     }
+    onChange({ productsServicesList: [...productItems, newItem] })
   }
 
   const handleRemoveProduct = (index: number) => {
-    try {
-      if (productItems.length <= 1) return
-      const next = productItems.filter((_, idx) => idx !== index)
-      onChange({ productsServicesList: next })
-    } catch (err) {
-      console.error('Error removing product item:', err)
-    }
+    if (productItems.length <= 1) return
+    const next = productItems.filter((_, idx) => idx !== index)
+    onChange({ productsServicesList: next })
   }
 
   const handleUpdateCustomer = (index: number, updated: CustomerOfftakerItem) => {
-    try {
-      const next = customerItems.map((it, idx) => (idx === index ? updated : it))
-      onChange({ customersOfftakersList: next })
-    } catch (err) {
-      console.error('Error updating customer item:', err)
-    }
+    const next = customerItems.map((it, idx) => (idx === index ? updated : it))
+    onChange({ customersOfftakersList: next })
   }
 
   const handleAddCustomer = () => {
-    try {
-      const newItem: CustomerOfftakerItem = {
-        id: String(Date.now()),
-        customerName: '',
-        customerType: '',
-        expectedPurchaseQuantity: '',
-        unit: '',
-        expectedRevenue: '',
-        isContractAvailable: false,
-        contractPeriodYears: '',
-        contractedPrice: '',
-        minimumOfftake: '',
-        agreementStatus: '',
-      }
-      onChange({ customersOfftakersList: [...customerItems, newItem] })
-    } catch (err) {
-      console.error('Error adding customer item:', err)
+    const newItem: CustomerOfftakerItem = {
+      id: String(Date.now()),
+      customerName: '',
+      customerType: '',
+      expectedPurchaseQuantity: '',
+      unit: '',
+      expectedRevenue: '',
+      isContractAvailable: false,
+      contractPeriodYears: '',
+      contractedPrice: '',
+      minimumOfftake: '',
+      agreementStatus: '',
     }
+    onChange({ customersOfftakersList: [...customerItems, newItem] })
   }
 
   const handleRemoveCustomer = (index: number) => {
-    try {
-      if (customerItems.length <= 1) return
-      const next = customerItems.filter((_, idx) => idx !== index)
-      onChange({ customersOfftakersList: next })
-    } catch (err) {
-      console.error('Error removing customer item:', err)
-    }
+    if (customerItems.length <= 1) return
+    const next = customerItems.filter((_, idx) => idx !== index)
+    onChange({ customersOfftakersList: next })
   }
 
-  const handleProductPickerSelect = (val: string) => {
-    try {
-      if (!activeProductPicker) return
-      const { index, field } = activeProductPicker
-      const item = productItems[index]
-      if (item) {
-        handleUpdateProduct(index, { ...item, [field]: val })
-      }
-      setActiveProductPicker(null)
-    } catch (err) {
-      console.error('Error selecting product picker option:', err)
-    }
-  }
+  const renderProductsServicesCard = () => (
+    <div className="pf-collapsible-card">
+      <div className="pf-collapsible-header" onClick={() => setIsProductsOpen((prev) => !prev)}>
+        <div className="pf-collapsible-header__left">
+          <div className="pf-section-icon-tile">
+            <BoxSvg />
+          </div>
+          <h2 className="pf-collapsible-title">1. Products / Services</h2>
+        </div>
+        <ChevronSvg isOpen={isProductsOpen} />
+      </div>
 
-  const handleMarketPickerSelect = (val: string) => {
-    try {
-      if (!activeMarketPicker) return
-      onChange({ [activeMarketPicker]: val })
-      setActiveMarketPicker(null)
-    } catch (err) {
-      console.error('Error selecting market picker option:', err)
-    }
-  }
+      {isProductsOpen && (
+        <div className="pf-collapsible-body">
+          <p className="pf-section-intro-desc">
+            Enter details of products or services to be manufactured / provided.
+          </p>
 
-  const handleCustomerPickerSelect = (val: string) => {
-    try {
-      if (!activeCustomerPicker) return
-      const { index, field } = activeCustomerPicker
-      const item = customerItems[index]
-      if (item) {
-        handleUpdateCustomer(index, { ...item, [field]: val })
-      }
-      setActiveCustomerPicker(null)
-    } catch (err) {
-      console.error('Error selecting customer picker option:', err)
-    }
-  }
+          {productItems.map((item, index) => (
+            <ProductServiceCard
+              key={item.id || index}
+              item={item}
+              index={index}
+              totalCount={productItems.length}
+              onChange={(upd) => handleUpdateProduct(index, upd)}
+              onRemove={() => handleRemoveProduct(index)}
+              errors={errors}
+            />
+          ))}
+
+          <button
+            type="button"
+            className="pf-add-item-btn"
+            onClick={handleAddProduct}
+          >
+            <span>+</span> + Add Product / Service
+          </button>
+        </div>
+      )}
+    </div>
+  )
 
   return (
     <div className="financial-projections-step" data-testid="financial-projections-step">
       {/* 1. Products / Services */}
-      <div className="pf-collapsible-card">
-        <div className="pf-collapsible-header" onClick={() => setIsProductsOpen((prev) => !prev)}>
-          <div className="pf-collapsible-header__left">
-            <div className="pf-section-icon-tile">
-              <BoxSvg />
-            </div>
-            <h2 className="pf-collapsible-title">1. Products / Services</h2>
-          </div>
-          <ChevronSvg isOpen={isProductsOpen} />
-        </div>
-
-        {isProductsOpen && (
-          <div className="pf-collapsible-body">
-            <p className="pf-section-intro-desc">
-              Enter details of products or services to be manufactured / provided.
-            </p>
-
-            {productItems.map((item, index) => (
-              <ProductServiceCard
-                key={item.id || index}
-                item={item}
-                index={index}
-                totalCount={productItems.length}
-                onChange={(upd) => handleUpdateProduct(index, upd)}
-                onRemove={() => handleRemoveProduct(index)}
-                onOpenPicker={(field) => setActiveProductPicker({ index, field })}
-                errors={errors}
-              />
-            ))}
-
-            <button
-              type="button"
-              className="pf-add-item-btn"
-              onClick={handleAddProduct}
-            >
-              <span>+</span> + Add Product / Service
-            </button>
-          </div>
-        )}
-      </div>
+      {renderProductsServicesCard()}
 
       {/* 2. Market Details */}
       <MarketDetailsSection
@@ -287,7 +195,6 @@ export const FinancialProjections: React.FC<FinancialProjectionsProps> = ({
         onChange={onChange}
         isOpen={isMarketOpen}
         onToggle={() => setIsMarketOpen((prev) => !prev)}
-        onOpenPicker={(field) => setActiveMarketPicker(field)}
         errors={errors}
       />
 
@@ -299,7 +206,6 @@ export const FinancialProjections: React.FC<FinancialProjectionsProps> = ({
         onUpdate={handleUpdateCustomer}
         onAdd={handleAddCustomer}
         onRemove={handleRemoveCustomer}
-        onOpenPicker={(index, field) => setActiveCustomerPicker({ index, field })}
         errors={errors}
       />
 
@@ -311,7 +217,6 @@ export const FinancialProjections: React.FC<FinancialProjectionsProps> = ({
         onToggleProjectionSetup={() => setIsProjectionSetupOpen((prev) => !prev)}
         isHistoricalFinancialsOpen={isHistoricalFinancialsOpen}
         onToggleHistoricalFinancials={() => setIsHistoricalFinancialsOpen((prev) => !prev)}
-        onOpenPicker={(field) => setActiveProjectionPicker(field)}
         errors={errors}
       />
 
@@ -342,139 +247,6 @@ export const FinancialProjections: React.FC<FinancialProjectionsProps> = ({
         onToggleFinancialRatios={() => setIsFinancialRatiosOpen((prev) => !prev)}
         isSensitivityAnalysisOpen={isSensitivityAnalysisOpen}
         onToggleSensitivityAnalysis={() => setIsSensitivityAnalysisOpen((prev) => !prev)}
-      />
-
-      {/* Product Pickers */}
-      <LocationBottomSheet
-        isOpen={activeProductPicker?.field === 'category'}
-        title="Select Category"
-        options={CATEGORY_OPTIONS}
-        selectedValue={activeProductPicker ? productItems[activeProductPicker.index]?.category : ''}
-        onSelect={handleProductPickerSelect}
-        onClose={() => setActiveProductPicker(null)}
-      />
-
-      <LocationBottomSheet
-        isOpen={activeProductPicker?.field === 'unit'}
-        title="Select Unit"
-        options={UNIT_OPTIONS}
-        selectedValue={activeProductPicker ? productItems[activeProductPicker.index]?.unit : ''}
-        onSelect={handleProductPickerSelect}
-        onClose={() => setActiveProductPicker(null)}
-      />
-
-      <LocationBottomSheet
-        isOpen={activeProductPicker?.field === 'domesticExport'}
-        title="Select Option"
-        options={DOMESTIC_EXPORT_OPTIONS}
-        selectedValue={activeProductPicker ? productItems[activeProductPicker.index]?.domesticExport : ''}
-        onSelect={handleProductPickerSelect}
-        onClose={() => setActiveProductPicker(null)}
-      />
-
-      {/* Market Pickers */}
-      <LocationBottomSheet
-        isOpen={activeMarketPicker === 'targetMarket'}
-        title="Select Target Market"
-        options={TARGET_MARKET_OPTIONS}
-        selectedValue={data.targetMarket || ''}
-        onSelect={handleMarketPickerSelect}
-        onClose={() => setActiveMarketPicker(null)}
-      />
-
-      <LocationBottomSheet
-        isOpen={activeMarketPicker === 'marketType'}
-        title="Select Market Type"
-        options={MARKET_TYPE_OPTIONS}
-        selectedValue={data.marketType || ''}
-        onSelect={handleMarketPickerSelect}
-        onClose={() => setActiveMarketPicker(null)}
-      />
-
-      <LocationBottomSheet
-        isOpen={activeMarketPicker === 'customerSegment'}
-        title="Select Customer Segment"
-        options={CUSTOMER_SEGMENT_OPTIONS}
-        selectedValue={data.customerSegment || ''}
-        onSelect={handleMarketPickerSelect}
-        onClose={() => setActiveMarketPicker(null)}
-      />
-
-      {/* Projection Pickers */}
-      <LocationBottomSheet
-        isOpen={activeProjectionPicker === 'projectionPeriodYears'}
-        title="Select Projection Period"
-        options={PROJECTION_PERIOD_OPTIONS}
-        selectedValue={data.projectionPeriodYears || ''}
-        onSelect={(val) => {
-          onChange({ projectionPeriodYears: val })
-          setActiveProjectionPicker(null)
-        }}
-        onClose={() => setActiveProjectionPicker(null)}
-      />
-
-      <LocationBottomSheet
-        isOpen={activeProjectionPicker === 'historicalYears'}
-        title="Select Historical Years"
-        options={HISTORICAL_YEARS_OPTIONS}
-        selectedValue={data.historicalYears || ''}
-        onSelect={(val) => {
-          onChange({ historicalYears: val })
-          setActiveProjectionPicker(null)
-        }}
-        onClose={() => setActiveProjectionPicker(null)}
-      />
-
-      <LocationBottomSheet
-        isOpen={activeProjectionPicker === 'projectedYears'}
-        title="Select Projected Years"
-        options={PROJECTED_YEARS_OPTIONS}
-        selectedValue={data.projectedYears || ''}
-        onSelect={(val) => {
-          onChange({ projectedYears: val })
-          setActiveProjectionPicker(null)
-        }}
-        onClose={() => setActiveProjectionPicker(null)}
-      />
-
-      <LocationBottomSheet
-        isOpen={activeProjectionPicker === 'stabilisationYear'}
-        title="Select Stabilisation Year"
-        options={STABILISATION_YEAR_OPTIONS}
-        selectedValue={data.stabilisationYear || ''}
-        onSelect={(val) => {
-          onChange({ stabilisationYear: val })
-          setActiveProjectionPicker(null)
-        }}
-        onClose={() => setActiveProjectionPicker(null)}
-      />
-
-      {/* Customer Pickers */}
-      <LocationBottomSheet
-        isOpen={activeCustomerPicker?.field === 'customerType'}
-        title="Select Customer Type"
-        options={CUSTOMER_TYPE_OPTIONS}
-        selectedValue={activeCustomerPicker ? customerItems[activeCustomerPicker.index]?.customerType : ''}
-        onSelect={handleCustomerPickerSelect}
-        onClose={() => setActiveCustomerPicker(null)}
-      />
-
-      <LocationBottomSheet
-        isOpen={activeCustomerPicker?.field === 'unit'}
-        title="Select Unit"
-        options={UNIT_OPTIONS}
-        selectedValue={activeCustomerPicker ? customerItems[activeCustomerPicker.index]?.unit : ''}
-        onSelect={handleCustomerPickerSelect}
-        onClose={() => setActiveCustomerPicker(null)}
-      />
-
-      <LocationBottomSheet
-        isOpen={activeCustomerPicker?.field === 'agreementStatus'}
-        title="Select Status"
-        options={AGREEMENT_STATUS_OPTIONS}
-        selectedValue={activeCustomerPicker ? customerItems[activeCustomerPicker.index]?.agreementStatus : ''}
-        onSelect={handleCustomerPickerSelect}
-        onClose={() => setActiveCustomerPicker(null)}
       />
     </div>
   )

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import type { VehicleLoanData } from '../../../../types/vehicleLoan.types'
+import { useAuthStore } from '@store/index'
+import type { VehicleLoanData } from '@modules/loans/types/vehicleLoan.types'
 import './ReviewAndDeclaration.css'
 
 export interface ReviewAndDeclarationProps {
@@ -47,43 +48,35 @@ export const ReviewAndDeclaration: React.FC<ReviewAndDeclarationProps> = ({
 }) => {
   const [previewDoc, setPreviewDoc] = useState<{ name: string; url?: string } | null>(null)
 
+  const user = useAuthStore.getState().user
   const maskedAccountNumber = data.accountNumber && data.accountNumber.length > 4
     ? `XXXXXX${data.accountNumber.slice(-4)}`
-    : (data.accountNumber || 'XXXXXX5555')
+    : (data.accountNumber || '—')
 
   const uploadedDocEntries = Object.entries(data.uploadedDocs || {})
-  const displayDocEntries = uploadedDocEntries.length > 0 ? uploadedDocEntries : [
-    ['pan_card', { name: 'captured_doc_1790590571601.jpg (142 KB)' }],
-    ['aadhaar_card', { name: 'captured_doc_1790590577379.jpg (165 KB)' }],
-    ['driving_license', { name: 'captured_doc_1790590582552.jpg (138 KB)' }],
-    ['passport_photo', { name: 'captured_doc_1790590587180.jpg (98 KB)' }],
-    ['address_proof', { name: 'captured_doc_1790590595166.jpg (180 KB)' }],
-    ['bank_statement', { name: 'captured_doc_1790590606938.jpg (210 KB)' }],
-    ['salary_slip', { name: 'captured_doc_1790590600585.jpg (175 KB)' }],
-    ['dealer_quotation', { name: 'captured_doc_1790590615809.jpg (240 KB)' }],
-  ]
+  const displayDocEntries = uploadedDocEntries
 
   const termsRows = [
-    { label: 'Required Loan Amount', value: `₹${(Number(String(data.loanAmount || 1200000).replace(/\D/g, '')) || 1200000).toLocaleString('en-IN')}`, highlight: true },
-    { label: 'Vehicle Category / Purpose', value: data.vehicleCategory || 'Electric Vehicle (EV - 2W / 4W)' },
-    { label: 'Vehicle Condition', value: data.vehicleCondition || 'New Vehicle' },
-    { label: 'Make & Model', value: data.vehicleMakeModel === 'Other (Specify Custom Vehicle Model)' ? (data.customVehicleMakeModel || 'Custom Vehicle') : (data.vehicleMakeModel || 'Hyundai i20') },
-    { label: 'On-Road Price / Valuation', value: `₹${(Number(String(data.onRoadPrice || 666666).replace(/\D/g, '')) || 666666).toLocaleString('en-IN')}` },
-    { label: 'Down Payment / Margin', value: `₹${(Number(String(data.downPayment || 699).replace(/\D/g, '')) || 699).toLocaleString('en-IN')}` },
-    { label: 'Repayment Tenure', value: data.repaymentTenure || '36 Months (3 Yrs)' },
+    { label: 'Required Loan Amount', value: data.loanAmount ? `₹${(Number(String(data.loanAmount).replace(/\D/g, '')) || 0).toLocaleString('en-IN')}` : '—', highlight: true },
+    { label: 'Vehicle Category / Purpose', value: data.vehicleCategory || '—' },
+    { label: 'Vehicle Condition', value: data.vehicleCondition || '—' },
+    { label: 'Make & Model', value: data.vehicleMakeModel === 'Other (Specify Custom Vehicle Model)' ? (data.customVehicleMakeModel || 'Custom Vehicle') : (data.vehicleMakeModel || '—') },
+    { label: 'On-Road Price / Valuation', value: data.onRoadPrice ? `₹${(Number(String(data.onRoadPrice).replace(/\D/g, '')) || 0).toLocaleString('en-IN')}` : '—' },
+    { label: 'Down Payment / Margin', value: data.downPayment ? `₹${(Number(String(data.downPayment).replace(/\D/g, '')) || 0).toLocaleString('en-IN')}` : '—' },
+    { label: 'Repayment Tenure', value: data.repaymentTenure || '—' },
   ]
 
   const employmentRows = [
-    { label: 'Employment Category', value: data.occupationType || 'Salaried' },
-    { label: 'Monthly In-Hand Income', value: data.monthlyIncomeRange || 'Below ₹10,000' },
+    { label: 'Employment Category', value: data.occupationType || '—' },
+    { label: 'Monthly In-Hand Income', value: data.monthlyIncomeRange || '—' },
     { label: 'Other Ongoing EMIs', value: data.hasActiveEmis ? `Active (₹${(Number(String(data.totalMonthlyEmi).replace(/\D/g, '')) || 0).toLocaleString('en-IN')}/mo)` : 'No Running EMIs' },
   ]
 
   const bankingRows = [
-    { label: 'Operating Bank', value: data.bankName || 'State Bank of India' },
+    { label: 'Operating Bank', value: data.bankName || '—' },
     { label: 'Account Number', value: maskedAccountNumber },
-    { label: 'IFSC Code', value: data.ifscCode || 'SBIN0036666' },
-    { label: 'ITR Filing Status', value: data.itrStatus || 'Exempt' },
+    { label: 'IFSC Code', value: data.ifscCode || '—' },
+    { label: 'ITR Filing Status', value: data.itrStatus || '—' },
   ]
 
   return (
@@ -105,10 +98,10 @@ export const ReviewAndDeclaration: React.FC<ReviewAndDeclarationProps> = ({
           </span>
         </div>
         <div className="vehicle-review-card__rows">
-          <ReviewRow label="Applicant Name" value="Srinu" />
-          <ReviewRow label="Mobile" value="7672010079" />
-          <ReviewRow label="PAN" value="BFHDJ6557G" />
-          <ReviewRow label="Aadhaar" value="XXXX-XXXX-5656" />
+          <ReviewRow label="Applicant Name" value={user?.fullName || data.legalBusinessName || '—'} />
+          <ReviewRow label="Mobile" value={user?.mobile || '—'} />
+          <ReviewRow label="PAN" value={user?.pan || '—'} />
+          <ReviewRow label="Aadhaar" value={user?.aadhaar ? `XXXX-XXXX-${user.aadhaar.slice(-4)}` : '—'} />
         </div>
       </div>
 
@@ -178,30 +171,36 @@ export const ReviewAndDeclaration: React.FC<ReviewAndDeclarationProps> = ({
           <EditBtn onClick={() => onNavigateToStep(4)} label="Manage" />
         </div>
         <div className="vehicle-review-docs-list">
-          {displayDocEntries.map(([docId, docObj]) => {
-            const docIdStr = String(docId)
-            const title = DOC_NAME_MAP[docIdStr] || docIdStr
-            const filename = (docObj && typeof docObj === 'object' && 'name' in docObj)
-              ? (docObj as { name: string }).name
-              : `${docIdStr}.pdf`
-            return (
-              <div key={docIdStr} className="vehicle-review-doc-row">
-                <div className="vehicle-review-doc-info">
-                  <div className="vehicle-review-doc-check">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
+          {displayDocEntries.length === 0 ? (
+            <p className="vehicle-review-no-docs">
+              No documents uploaded yet. Click &quot;Manage&quot; to upload required documents.
+            </p>
+          ) : (
+            displayDocEntries.map(([docId, docObj]) => {
+              const docIdStr = String(docId)
+              const title = DOC_NAME_MAP[docIdStr] || docIdStr
+              const filename = (docObj && typeof docObj === 'object' && 'name' in docObj)
+                ? (docObj as { name: string }).name
+                : `${docIdStr}.pdf`
+              return (
+                <div key={docIdStr} className="vehicle-review-doc-row">
+                  <div className="vehicle-review-doc-info">
+                    <div className="vehicle-review-doc-check">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
+                    </div>
+                    <div className="vehicle-review-doc-texts">
+                      <span className="vehicle-review-doc-name">{title}</span>
+                      <span className="vehicle-review-doc-filename">✓ {filename}</span>
+                    </div>
                   </div>
-                  <div className="vehicle-review-doc-texts">
-                    <span className="vehicle-review-doc-name">{title}</span>
-                    <span className="vehicle-review-doc-filename">✓ {filename}</span>
-                  </div>
+                  <button type="button" className="vehicle-review-doc-preview-btn" onClick={() => setPreviewDoc({ name: title })}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                    Preview
+                  </button>
                 </div>
-                <button type="button" className="vehicle-review-doc-preview-btn" onClick={() => setPreviewDoc({ name: title })}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                  Preview
-                </button>
-              </div>
-            )
-          })}
+              )
+            })
+          )}
         </div>
       </div>
 

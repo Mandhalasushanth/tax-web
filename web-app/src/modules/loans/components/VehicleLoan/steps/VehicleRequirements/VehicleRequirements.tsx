@@ -1,12 +1,8 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { LoanFormSection } from '@modules/loans/shared'
-import type {
-  VehicleLoanData,
-  VehicleCategory,
-  VehicleRepaymentTenure,
-  VehicleMakeModel,
-} from '../../../../types/vehicleLoan.types'
-import { loanInputHelpers } from '../../../../validation/vehicleLoanValidation'
+import type { VehicleLoanData, VehicleCategory, VehicleRepaymentTenure, VehicleMakeModel } from '@modules/loans/types/vehicleLoan.types'
+import { loanInputHelpers } from '@modules/loans/utils/loanInputFormatters'
+import { VEHICLE_CATEGORY_OPTIONS, SHORT_TERM_TENURE_OPTIONS, LONG_TERM_TENURE_OPTIONS, QUICK_TENURE_PILLS, VEHICLE_MAKE_MODEL_OPTIONS, AMOUNT_PRESETS } from './VehicleRequirements.constants'
 import './VehicleRequirements.css'
 
 export interface VehicleRequirementsProps {
@@ -15,142 +11,11 @@ export interface VehicleRequirementsProps {
   errors?: Record<string, string>
 }
 
-export const VEHICLE_CATEGORY_OPTIONS: VehicleCategory[] = [
-  'New Car (Passenger)',
-  'Pre-Owned / Used Car',
-  'Electric Vehicle (EV - 2W / 4W)',
-  'Two-Wheeler / Superbike',
-  'Commercial Vehicle / Truck',
-  'Fleet Purchase',
-  'Balance Transfer & Top-Up',
-  'Others',
-]
-
-export const SHORT_TERM_TENURE_OPTIONS: { label: string; value: VehicleRepaymentTenure }[] = [
-  { label: '3 M', value: '3 M (3 Months)' },
-  { label: '6 M', value: '6 M (6 Months)' },
-  { label: '9 M', value: '9 M (9 Months)' },
-]
-
-export const LONG_TERM_TENURE_OPTIONS: { label: string; value: VehicleRepaymentTenure }[] = [
-  { label: '1 Yr', value: '12 M (1 Yr)' },
-  { label: '1.5 Yrs', value: '18 M (1.5 Yrs)' },
-  { label: '2 Yrs', value: '24 M (2 Yrs)' },
-  { label: '3 Yrs', value: '36 M (3 Yrs)' },
-  { label: '4 Yrs', value: '48 M (4 Yrs)' },
-  { label: '5 Yrs', value: '60 M (5 Yrs)' },
-  { label: '6 Yrs', value: '72 M (6 Yrs)' },
-  { label: '7 Yrs', value: '84 M (7 Yrs)' },
-  { label: 'Custom', value: 'Other / Custom Tenure' },
-]
-
-export const QUICK_TENURE_PILLS: { label: string; value: VehicleRepaymentTenure }[] = [
-  { label: '6 M', value: '6 M (6 Months)' },
-  { label: '1 Yr', value: '12 M (1 Yr)' },
-  { label: '2 Yrs', value: '24 M (2 Yrs)' },
-  { label: '3 Yrs', value: '36 M (3 Yrs)' },
-  { label: '5 Yrs', value: '60 M (5 Yrs)' },
-  { label: '7 Yrs', value: '84 M (7 Yrs)' },
-]
-
-export const VEHICLE_MAKE_MODEL_OPTIONS: VehicleMakeModel[] = [
-  'Maruti Suzuki Swift',
-  'Maruti Suzuki Baleno',
-  'Maruti Suzuki Brezza',
-  'Maruti Suzuki Ertiga',
-  'Hyundai Creta',
-  'Hyundai Venue',
-  'Hyundai i20',
-  'Hyundai Verna',
-  'Tata Nexon',
-  'Tata Punch',
-  'Tata Harrier / Safari',
-  'Tata Nexon EV',
-  'Mahindra Thar',
-  'Mahindra Scorpio-N',
-  'Mahindra XUV700',
-  'Kia Seltos',
-  'Kia Sonet',
-  'Toyota Innova Crysta / Hycross',
-  'Toyota Fortuner',
-  'Honda City / Elevate',
-  'Electric: MG ZS EV / Ola S1 / Ather 450X',
-  'Two-Wheeler: Honda Activa / TVS Jupiter',
-  'Two-Wheeler: Royal Enfield / Bajaj Pulsar',
-  'Commercial: Tata Ace / Mahindra Bolero Pik-Up',
-  'Other (Specify Custom Vehicle Model)',
-]
-
-export const AMOUNT_PRESETS = [
-  { label: '₹3 Lakhs', value: 300000 },
-  { label: '₹5 Lakhs', value: 500000 },
-  { label: '₹8 Lakhs', value: 800000 },
-  { label: '₹12 Lakhs', value: 1200000 },
-  { label: '₹20 Lakhs', value: 2000000 },
-]
-
-const ModalSheet: React.FC<{
-  title: string
-  onClose: () => void
-  children: React.ReactNode
-}> = ({ title, onClose, children }) => (
-  <div className="vehicle-modal-overlay" onClick={onClose}>
-    <div className="vehicle-modal-sheet" onClick={(e) => e.stopPropagation()}>
-      <div className="vehicle-modal-header">
-        <h3 className="vehicle-modal-title">{title}</h3>
-        <button type="button" className="vehicle-modal-close-btn" onClick={onClose}>
-          ✕
-        </button>
-      </div>
-      <div className="vehicle-modal-list">{children}</div>
-    </div>
-  </div>
-)
-
-const ModalItem: React.FC<{
-  label: string
-  isSelected: boolean
-  onClick: () => void
-}> = ({ label, isSelected, onClick }) => (
-  <button
-    type="button"
-    className={`vehicle-modal-item ${isSelected ? 'vehicle-modal-item--selected' : ''}`}
-    onClick={onClick}
-  >
-    <span>{label}</span>
-    {isSelected && (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="vehicle-modal-check-icon">
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-    )}
-  </button>
-)
-
-const SelectTrigger: React.FC<{
-  value?: string
-  placeholder: string
-  hasError?: boolean
-  onClick: () => void
-}> = ({ value, placeholder, hasError, onClick }) => (
-  <button
-    type="button"
-    className={`vehicle-loan-custom-select ${!value ? 'vehicle-loan-custom-select--placeholder' : ''} ${hasError ? 'vehicle-loan-custom-select--error' : ''}`}
-    onClick={onClick}
-  >
-    <span>{value || placeholder}</span>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="vehicle-loan-select-arrow">
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  </button>
-)
-
 export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
   data,
   onChange,
   errors = {},
 }) => {
-  const [activeModal, setActiveModal] = useState<'category' | 'tenure' | 'makeModel' | null>(null)
-
   const handleCurrencyInput = (field: keyof VehicleLoanData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange({ [field]: loanInputHelpers.formatCurrencyString(e.target.value) })
   }
@@ -215,15 +80,22 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
         subtitle="Select your automobile category. Select 'Others' if your specific requirement is not listed."
       >
         <div className="vehicle-loan-form-group">
-          <label className="vehicle-loan-label">
+          <label htmlFor="vehicle-category-select" className="vehicle-loan-label">
             Select Category / Purpose <span className="vehicle-loan-label__req">*</span>
           </label>
-          <SelectTrigger
-            value={data.vehicleCategory}
-            placeholder="Select Vehicle Category / Purpose..."
-            hasError={Boolean(errors.vehicleCategory)}
-            onClick={() => setActiveModal('category')}
-          />
+          <select
+            id="vehicle-category-select"
+            className={`vehicle-loan-select ${errors.vehicleCategory ? 'vehicle-loan-select--error' : ''}`}
+            value={data.vehicleCategory || ''}
+            onChange={(e) => onChange({ vehicleCategory: e.target.value as VehicleCategory })}
+          >
+            <option value="" disabled>Select Vehicle Category / Purpose...</option>
+            {VEHICLE_CATEGORY_OPTIONS.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
           {errors.vehicleCategory && <span className="vehicle-loan-field-error" role="alert">{errors.vehicleCategory}</span>}
         </div>
       </LoanFormSection>
@@ -240,15 +112,31 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
         subtitle="Select your intended loan tenure. Choose from short-term (below 1 year) to long-term (up to 7 years) or specify custom months."
       >
         <div className="vehicle-loan-form-group">
-          <label className="vehicle-loan-label">
+          <label htmlFor="vehicle-tenure-select" className="vehicle-loan-label">
             Select Tenure <span className="vehicle-loan-label__req">*</span>
           </label>
-          <SelectTrigger
-            value={data.repaymentTenure}
-            placeholder="Select Repayment Tenure..."
-            hasError={Boolean(errors.repaymentTenure)}
-            onClick={() => setActiveModal('tenure')}
-          />
+          <select
+            id="vehicle-tenure-select"
+            className={`vehicle-loan-select ${errors.repaymentTenure ? 'vehicle-loan-select--error' : ''}`}
+            value={data.repaymentTenure || ''}
+            onChange={(e) => onChange({ repaymentTenure: e.target.value as VehicleRepaymentTenure })}
+          >
+            <option value="" disabled>Select Repayment Tenure...</option>
+            <optgroup label="Below 1 Year (Short-Term)">
+              {SHORT_TERM_TENURE_OPTIONS.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.value}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="1 Year & Above">
+              {LONG_TERM_TENURE_OPTIONS.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.value}
+                </option>
+              ))}
+            </optgroup>
+          </select>
           <div className="vehicle-loan-pill-grid">
             {QUICK_TENURE_PILLS.map((t) => (
               <button
@@ -296,15 +184,22 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
         </div>
 
         <div className="vehicle-loan-form-group">
-          <label className="vehicle-loan-label">
+          <label htmlFor="vehicle-make-model-select" className="vehicle-loan-label">
             Vehicle Make & Model <span className="vehicle-loan-label__req">*</span>
           </label>
-          <SelectTrigger
-            value={data.vehicleMakeModel}
-            placeholder="Select Vehicle Make & Model..."
-            hasError={Boolean(errors.vehicleMakeModel)}
-            onClick={() => setActiveModal('makeModel')}
-          />
+          <select
+            id="vehicle-make-model-select"
+            className={`vehicle-loan-select ${errors.vehicleMakeModel ? 'vehicle-loan-select--error' : ''}`}
+            value={data.vehicleMakeModel || ''}
+            onChange={(e) => onChange({ vehicleMakeModel: e.target.value as VehicleMakeModel })}
+          >
+            <option value="" disabled>Select Vehicle Make & Model...</option>
+            {VEHICLE_MAKE_MODEL_OPTIONS.map((model) => (
+              <option key={model} value={model}>
+                {model}
+              </option>
+            ))}
+          </select>
           {errors.vehicleMakeModel && <span className="vehicle-loan-field-error" role="alert">{errors.vehicleMakeModel}</span>}
         </div>
 
@@ -358,68 +253,6 @@ export const VehicleRequirements: React.FC<VehicleRequirementsProps> = ({
           {errors.downPayment && <span className="vehicle-loan-field-error" role="alert">{errors.downPayment}</span>}
         </div>
       </LoanFormSection>
-
-      {/* Modals */}
-      {activeModal === 'category' && (
-        <ModalSheet title="Select Vehicle Category / Purpose" onClose={() => setActiveModal(null)}>
-          {VEHICLE_CATEGORY_OPTIONS.map((cat) => (
-            <ModalItem
-              key={cat}
-              label={cat}
-              isSelected={data.vehicleCategory === cat}
-              onClick={() => {
-                onChange({ vehicleCategory: cat })
-                setActiveModal(null)
-              }}
-            />
-          ))}
-        </ModalSheet>
-      )}
-
-      {activeModal === 'tenure' && (
-        <ModalSheet title="Select Repayment Tenure" onClose={() => setActiveModal(null)}>
-          <div className="vehicle-modal-group-label">BELOW 1 YEAR (SHORT-TERM)</div>
-          {SHORT_TERM_TENURE_OPTIONS.map((t) => (
-            <ModalItem
-              key={t.value}
-              label={t.value}
-              isSelected={data.repaymentTenure === t.value}
-              onClick={() => {
-                onChange({ repaymentTenure: t.value })
-                setActiveModal(null)
-              }}
-            />
-          ))}
-          <div className="vehicle-modal-group-label vehicle-modal-group-label--mt-sm">1 YEAR & ABOVE</div>
-          {LONG_TERM_TENURE_OPTIONS.map((t) => (
-            <ModalItem
-              key={t.value}
-              label={t.value}
-              isSelected={data.repaymentTenure === t.value}
-              onClick={() => {
-                onChange({ repaymentTenure: t.value })
-                setActiveModal(null)
-              }}
-            />
-          ))}
-        </ModalSheet>
-      )}
-
-      {activeModal === 'makeModel' && (
-        <ModalSheet title="Select Vehicle Make & Model" onClose={() => setActiveModal(null)}>
-          {VEHICLE_MAKE_MODEL_OPTIONS.map((model) => (
-            <ModalItem
-              key={model}
-              label={model}
-              isSelected={data.vehicleMakeModel === model}
-              onClick={() => {
-                onChange({ vehicleMakeModel: model })
-                setActiveModal(null)
-              }}
-            />
-          ))}
-        </ModalSheet>
-      )}
     </div>
   )
 }

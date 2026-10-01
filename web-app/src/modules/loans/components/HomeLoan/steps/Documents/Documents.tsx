@@ -1,9 +1,9 @@
 import React from 'react'
-import { LoanDocumentSection } from '@modules/loans/shared'
-import { loanDocumentService } from '../../../../documents/loanDocumentService'
-import { createDocDef } from '../../../../documents/loanDocument.types'
-import type { LoanDocumentDefinition } from '../../../../documents/loanDocument.types'
-import type { HomeLoanData } from '../../../../types/homeLoan.types'
+import { DocumentSection, UploadDocument } from '@shared/components'
+import { loanDocumentService } from '@modules/loans/documents/loanDocumentService'
+import { createDocDef } from '@modules/loans/documents/loanDocument.types'
+import type { LoanDocumentDefinition } from '@modules/loans/documents/loanDocument.types'
+import type { HomeLoanData } from '@modules/loans/types/homeLoan.types'
 import './Documents.css'
 
 export interface DocumentsProps {
@@ -154,6 +154,44 @@ export const Documents: React.FC<DocumentsProps> = ({
     updateData({ uploadedDocs: next })
   }
 
+  const uploadedDocs = currentData.uploadedDocs || {}
+
+  const renderDocCard = (doc: LoanDocumentDefinition) => {
+    const uploaded = uploadedDocs[doc.id]
+    const isMissingRequired = !uploaded && Boolean(errors[doc.id])
+    const showOptionalBadge = !doc.isRequired && !doc.hideOptionalBadge && doc.badgeLabel !== ''
+    const badge = showOptionalBadge ? (
+      <span className="loan-doc-item__badge loan-doc-item__badge--optional">
+        {doc.badgeLabel || 'Optional'}
+      </span>
+    ) : isMissingRequired ? (
+      <span className="loan-doc-item__badge loan-doc-item__badge--error">
+        Required Document Missing
+      </span>
+    ) : undefined
+
+    return (
+      <UploadDocument
+        key={doc.id}
+        id={doc.id}
+        title={doc.title}
+        subtitle={doc.subtitle}
+        isRequired={doc.isRequired}
+        badge={badge}
+        isUploaded={Boolean(uploaded)}
+        fileName={uploaded?.name}
+        fileSize={uploaded?.size}
+        file={uploaded?.file}
+        icon={doc.icon}
+        iconBg={doc.iconBg || '#fff7ed'}
+        iconColor={doc.iconColor || '#ea580c'}
+        className={isMissingRequired ? 'loan-doc-item--error' : ''}
+        onUpload={handleUpload}
+        onRemove={handleRemove}
+      />
+    )
+  }
+
   return (
     <div className="home-loan-docs">
       {hasDocErrors && (
@@ -185,35 +223,26 @@ export const Documents: React.FC<DocumentsProps> = ({
         </p>
       </div>
 
-      <LoanDocumentSection
+      <DocumentSection
         title="IDENTITY & ADDRESS"
         icon={ID_SECTION_ICON}
-        documents={IDENTITY_DOCS}
-        uploadedDocs={currentData.uploadedDocs || {}}
-        errors={errors}
-        onUpload={handleUpload}
-        onRemove={handleRemove}
-      />
+      >
+        {IDENTITY_DOCS.map(renderDocCard)}
+      </DocumentSection>
 
-      <LoanDocumentSection
+      <DocumentSection
         title="INCOME & BANKING"
         icon={WALLET_ICON}
-        documents={INCOME_DOCS}
-        uploadedDocs={currentData.uploadedDocs || {}}
-        errors={errors}
-        onUpload={handleUpload}
-        onRemove={handleRemove}
-      />
+      >
+        {INCOME_DOCS.map(renderDocCard)}
+      </DocumentSection>
 
-      <LoanDocumentSection
+      <DocumentSection
         title="PROPERTY & COLLATERAL"
         icon={HOUSE_ICON}
-        documents={PROPERTY_DOCS}
-        uploadedDocs={currentData.uploadedDocs || {}}
-        errors={errors}
-        onUpload={handleUpload}
-        onRemove={handleRemove}
-      />
+      >
+        {PROPERTY_DOCS.map(renderDocCard)}
+      </DocumentSection>
     </div>
   )
 }

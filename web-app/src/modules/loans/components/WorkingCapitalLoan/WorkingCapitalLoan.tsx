@@ -1,21 +1,16 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { StepActionBar, DraftConfirmModal, FlowStepper } from '@shared/components'
+import React from 'react'
+import { FlowStepper } from '@shared/components'
 import type { FlowStepItem } from '@shared/components'
-
-import { useLoanApplication } from '../../hooks/useLoanApplication'
-import { loanApplicationService } from '../../services/loanApplicationService'
-import { safeNavigateTo } from '../../utils/loanMarketplace.utils'
-import type { LoanApplicationBase } from '../../types/loanApplication.types'
-import type { WorkingCapitalLoanData } from '../../types/workingCapitalLoan.types'
-import { workingCapitalLoanValidation } from '../../validation/workingCapitalLoanValidation'
+import { LoanStepErrorBanner, LoanStepFlowFooter } from '@modules/loans/shared'
+import { useLoanStepFlow } from '@modules/loans/hooks/useLoanStepFlow'
+import { toAmount } from '@modules/loans/validation/commonLoanValidation'
+import type { WorkingCapitalLoanData } from '@modules/loans/types/workingCapitalLoan.types'
+import { workingCapitalLoanValidation } from '@modules/loans/validation/workingCapitalLoanValidation'
 
 import { Financials } from './steps/Financials/Financials'
 import { BusinessAndBanking } from './steps/BusinessAndBanking/BusinessAndBanking'
 import { Documents } from './steps/Documents/Documents'
 import { ReviewAndSubmit } from './steps/ReviewAndSubmit/ReviewAndSubmit'
-import { LoanSubmitSuccessModal } from '../../shared'
-
 import './WorkingCapitalLoan.css'
 
 const WORKING_CAPITAL_LOAN_STEPS: FlowStepItem[] = [
@@ -48,222 +43,61 @@ const INITIAL_WORKING_CAPITAL_LOAN_DATA: WorkingCapitalLoanData = {
 }
 
 export const WorkingCapitalLoan: React.FC = () => {
-  const navigate = useNavigate()
-  const [stepError, setStepError] = useState<string | null>(null)
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
-  const [submittedRef, setSubmittedRef] = useState<string | null>(null)
-  const [submittedApp, setSubmittedApp] = useState<LoanApplicationBase | null>(null)
-
-  const {
-    formData,
-    updateFormData,
-    currentStep,
-    goToStep,
-    nextStep,
-    isDraftModalOpen,
-    setIsDraftModalOpen,
-    isSubmitting,
-    setIsSubmitting,
-    handleSaveAndExit,
-    handleDiscardAndExit,
-    handleKeepEditing,
-    markSubmitted,
-  } = useLoanApplication<WorkingCapitalLoanData>(
-    'working_capital_loan',
-    INITIAL_WORKING_CAPITAL_LOAN_DATA,
-    {
+  const flow = useLoanStepFlow<WorkingCapitalLoanData>({
+    loanType: 'working_capital_loan',
+    loanTitle: 'Working Capital Loan',
+    initialValues: INITIAL_WORKING_CAPITAL_LOAN_DATA,
+    application: {
       serviceTitle: 'Working Capital Loan',
       totalSteps: 4,
-      stepLabels: ['Financials', 'Business & Banking', 'Documents', 'Review & Submit'],
+      stepLabels: WORKING_CAPITAL_LOAN_STEPS.map((s) => s.title ?? ''),
       resumeRoute: '/loans/working-capital-loan',
-    }
-  )
-
-  const handleFieldChange = (fields: Partial<WorkingCapitalLoanData>) => {
-    updateFormData(fields)
-    if (Object.keys(fieldErrors).length > 0) {
-      setFieldErrors((prev) => {
-        const next = { ...prev }
-        Object.keys(fields).forEach((key) => {
-          delete next[key]
-        })
-        if (fields.uploadedDocs) {
-          Object.keys(fields.uploadedDocs).forEach((docId) => {
-            delete next[docId]
-          })
-        }
-        return next
-      })
-    }
-    if (stepError) {
-      setStepError(null)
-    }
-  }
-
-  const validateCurrentStep = (): boolean => {
-    setStepError(null)
-    setFieldErrors({})
-    const validators = [
-      () => workingCapitalLoanValidation.validateStep1(formData),
-      () => workingCapitalLoanValidation.validateStep2(formData),
-      () => workingCapitalLoanValidation.validateStep3(formData),
-      () => workingCapitalLoanValidation.validateStep4(formData),
-    ]
-    const res = validators[currentStep - 1]?.()
-    if (res && !res.isValid) {
-      setStepError(res.error || 'Please fill in all required fields.')
-      setFieldErrors(res.errors)
-      return false
-    }
-    return true
-  }
-
-  const handleNext = async () => {
-    if (!validateCurrentStep()) return
-
-    if (currentStep < 4) {
-      nextStep()
-    } else {
-      setIsSubmitting(true)
-      try {
-        const app = await loanApplicationService.submitApplication('working_capital_loan', {
-          loanType: 'working_capital_loan',
-          title: 'Working Capital Loan Application',
-          category: 'Working Capital & Credit Lines',
-          requestedAmount: Number(String(formData.requiredCreditLimit).replace(/\D/g, '')) || 2500000,
-          tenureMonths: 12,
-          details: formData,
-        })
-        markSubmitted()
-        setSubmittedRef(app.referenceNumber || 'TXE-LN-84920184')
-        setSubmittedApp(app)
-      } catch (err: unknown) {
-        const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please try again.'
-        setStepError(errorMsg)
-      } finally {
-        setIsSubmitting(false)
-      }
-    }
-  }
-
-  const handleStepClick = (targetStep: number) => {
-    if (targetStep < currentStep) {
-      goToStep(targetStep)
-      setStepError(null)
-      setFieldErrors({})
-    } else if (targetStep > currentStep) {
-      if (validateCurrentStep()) {
-        goToStep(targetStep)
-      }
-    }
-  }
-
-  const handleTrackStatus = () => {
-    markSubmitted()
-    const ref = submittedRef || 'TXE-LN-499927'
-    const app = submittedApp
-    setSubmittedRef(null)
-    navigate(`/loans/status/${ref}`, {
-      state: {
-        application: app,
-        refNumber: ref,
-        formData,
-        loanTitle: 'Working Capital Loan',
-      },
-    })
-  }
+    },
+    validators: [
+      workingCapitalLoanValidation.validateStep1,
+      workingCapitalLoanValidation.validateStep2,
+      workingCapitalLoanValidation.validateStep3,
+      workingCapitalLoanValidation.validateStep4,
+    ],
+    buildSubmission: (data) => ({
+      title: 'Working Capital Loan Application',
+      category: 'Working Capital & Credit Lines',
+      requestedAmount: toAmount(data.requiredCreditLimit),
+      tenureMonths: 12,
+      details: { ...data },
+    }),
+  })
+  const { formData, currentStep, fieldErrors, handleFieldChange } = flow
 
   return (
     <div className="working-capital-page">
-      {/* 1. Page Title */}
       <h1 className="working-capital-page__title">Working Capital Loan</h1>
 
-      {/* 2. Stepper Header */}
       <div className="working-capital-stepper-container">
-        <FlowStepper
-          steps={WORKING_CAPITAL_LOAN_STEPS}
-          currentStep={currentStep}
-          onStepClick={handleStepClick}
-        />
+        <FlowStepper steps={WORKING_CAPITAL_LOAN_STEPS} currentStep={currentStep} onStepClick={flow.handleStepClick} />
       </div>
 
-      {/* 3. Main Form Canvas */}
       <div className="working-capital-content">
-        {stepError && (
-          <div className="working-capital-step-error-banner" role="alert">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="working-capital-step-error-banner__icon">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            <span className="working-capital-step-error-banner__text">{stepError}</span>
-          </div>
-        )}
+        <LoanStepErrorBanner message={flow.stepError} />
 
-        {currentStep === 1 && (
-          <Financials
-            data={formData}
-            onChange={handleFieldChange}
-            errors={fieldErrors}
-          />
-        )}
-
-        {currentStep === 2 && (
-          <BusinessAndBanking
-            data={formData}
-            onChange={handleFieldChange}
-            errors={fieldErrors}
-          />
-        )}
-
-        {currentStep === 3 && (
-          <Documents
-            data={formData}
-            onChange={handleFieldChange}
-            errors={fieldErrors}
-          />
-        )}
-
+        {currentStep === 1 && <Financials data={formData} onChange={handleFieldChange} errors={fieldErrors} />}
+        {currentStep === 2 && <BusinessAndBanking data={formData} onChange={handleFieldChange} errors={fieldErrors} />}
+        {currentStep === 3 && <Documents data={formData} onChange={handleFieldChange} errors={fieldErrors} />}
         {currentStep === 4 && (
           <ReviewAndSubmit
             data={formData}
             onChange={handleFieldChange}
-            onNavigateToStep={(step) => goToStep(step)}
+            onNavigateToStep={flow.navigateToStep}
             errors={fieldErrors}
           />
         )}
       </div>
 
-      {/* 4. Action Bar */}
-      <StepActionBar
-        showBack={false}
-        onNext={handleNext}
-        onSaveDraft={() => setIsDraftModalOpen(true)}
-        saveDraftLabel="Save Draft"
-        nextLabel={currentStep === 4 ? (isSubmitting ? 'Submitting...' : 'Submit Application') : 'Continue'}
-        nextDisabled={isSubmitting}
-      />
-
-      {/* 5. Draft Confirmation Modal */}
-      <DraftConfirmModal
-        isOpen={isDraftModalOpen}
+      <LoanStepFlowFooter
+        flow={flow}
         serviceTitle="Working Capital Loan Application"
-        onSaveAndExit={handleSaveAndExit}
-        onDiscardAndExit={handleDiscardAndExit}
-        onKeepEditing={handleKeepEditing}
-      />
-
-      {/* 6. Submit Success Modal */}
-      <LoanSubmitSuccessModal
-        isOpen={Boolean(submittedRef)}
-        title="Working Capital Loan Submitted"
-        referenceNumber={submittedRef || ''}
-        onDone={() => {
-          markSubmitted()
-          setSubmittedRef(null)
-          safeNavigateTo(navigate, '/loans')
-        }}
-        onTrackStatus={handleTrackStatus}
+        successTitle="Working Capital Loan Submitted"
+        successMessage="Your Working Capital Loan application has been successfully received. A TaxEdge Loan Advisor will review your business records and contact you shortly."
       />
     </div>
   )

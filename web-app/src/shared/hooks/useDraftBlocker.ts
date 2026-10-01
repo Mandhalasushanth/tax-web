@@ -31,6 +31,7 @@ export const useDraftBlocker = ({
           ({ currentLocation, nextLocation }: { currentLocation: Location; nextLocation: Location }) => {
             if (!shouldBlock) return false
             if (currentLocation.pathname === nextLocation.pathname) return false
+            if (nextLocation.pathname.includes('/loans/status')) return false
             if (isNavigationAllowed && isNavigationAllowed(nextLocation)) return false
             return true
           },

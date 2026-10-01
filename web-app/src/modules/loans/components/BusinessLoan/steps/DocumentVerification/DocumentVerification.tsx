@@ -3,7 +3,7 @@ import { DocumentSection } from '@shared/components'
 import { DocumentVerificationHeader } from './DocumentVerificationHeader'
 import { BusinessDocumentItem } from './BusinessDocumentItem'
 import { useDocumentVerification } from './useDocumentVerification'
-import type { DocumentVerificationProps } from '../../../../types/businessLoan.types'
+import type { DocumentVerificationProps } from '@modules/loans/types/businessLoan.types'
 import './DocumentVerification.css'
 
 /**

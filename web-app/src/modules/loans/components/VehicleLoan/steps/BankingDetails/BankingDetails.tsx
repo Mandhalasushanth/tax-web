@@ -1,8 +1,8 @@
 import React from 'react'
 import { LoanFormSection } from '@modules/loans/shared'
-import type { VehicleLoanData, VehicleItrFilingStatus } from '../../../../types/vehicleLoan.types'
-import { loanInputHelpers } from '../../../../validation/vehicleLoanValidation'
-import { resolveIfscBranch } from '../../../../utils/loanInputFormatters'
+import type { VehicleLoanData } from '@modules/loans/types/vehicleLoan.types'
+import { loanInputHelpers, resolveIfscBranch } from '@modules/loans/utils/loanInputFormatters'
+import { ITR_FILING_OPTIONS } from './BankingDetails.constants'
 import './BankingDetails.css'
 
 export interface BankingDetailsProps {
@@ -11,19 +11,13 @@ export interface BankingDetailsProps {
   errors?: Record<string, string>
 }
 
-export const ITR_FILING_OPTIONS: VehicleItrFilingStatus[] = [
-  'Filed',
-  'Not Filed',
-  'Exempt',
-]
-
 export const BankingDetails: React.FC<BankingDetailsProps> = ({
   data,
   onChange,
   errors = {},
 }) => {
   const handleBankNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({ bankName: e.target.value })
+    onChange({ bankName: loanInputHelpers.lettersOnly(e.target.value) })
   }
 
   const handleAccountNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -186,12 +180,13 @@ export const BankingDetails: React.FC<BankingDetailsProps> = ({
                 type="text"
                 maxLength={15}
                 inputMode="numeric"
-                className="banking-input"
+                className={`banking-input ${errors.itrAckNumber ? 'banking-input--error' : ''}`}
                 placeholder="Enter 15-digit ITR acknowledgement number"
                 value={data.itrAckNumber || ''}
                 onKeyDown={loanInputHelpers.allowOnlyNumbersKeyDown}
                 onChange={handleItrAckChange}
               />
+              {errors.itrAckNumber && <span className="banking-field-error" role="alert">{errors.itrAckNumber}</span>}
             </div>
 
             <div className="banking-form-group">

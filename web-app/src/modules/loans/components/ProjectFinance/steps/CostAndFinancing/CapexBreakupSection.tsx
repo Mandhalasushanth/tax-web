@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 
 export interface CapexBreakupSectionProps {
   data: ProjectFinanceData
@@ -33,12 +33,8 @@ export const CapexBreakupSection: React.FC<CapexBreakupSectionProps> = ({
   errors = {},
 }) => {
   const handleNumericInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    try {
-      const sanitized = rawValue.replace(/\D/g, '')
-      onChange({ [field]: sanitized })
-    } catch (err) {
-      console.error(`Error updating field ${String(field)}:`, err)
-    }
+    const sanitized = rawValue.replace(/\D/g, '')
+    onChange({ [field]: sanitized })
   }
 
   return (

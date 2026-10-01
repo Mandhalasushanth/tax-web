@@ -34,12 +34,6 @@
   gap: 1.25rem;
 }
 
-.machinery-loan-docs-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
 .machinery-loan-docs__section-icon {
   width: 20px;
   height: 20px;

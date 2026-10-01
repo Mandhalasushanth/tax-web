@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ApplicantIdentityProfile } from '../../../../types/businessLoan.types'
+import type { ApplicantIdentityProfile } from '@modules/loans/types/businessLoan.types'
 
 interface ProfileFieldProps {
   label: string

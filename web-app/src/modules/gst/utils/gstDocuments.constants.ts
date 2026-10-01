@@ -1,4 +1,4 @@
-import type { DocumentItem } from '../types/gstDocuments.types'
+import type { DocumentItem } from '@modules/gst/types/gstDocuments.types'
 
 export const ADDRESS_PROOF_OPTIONS: readonly string[] = [
   'Electricity Bill',
@@ -16,8 +16,7 @@ export const INITIAL_DOCUMENTS: DocumentItem[] = [
     title: 'PAN Card',
     subtitle: 'Front copy with clear name & photo',
     category: 'identity',
-    iconBg: '#e0f2fe',
-    iconColor: '#0284c7',
+    tone: 'sky',
     isUploaded: false,
   },
   {
@@ -25,8 +24,7 @@ export const INITIAL_DOCUMENTS: DocumentItem[] = [
     title: 'Aadhaar Card',
     subtitle: 'Front & back copy with QR code',
     category: 'identity',
-    iconBg: '#f3e8ff',
-    iconColor: '#9333ea',
+    tone: 'purple',
     isUploaded: false,
   },
   {
@@ -34,8 +32,7 @@ export const INITIAL_DOCUMENTS: DocumentItem[] = [
     title: 'Business Registration Proof',
     subtitle: 'COI / Partnership Deed / Trade License',
     category: 'business',
-    iconBg: '#e0e7ff',
-    iconColor: '#2563eb',
+    tone: 'indigo',
     isUploaded: false,
   },
   {
@@ -44,8 +41,7 @@ export const INITIAL_DOCUMENTS: DocumentItem[] = [
     subtitle: 'Select Address Proof',
     addressProofType: '',
     category: 'business',
-    iconBg: '#fef3c7',
-    iconColor: '#d97706',
+    tone: 'amber',
     isUploaded: false,
   },
   {
@@ -53,8 +49,7 @@ export const INITIAL_DOCUMENTS: DocumentItem[] = [
     title: 'Bank Passbook / Cancelled Cheque',
     subtitle: 'Showing account holder name, A/C & IFSC',
     category: 'financial',
-    iconBg: '#d1fae5',
-    iconColor: '#059669',
+    tone: 'green',
     isUploaded: false,
   },
   {
@@ -62,8 +57,7 @@ export const INITIAL_DOCUMENTS: DocumentItem[] = [
     title: 'Passport Size Photograph',
     subtitle: 'Recent colour photo with white background',
     category: 'financial',
-    iconBg: '#ffedd5',
-    iconColor: '#ea580c',
+    tone: 'orange',
     isUploaded: false,
   },
 ]

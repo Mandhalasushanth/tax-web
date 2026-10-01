@@ -1,4 +1,10 @@
-import React, { useState, type ChangeEvent, type FormEvent } from 'react'
+import { GSTSaveDraftButton } from '@modules/gst/shared/GSTSaveDraftButton'
+import { GST_FILE_MESSAGES, gstFileSizeError } from '@modules/gst/utils/gstFile'
+import { collectGstErrors } from '@modules/gst/validation/gstFieldRules'
+import React, { useState, type ChangeEvent, type FormEvent, useMemo } from 'react'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
+import { gstFieldRules as rules } from '@modules/gst/validation/gstFieldRules'
+import { getCurrentContactDetails } from '@modules/gst/services/gstProfileDetails'
 import GSTAmendmentProofUpload from './GSTAmendmentProofUpload'
 import './GSTContactDetailsForm.css'
 
@@ -9,16 +15,12 @@ interface GSTContactDetailsFormProps {
   }
   isSubmitting?: boolean
   onBack: () => void
+  onSaveDraft?: () => void
   onSubmit: (payload: {
     newValue: string
     file: File | null
     contactDetails?: Record<string, string>
   }) => void
-}
-
-const DEFAULT_CONTACT_DETAILS = {
-  mobile: '+91 98765 43210',
-  email: 'akhil@business.com',
 }
 
 const ACCEPTED_PROOFS = [
@@ -31,11 +33,13 @@ const ACCEPTED_PROOFS = [
 ]
 
 export const GSTContactDetailsForm: React.FC<GSTContactDetailsFormProps> = ({
-  currentDetails = DEFAULT_CONTACT_DETAILS,
+  currentDetails: currentDetailsProp,
   isSubmitting = false,
   onBack,
   onSubmit,
+  onSaveDraft,
 }) => {
+  const currentDetails = useMemo(() => currentDetailsProp ?? getCurrentContactDetails(), [currentDetailsProp])
   const [mobileNumber, setMobileNumber] = useState('')
   const [emailAddress, setEmailAddress] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -44,8 +48,9 @@ export const GSTContactDetailsForm: React.FC<GSTContactDetailsFormProps> = ({
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
-      if (file.size > 10 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, file: 'File size must be under 10 MB.' }))
+      const sizeError = gstFileSizeError(file)
+      if (sizeError) {
+        setErrors((prev) => ({ ...prev, file: sizeError }))
         return
       }
       setSelectedFile(file)
@@ -55,22 +60,13 @@ export const GSTContactDetailsForm: React.FC<GSTContactDetailsFormProps> = ({
 
   const handleSubmitForm = (e: FormEvent) => {
     e.preventDefault()
-    const newErrors: Record<string, string> = {}
-
-    if (!mobileNumber.trim()) {
-      newErrors.mobileNumber = 'Please enter new mobile number.'
-    } else if (!/^\d{10}$/.test(mobileNumber.trim())) {
-      newErrors.mobileNumber = 'Please enter a valid 10-digit mobile number.'
-    }
-
-    if (!emailAddress.trim()) {
-      newErrors.emailAddress = 'Please enter new email address.'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress.trim())) {
-      newErrors.emailAddress = 'Please enter a valid email address.'
-    }
+    const newErrors = collectGstErrors({
+      mobileNumber: rules.mobile(mobileNumber),
+      emailAddress: rules.email(emailAddress),
+    })
 
     if (!selectedFile) {
-      newErrors.file = 'Please upload a supporting proof document.'
+      newErrors.file = GST_FILE_MESSAGES.proofRequired
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -150,7 +146,7 @@ export const GSTContactDetailsForm: React.FC<GSTContactDetailsFormProps> = ({
                   placeholder="Enter mobile number"
                   value={mobileNumber}
                   onChange={(e) => {
-                    setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))
+                    setMobileNumber(gstInput.mobile(e.target.value))
                     if (errors.mobileNumber) setErrors((prev) => ({ ...prev, mobileNumber: '' }))
                   }}
                   className={`gst-amend-contact-input ${errors.mobileNumber ? 'has-error' : ''}`}
@@ -177,7 +173,7 @@ export const GSTContactDetailsForm: React.FC<GSTContactDetailsFormProps> = ({
                   placeholder="Enter email address"
                   value={emailAddress}
                   onChange={(e) => {
-                    setEmailAddress(e.target.value)
+                    setEmailAddress(gstInput.email(e.target.value))
                     if (errors.emailAddress) setErrors((prev) => ({ ...prev, emailAddress: '' }))
                   }}
                   className={`gst-amend-contact-input gst-amend-contact-input--email ${errors.emailAddress ? 'has-error' : ''}`}
@@ -240,13 +236,16 @@ export const GSTContactDetailsForm: React.FC<GSTContactDetailsFormProps> = ({
             Back
           </button>
 
-          <button type="submit" disabled={isSubmitting} className="gst-amend-submit-orange-btn">
-            {isSubmitting ? 'Submitting...' : 'Review Changes'}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </button>
+          <div className="gst-actions-group">
+            {onSaveDraft && <GSTSaveDraftButton onClick={onSaveDraft} />}
+            <button type="submit" disabled={isSubmitting} className="gst-amend-submit-orange-btn">
+              {isSubmitting ? 'Submitting...' : 'Review Changes'}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </button>
+          </div>
         </div>
       </form>
     </div>

@@ -1,236 +1,150 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { routePaths } from '@core/config'
 import { userStorage } from '@core/storage/userStorage'
-import { useDraftBlocker } from '@shared/hooks'
-import { useAppStore } from '@store/index'
+import { formatGstFileSize } from '@modules/gst/utils/gstFile'
+import { generateGstReference } from '@modules/gst/utils/gstFormat'
+import { GST_FEES, withPlatformGst } from '@modules/gst/constants/gstBusiness.constants'
+import { getDefaultFilingData, STEP_LABELS } from '@modules/gst/utils/gstFiling.constants'
+import { useGstDraft, readGstDraft, hasGstFormChanged } from '@modules/gst/hooks/useGstDraft'
 import type { FilingPeriodData } from '../components/GSTFiling'
-import type { PaymentResult } from '../types/gst.types'
-import { type UploadedFileInfo } from '../utils/gstDocumentsData'
-import { DEFAULT_FILING_DATA, STEP_LABELS } from '../utils/gstFiling.constants'
+import type { PaymentResult } from '@modules/gst/types/gst.types'
+import type { UploadedFileInfo } from '@modules/gst/utils/gstDocumentsData'
+
+type FilingStep = 1 | 2 | 3 | 4 | 5 | 6
+
+const SERVICE_ID = 'gst-filing'
+const SERVICE_TITLE = 'GST Filing'
+const TOTAL_STEPS = 4
+
+interface FilingDraft {
+  filingData: FilingPeriodData
+  uploadedFiles: Record<string, UploadedFileInfo>
+  notApplicableDocs: Record<string, boolean>
+}
+
+/** Route of each filing step */
+const FILING_PATH_BY_STEP: Record<FilingStep, string> = {
+  1: routePaths.gst.filePeriod,
+  2: routePaths.gst.fileUpload,
+  3: routePaths.gst.fileReview,
+  4: routePaths.gst.filePayment,
+  5: routePaths.gst.fileSuccess,
+  6: routePaths.gst.fileReceipt,
+}
+
+/** Filing step for each filing route */
+const FILING_STEP_BY_PATH: Record<string, FilingStep> = {
+  [routePaths.gst.filing]: 1,
+  ...Object.fromEntries(Object.entries(FILING_PATH_BY_STEP).map(([step, path]) => [path, Number(step) as FilingStep])),
+}
+
+const isFilingRoute = (pathname: string): boolean => pathname in FILING_STEP_BY_PATH
+
+const buildPaymentResult = (applicationRef: string): PaymentResult => ({
+  transactionId: `TXN${Date.now()}`,
+  receiptNumber: `TE/${new Date().getFullYear()}/R-${Math.floor(1000 + Math.random() * 9000)}`,
+  method: 'UPI',
+  dateText: new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date()),
+  applicationRef,
+  amount: withPlatformGst(GST_FEES.filingCombo).total,
+})
+
+const withoutKey = <V>(record: Record<string, V>, key: string): Record<string, V> =>
+  Object.fromEntries(Object.entries(record).filter(([id]) => id !== key))
 
 export const useGSTFilingFlow = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const pushToast = useAppStore((state) => state.pushToast)
-  const [existingDraft] = useState(() => userStorage.getDraft('gst-filing'))
+  const [savedDraft] = useState(() => readGstDraft<FilingDraft>(SERVICE_ID))
+  const [defaultFilingData] = useState(getDefaultFilingData)
+  const [filingRef] = useState(() => generateGstReference('GST-FIL'))
 
-  const [filingRef] = useState(
-    () => `GST-FIL-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`
-  )
-
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(() => {
-    if (location.pathname === routePaths.gst.fileUpload) return 2
-    if (location.pathname === routePaths.gst.fileReview) return 3
-    if (location.pathname === routePaths.gst.filePayment) return 4
-    if (location.pathname === routePaths.gst.fileSuccess) return 5
-    if (location.pathname === routePaths.gst.fileReceipt) return 6
-    if (existingDraft && existingDraft.currentStep >= 1 && existingDraft.currentStep <= 4) {
-      return existingDraft.currentStep as 1 | 2 | 3 | 4
-    }
-    return 1
+  const [currentStep, setCurrentStep] = useState<FilingStep>(() => {
+    const routeStep = FILING_STEP_BY_PATH[location.pathname]
+    if (routeStep && routeStep > 1) return routeStep
+    const draftStep = savedDraft?.currentStep ?? 1
+    return (draftStep >= 1 && draftStep <= TOTAL_STEPS ? draftStep : 1) as FilingStep
   })
 
-  const [filingData, setFilingData] = useState<FilingPeriodData>(() => {
-    if (existingDraft?.formData?.filingData) {
-      return existingDraft.formData.filingData as FilingPeriodData
-    }
-    return DEFAULT_FILING_DATA
-  })
-
-  const [paymentResult, setPaymentResult] = useState<PaymentResult>(() => ({
-    transactionId: `TXN${Date.now()}`,
-    receiptNumber: `TE/${new Date().getFullYear()}/R-${Math.floor(1000 + Math.random() * 9000)}`,
-    method: 'UPI',
-    dateText: new Intl.DateTimeFormat('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    }).format(new Date()),
-    applicationRef: filingRef,
-    amount: 2950,
+  const [filingData, setFilingData] = useState<FilingPeriodData>(() => ({
+    ...defaultFilingData,
+    ...savedDraft?.formData?.filingData,
   }))
-
-  const [uploadedFiles, setUploadedFiles] = useState<Record<string, UploadedFileInfo>>(() => {
-    if (existingDraft?.formData?.uploadedFiles) {
-      return existingDraft.formData.uploadedFiles as Record<string, UploadedFileInfo>
-    }
-    return {}
-  })
-
-  const [notApplicableDocs, setNotApplicableDocs] = useState<Record<string, boolean>>(() => {
-    if (existingDraft?.formData?.notApplicableDocs) {
-      return existingDraft.formData.notApplicableDocs as Record<string, boolean>
-    }
-    return {}
-  })
-
-  const handleFileUpload = (id: string, file: File) => {
-    const mb = file.size / (1024 * 1024)
-    const sizeText = mb >= 1 ? `${mb.toFixed(1)} MB` : `${Math.max(1, Math.round(file.size / 1024))} KB`
-    const fileUrl = URL.createObjectURL(file)
-    const fileInfo: UploadedFileInfo = {
-      name: file.name,
-      sizeText,
-      uploadTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      fileUrl,
-      status: 'verified',
-    }
-    setUploadedFiles((prev) => ({
-      ...prev,
-      [id]: fileInfo,
-    }))
-    setNotApplicableDocs((prev) => {
-      if (!prev[id]) return prev
-      const copy = { ...prev }
-      delete copy[id]
-      return copy
-    })
-  }
-
-  const handleFileRemove = (id: string) => {
-    setUploadedFiles((prev) => {
-      const copy = { ...prev }
-      delete copy[id]
-      return copy
-    })
-  }
-
-  const handleToggleNotApplicable = (id: string) => {
-    setNotApplicableDocs((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }))
-  }
-
-  const saveCurrentDraft = useCallback(() => {
-    if (currentStep >= 5) return
-    const now = new Date()
-    const timeStr = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
-    userStorage.saveDraft({
-      serviceId: 'gst-filing',
-      serviceTitle: 'GST Filing',
-      currentStep,
-      totalSteps: 4,
-      stepLabel: STEP_LABELS[currentStep] || 'Return Filing',
-      formData: {
-        filingData,
-        uploadedFiles,
-        notApplicableDocs,
-      },
-      savedAt: timeStr,
-      savedTimestamp: Date.now(),
-      resumeRoute: routePaths.gst.filing,
-    })
-  }, [currentStep, filingData, uploadedFiles, notApplicableDocs])
-
-  useEffect(() => {
-    if (currentStep > 1 && currentStep <= 4) {
-      saveCurrentDraft()
-    }
-  }, [currentStep, filingData, uploadedFiles, notApplicableDocs, saveCurrentDraft])
-
-  const isBackButtonClickedRef = useRef(false)
-
-  const filingRoutes = useMemo(
-    () => [
-      routePaths.gst.filing,
-      routePaths.gst.filePeriod,
-      routePaths.gst.fileUpload,
-      routePaths.gst.fileReview,
-      routePaths.gst.filePayment,
-      routePaths.gst.fileSuccess,
-      routePaths.gst.fileReceipt,
-    ],
-    []
+  const [paymentResult, setPaymentResult] = useState<PaymentResult>(() => buildPaymentResult(filingRef))
+  // Uploaded files cannot be stored, so a restored draft asks for them again (same as loans)
+  const [uploadedFiles, setUploadedFiles] = useState<Record<string, UploadedFileInfo>>({})
+  const [notApplicableDocs, setNotApplicableDocs] = useState<Record<string, boolean>>(
+    () => savedDraft?.formData?.notApplicableDocs || {}
   )
 
-  const isNavigationAllowed = useCallback(
-    (nextLocation: { pathname: string }) => {
-      if (isBackButtonClickedRef.current) {
-        isBackButtonClickedRef.current = false
-        return true
-      }
-      return (filingRoutes as readonly string[]).includes(nextLocation.pathname)
-    },
-    [filingRoutes]
-  )
+  const hasEnteredData =
+    currentStep > 1 ||
+    hasGstFormChanged(filingData, defaultFilingData) ||
+    Object.keys(uploadedFiles).length > 0 ||
+    Object.keys(notApplicableDocs).length > 0
 
-  const handleStep1Back = useCallback(() => {
-    isBackButtonClickedRef.current = true
-    navigate(routePaths.gst.root)
-  }, [navigate])
-
-  const shouldBlock = currentStep > 1 && currentStep <= 4
-  const {
-    isModalOpen,
-    openModal,
-    handleSaveAndExit,
-    handleDiscardAndExit,
-    handleKeepEditing,
-  } = useDraftBlocker({
-    shouldBlock,
-    onSaveDraft: () => {
-      saveCurrentDraft()
-      pushToast('GST Filing draft saved', 'success')
-    },
-    onDiscardDraft: () => {
-      userStorage.deleteDraft('gst-filing')
-      pushToast('Draft discarded', 'info')
-    },
-    defaultExitRoute: routePaths.gst.root,
-    isNavigationAllowed,
+  const draft = useGstDraft<FilingDraft>({
+    serviceId: SERVICE_ID,
+    serviceTitle: SERVICE_TITLE,
+    totalSteps: TOTAL_STEPS,
+    currentStep: Math.min(currentStep, TOTAL_STEPS),
+    stepLabel: STEP_LABELS[currentStep] || 'Return Filing',
+    resumeRoute: routePaths.gst.filing,
+    exitRoute: routePaths.gst.root,
+    formData: { filingData, uploadedFiles, notApplicableDocs },
+    hasEnteredData,
+    isComplete: currentStep > TOTAL_STEPS,
+    isFlowRoute: isFilingRoute,
   })
 
-  useEffect(() => {
-    if (location.pathname === routePaths.gst.fileUpload) setCurrentStep(2)
-    else if (location.pathname === routePaths.gst.fileReview) setCurrentStep(3)
-    else if (location.pathname === routePaths.gst.filePayment) setCurrentStep(4)
-    else if (location.pathname === routePaths.gst.fileSuccess) setCurrentStep(5)
-    else if (location.pathname === routePaths.gst.fileReceipt) setCurrentStep(6)
-    else if (location.pathname === routePaths.gst.filing || location.pathname === routePaths.gst.filePeriod) setCurrentStep(1)
-  }, [location.pathname])
+  // Follow the step named by the route (applied during render when the path changes)
+  const [syncedPath, setSyncedPath] = useState(location.pathname)
+  if (syncedPath !== location.pathname) {
+    setSyncedPath(location.pathname)
+    const routeStep = FILING_STEP_BY_PATH[location.pathname]
+    if (routeStep) setCurrentStep(routeStep)
+  }
 
-  const handleStepClick = (stepId: number) => {
-    if (stepId === 1) {
-      setCurrentStep(1)
-      navigate(routePaths.gst.filePeriod)
-    } else if (stepId === 2) {
-      setCurrentStep(2)
-      navigate(routePaths.gst.fileUpload)
-    } else if (stepId === 3) {
-      setCurrentStep(3)
-      navigate(routePaths.gst.fileReview)
-    } else if (stepId === 4) {
-      setCurrentStep(4)
-      navigate(routePaths.gst.filePayment)
-    }
+  const goToStep = (step: FilingStep) => {
+    setCurrentStep(step)
+    navigate(FILING_PATH_BY_STEP[step])
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
+  const handleFileUpload = (id: string, file: File) => {
+    const fileInfo: UploadedFileInfo = {
+      name: file.name,
+      sizeText: formatGstFileSize(file.size),
+      uploadTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      fileUrl: URL.createObjectURL(file),
+      status: 'verified',
+    }
+    setUploadedFiles((prev) => ({ ...prev, [id]: fileInfo }))
+    setNotApplicableDocs((prev) => (prev[id] ? withoutKey(prev, id) : prev))
+  }
+
+  const handleFileRemove = (id: string) => setUploadedFiles((prev) => withoutKey(prev, id))
+
+  const handleToggleNotApplicable = (id: string) =>
+    setNotApplicableDocs((prev) => (prev[id] ? withoutKey(prev, id) : { ...prev, [id]: true }))
+
+  const handleStepClick = (stepId: number) => {
+    if (stepId >= 1 && stepId <= TOTAL_STEPS) goToStep(stepId as FilingStep)
+  }
+
+  // Leaving from step 1 asks to save when something was entered (same as the loans flows)
+  const handleStep1Back = () => navigate(routePaths.gst.root)
 
   const handleStep1Continue = (data: FilingPeriodData) => {
     setFilingData(data)
-    setCurrentStep(2)
-    navigate(routePaths.gst.fileUpload)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const handleStep2Next = () => {
-    setCurrentStep(3)
-    navigate(routePaths.gst.fileReview)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const handleStep3Approve = () => {
-    setCurrentStep(4)
-    navigate(routePaths.gst.filePayment)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    goToStep(2)
   }
 
   const handleStep4Success = (res: PaymentResult) => {
     setPaymentResult(res)
     const finalRef = res.applicationRef || filingRef
-    userStorage.deleteDraft('gst-filing')
+    draft.clearDraft()
     userStorage.saveUserApplication({
       id: `app-gst-filing-${Date.now()}`,
       code: finalRef,
@@ -242,30 +156,29 @@ export const useGSTFilingFlow = () => {
       icon: '📄',
       to: routePaths.gst.detail(finalRef),
     })
-    setCurrentStep(5)
-    navigate(routePaths.gst.fileSuccess)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    goToStep(5)
   }
 
   return {
     navigate,
     currentStep,
-    setCurrentStep,
+    goToStep,
     filingData,
+    setFilingData,
     filingRef,
     paymentResult,
     uploadedFiles,
     notApplicableDocs,
-    isModalOpen,
-    openModal,
-    handleSaveAndExit,
-    handleDiscardAndExit,
-    handleKeepEditing,
+    isModalOpen: draft.isDraftModalOpen,
+    openModal: draft.openDraftModal,
+    handleSaveAndExit: draft.handleSaveAndExit,
+    handleDiscardAndExit: draft.handleDiscardAndExit,
+    handleKeepEditing: draft.handleKeepEditing,
     handleStepClick,
     handleStep1Continue,
     handleStep1Back,
-    handleStep2Next,
-    handleStep3Approve,
+    handleStep2Next: () => goToStep(3),
+    handleStep3Approve: () => goToStep(4),
     handleStep4Success,
     handleFileUpload,
     handleFileRemove,

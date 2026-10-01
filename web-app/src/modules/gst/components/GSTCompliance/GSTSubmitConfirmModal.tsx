@@ -1,4 +1,5 @@
 import React from 'react'
+import { orNotAvailable } from '@modules/gst/services/gstProfileService'
 import './GSTSubmitConfirmModal.css'
 
 interface GSTSubmitConfirmModalProps {
@@ -35,7 +36,7 @@ export const GSTSubmitConfirmModal: React.FC<GSTSubmitConfirmModalProps> = ({
         <h3 className="gst-confirm-title">Submit GST Compliance Request?</h3>
 
         <p className="gst-confirm-desc">
-          Are you sure you want to submit this <strong>{requestType || 'GST Compliance'}</strong> request for GSTIN <strong>{gstin || '29AAAAA0000A1Z5'}</strong>? Our CA team will immediately begin processing.
+          Are you sure you want to submit this <strong>{requestType || 'GST Compliance'}</strong> request for GSTIN <strong>{orNotAvailable(gstin)}</strong>? Our CA team will immediately begin processing.
         </p>
 
         <div className="gst-confirm-actions">

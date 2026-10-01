@@ -1,0 +1,11 @@
+{
+  "version": "0.2",
+  "import": ["../../../cspell.json"],
+  "words": [
+    "AAKCT", "bhim", "cgst", "sgst", "GSTN", "gstc", "Challans", "eway", "khata", "UIDAI",
+    "gpay", "paytm", "phonepe", "okaxis", "netbanking",
+    "Arunachal", "Chhattisgarh", "Dadra", "Haryana", "Haveli", "Jharkhand", "Ladakh", "Meghalaya",
+    "Mizoram", "Nagar", "Uttarakhand",
+    "Checkmark", "Dropzones", "fgrid", "fullwidth", "subtime", "nums"
+  ]
+}

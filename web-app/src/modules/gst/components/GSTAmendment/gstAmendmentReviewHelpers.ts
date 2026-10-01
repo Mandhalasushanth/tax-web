@@ -1,5 +1,13 @@
+import { formatGstFileSize } from '@modules/gst/utils/gstFile'
 import type { AmendmentCardItem } from './index'
-import type { GSTAmendmentFormData } from '../../hooks/useGSTAmendmentFlow'
+import type { GSTAmendmentFormData } from '@modules/gst/hooks/useGSTAmendmentFlow'
+import { gstProfileService, orNotAvailable } from '@modules/gst/services/gstProfileService'
+import {
+  getCurrentAddressDetails,
+  getCurrentBankDetails,
+  getCurrentContactDetails,
+  getCurrentSignatoryDetails,
+} from '@modules/gst/services/gstProfileDetails'
 
 export interface GSTAmendmentReviewData {
   sectionTitle: string
@@ -37,81 +45,61 @@ export function buildReviewData(
   gstin: string,
   configTitle: string
 ): GSTAmendmentReviewData {
-  const isAddressType =
-    selectedOption.id === 'principal_place' || selectedOption.id === 'additional_place'
-
-  const mb = formData.file ? formData.file.size / (1024 * 1024) : 0
-  const sizeText = mb >= 1 ? `${mb.toFixed(1)} MB` : `${Math.max(1, Math.round((formData.file?.size || 0) / 1024))} KB`
-
+  const profile = gstProfileService.get()
+  const show = orNotAvailable
+  const isAddressType = selectedOption.id === 'principal_place' || selectedOption.id === 'additional_place'
   const isAdditional = selectedOption.id === 'additional_place'
-  const currentAddress = isAdditional
-    ? { address: 'Peenya Industrial Area', city: 'Bengaluru', pinCode: '560058', natureOfPremises: 'Warehouse' }
-    : { address: 'MG Road, Bengaluru', city: 'Bengaluru', district: 'Bengaluru Urban', state: 'Karnataka', pinCode: '560001', natureOfPremises: '—' }
+  const isBankType = selectedOption.id === 'bank_accounts'
+  const isSignatoryType = selectedOption.id === 'authorised_signatories'
+  const isContactType = selectedOption.id === 'contact_details'
+
+  const file = formData.file
+  const fileSizeText = file ? formatGstFileSize(file.size) : show('')
+
+  const currentAddress = isAddressType ? getCurrentAddressDetails(isAdditional) : undefined
 
   const userAddr = formData.addressDetails
-  const requestedAddress = userAddr && userAddr.address
+  const requestedAddress = isAddressType
     ? {
-        address: userAddr.address,
-        city: userAddr.city || 'Nellore',
-        district: userAddr.district || 'Nellore',
-        state: userAddr.state || 'Andhra Pradesh',
-        pinCode: userAddr.pinCode || (isAdditional ? '560001' : '560011'),
-        natureOfPremises: userAddr.natureOfPremises || (isAdditional ? 'Shared' : 'Warehouse'),
+        address: show(userAddr?.address),
+        city: show(userAddr?.city),
+        district: show(userAddr?.district),
+        state: show(userAddr?.state),
+        pinCode: show(userAddr?.pinCode),
+        natureOfPremises: show(userAddr?.natureOfPremises),
       }
-    : (isAdditional
-      ? { address: 'Nellore', city: 'Nellore', pinCode: '560001', natureOfPremises: 'Shared' }
-      : { address: 'Nellore', city: 'Nellore', district: 'Nellore', state: 'Andhra Pradesh', pinCode: '560011', natureOfPremises: 'Warehouse' })
-
-  const isBankType = selectedOption.id === 'bank_accounts'
-  const userBank = formData.bankDetails || {}
-  const currentBank = isBankType
-    ? { bankName: 'HDFC Bank', accountNumber: 'XXXXX1234', ifscCode: 'HDFC0001234', accountType: 'Current' }
     : undefined
 
+  const userBank = formData.bankDetails || {}
+  const currentBank = isBankType ? getCurrentBankDetails() : undefined
   const requestedBank = isBankType
     ? {
-        bankName: userBank.bankName || 'Icic',
-        accountNumber: userBank.accountNumber || '33457469933',
-        confirmAccountNumber: userBank.accountNumber || '33457469933',
-        ifscCode: userBank.ifscCode || 'ICIC0005678',
-        accountType: userBank.accountType || 'Current',
+        bankName: show(userBank.bankName),
+        accountNumber: show(userBank.accountNumber),
+        confirmAccountNumber: show(userBank.accountNumber),
+        ifscCode: show(userBank.ifscCode),
+        accountType: show(userBank.accountType),
       }
     : undefined
 
-  const isSignatoryType = selectedOption.id === 'authorised_signatories'
   const userSig = formData.signatoryDetails || {}
-  const currentSig = isSignatoryType
-    ? {
-        name: 'Akhil Kumar',
-        pan: 'AKHIL1234K',
-        designation: 'Proprietor',
-        mobile: '+91 98765 43210',
-        email: 'akhil@business.com',
-      }
-    : undefined
-
+  const currentSig = isSignatoryType ? getCurrentSignatoryDetails() : undefined
   const requestedSig = isSignatoryType
     ? {
-        name: userSig.name || 'Suresh Kumar',
-        designation: userSig.designation || 'Director',
-        pan: userSig.pan || 'ABCDE1234F',
-        mobile: userSig.mobile || '8749594844',
-        dob: userSig.dob || '15-08-1990',
-        email: userSig.email || 'suresh@business.com',
+        name: show(userSig.name),
+        designation: show(userSig.designation),
+        pan: show(userSig.pan),
+        mobile: show(userSig.mobile),
+        dob: show(userSig.dob),
+        email: show(userSig.email),
       }
     : undefined
 
-  const isContactType = selectedOption.id === 'contact_details'
   const userContact = formData.contactDetails || {}
-  const currentContact = isContactType
-    ? { mobile: '+91 98765 43210', email: 'akhil@business.com' }
-    : undefined
+  const currentContact = isContactType ? getCurrentContactDetails() : undefined
   const requestedContact = isContactType
-    ? { mobile: userContact.mobile || '+91 98765 43210', email: userContact.email || 'akhil@business.com' }
+    ? { mobile: show(userContact.mobile), email: show(userContact.email) }
     : undefined
-
-  const reviewGstin = gstin || (isBankType || isSignatoryType || isContactType ? '29AAAAA0000A1Z5' : isAdditional ? '29AAAAA0000A1Z6' : '29AAAAA0000A1Z5')
-  const fileName = formData.file?.name || (isSignatoryType ? 'Screenshot_2026-09-16-12-05-14-30_f7.....png' : isBankType ? 'Screenshot_2026-09-16-11-05-22-60_f7.....png' : isAdditional ? 'Screenshot_2026-09-16-09-49-45-99_f7.png' : 'Screenshot_2026-09-16-14-25-44.png')
 
   return {
     sectionTitle: configTitle,
@@ -124,8 +112,8 @@ export function buildReviewData(
     requestedSig,
     currentContact,
     requestedContact,
-    reviewGstin,
-    fileName,
-    fileSizeText: sizeText || '0.3 MB',
+    reviewGstin: gstin || show(profile.gstin),
+    fileName: file?.name || show(''),
+    fileSizeText,
   }
 }

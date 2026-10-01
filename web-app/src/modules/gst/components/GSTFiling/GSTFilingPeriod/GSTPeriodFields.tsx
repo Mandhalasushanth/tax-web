@@ -1,9 +1,12 @@
-import React from 'react'
+import React, { useMemo } from 'react'
+import { gstFieldRules } from '@modules/gst/validation/gstFieldRules'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
+import { gstProfileService } from '@modules/gst/services/gstProfileService'
 import {
   FINANCIAL_YEAR_OPTIONS,
   RETURN_TYPE_OPTIONS,
   type SelectOption,
-} from '../../../utils/gstPeriodOptions'
+} from '@modules/gst/utils/gstPeriodOptions'
 import { GSTVerifiedBusinessCard } from './GSTVerifiedBusinessCard'
 
 export const ChevronDown: React.FC = () => (
@@ -50,6 +53,7 @@ export const GSTPeriodFields: React.FC<GSTPeriodFieldsProps> = ({
   errors,
   handleClearError,
 }) => {
+  const profile = useMemo(() => gstProfileService.get(), [])
   return (
     <>
       {/* Financial Year */}
@@ -124,7 +128,7 @@ export const GSTPeriodFields: React.FC<GSTPeriodFieldsProps> = ({
           placeholder="e.g. 29AAAAA0000A1Z5"
           value={gstin}
           onChange={(e) => {
-            setGstin(e.target.value.toUpperCase())
+            setGstin(gstInput.gstin(e.target.value))
             handleClearError('gstin')
           }}
         />
@@ -133,11 +137,11 @@ export const GSTPeriodFields: React.FC<GSTPeriodFieldsProps> = ({
         )}
 
         {/* Verified Business Card appears when user enters GST number */}
-        {gstin.trim().length >= 3 && (
+        {!gstFieldRules.gstin(gstin) && (
           <GSTVerifiedBusinessCard
             gstin={gstin}
-            tradeName="Shree Deshmukh Traders"
-            legalName="Shree Deshmukh Enterprises Private Limited"
+            tradeName={profile.tradeName}
+            legalName={profile.legalName}
             scheme={filingType === 'nil' ? 'Nil Return' : 'Regular Scheme'}
           />
         )}

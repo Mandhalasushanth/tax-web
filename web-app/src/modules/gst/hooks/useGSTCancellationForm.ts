@@ -1,8 +1,10 @@
+import { gstFileSizeError } from '@modules/gst/utils/gstFile'
 import { useState, type ChangeEvent, type FormEvent } from 'react'
+import { gstFieldRules } from '@modules/gst/validation/gstFieldRules'
+import { gstProfileService } from '@modules/gst/services/gstProfileService'
+import { generateGstReference } from '@modules/gst/utils/gstFormat'
 import { routePaths } from '@core/config'
-import { useDraftBlocker } from '@shared/hooks'
-import { userStorage } from '@core/storage/userStorage'
-import { useAppStore } from '@store/index'
+import { useGstDraft, readGstDraft, hasGstFormChanged } from '@modules/gst/hooks/useGstDraft'
 
 export interface CancellationFormData {
   gstin: string
@@ -19,58 +21,63 @@ export interface UseGSTCancellationFormProps {
   onSubmit?: (data: CancellationFormData) => void
 }
 
+/** Fields kept in a draft (the proof file cannot be stored and is uploaded again) */
+type CancellationDraft = Omit<CancellationFormData, 'file'>
+
+const SERVICE_ID = 'gst-cancellation'
+
+const buildInitialCancellation = (): CancellationDraft => ({
+  gstin: gstProfileService.get().gstin,
+  reason: '',
+  cancellationDate: '',
+  pendingLiabilities: '',
+  lastGstr3bFiled: '',
+  closingStockDetails: '',
+  finalReturnDeclaration: false,
+})
+
 export const useGSTCancellationForm = ({ onSubmit }: UseGSTCancellationFormProps) => {
-  const [gstin, setGstin] = useState('')
-  const [reason, setReason] = useState('')
-  const [cancellationDate, setCancellationDate] = useState('')
-  const [pendingLiabilities, setPendingLiabilities] = useState('')
-  const [lastGstr3bFiled, setLastGstr3bFiled] = useState('')
-  const [closingStockDetails, setClosingStockDetails] = useState('')
+  const [initialValues] = useState(buildInitialCancellation)
+  const [restored] = useState<CancellationDraft>(() => ({
+    ...initialValues,
+    ...readGstDraft<CancellationDraft>(SERVICE_ID)?.formData,
+  }))
+  const [gstin, setGstin] = useState(restored.gstin)
+  const [reason, setReason] = useState(restored.reason)
+  const [cancellationDate, setCancellationDate] = useState(restored.cancellationDate)
+  const [pendingLiabilities, setPendingLiabilities] = useState(restored.pendingLiabilities || '')
+  const [lastGstr3bFiled, setLastGstr3bFiled] = useState(restored.lastGstr3bFiled || '')
+  const [closingStockDetails, setClosingStockDetails] = useState(restored.closingStockDetails)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [finalReturnDeclaration, setFinalReturnDeclaration] = useState(false)
+  const [finalReturnDeclaration, setFinalReturnDeclaration] = useState(restored.finalReturnDeclaration)
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isReviewing, setIsReviewing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const pushToast = useAppStore((state) => state.pushToast)
+  const [referenceNumber, setReferenceNumber] = useState('')
 
-  const isDirty = !isSubmitted && (gstin.trim() !== '' || reason !== '' || isReviewing)
+  const draftData: CancellationDraft = {
+    gstin,
+    reason,
+    cancellationDate,
+    pendingLiabilities,
+    lastGstr3bFiled,
+    closingStockDetails,
+    finalReturnDeclaration,
+  }
 
-  const {
-    isModalOpen,
-    handleSaveAndExit,
-    handleDiscardAndExit,
-    handleKeepEditing,
-  } = useDraftBlocker({
-    shouldBlock: isDirty,
-    onSaveDraft: () => {
-      userStorage.saveDraft({
-        serviceId: 'gst-cancellation',
-        serviceTitle: 'GST Cancellation',
-        currentStep: isReviewing ? 2 : 1,
-        totalSteps: 2,
-        stepLabel: isReviewing ? 'Review Application' : 'Cancellation Details',
-        formData: {
-          gstin,
-          reason,
-          cancellationDate,
-          pendingLiabilities,
-          lastGstr3bFiled,
-          closingStockDetails,
-          finalReturnDeclaration,
-        },
-        savedAt: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }),
-        savedTimestamp: Date.now(),
-        resumeRoute: routePaths.gst.cancellation,
-      })
-      pushToast('GST Cancellation draft saved', 'success')
-    },
-    onDiscardDraft: () => {
-      userStorage.deleteDraft('gst-cancellation')
-      pushToast('Draft discarded', 'info')
-    },
-    defaultExitRoute: routePaths.gst.root,
+  const draft = useGstDraft<CancellationDraft>({
+    serviceId: SERVICE_ID,
+    serviceTitle: 'GST Cancellation',
+    totalSteps: 2,
+    currentStep: isReviewing ? 2 : 1,
+    stepLabel: isReviewing ? 'Review Application' : 'Cancellation Details',
+    resumeRoute: routePaths.gst.cancellation,
+    exitRoute: routePaths.gst.root,
+    formData: draftData,
+    hasEnteredData: isReviewing || Boolean(selectedFile) || hasGstFormChanged(draftData, initialValues),
+    isComplete: isSubmitted,
   })
 
   const clearError = (field: string) => {
@@ -86,8 +93,9 @@ export const useGSTCancellationForm = ({ onSubmit }: UseGSTCancellationFormProps
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
-      if (file.size > 10 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, file: 'File size must be under 10 MB.' }))
+      const sizeError = gstFileSizeError(file)
+      if (sizeError) {
+        setErrors((prev) => ({ ...prev, file: sizeError }))
         return
       }
       setSelectedFile(file)
@@ -98,18 +106,15 @@ export const useGSTCancellationForm = ({ onSubmit }: UseGSTCancellationFormProps
   const handleReviewProceed = (e: FormEvent) => {
     e.preventDefault()
     const newErrors: Record<string, string> = {}
-    const cleanGstin = gstin.trim().toUpperCase()
-
-    if (!cleanGstin) {
-      newErrors.gstin = 'Please enter GSTIN.'
-    } else if (cleanGstin.length !== 15) {
-      newErrors.gstin = 'GSTIN must be 15 characters.'
-    }
+    const gstinError = gstFieldRules.gstin(gstin)
+    if (gstinError) newErrors.gstin = gstinError
 
     if (!reason) newErrors.reason = 'Please select reason for cancellation.'
     if (!cancellationDate) newErrors.cancellationDate = 'Please select cancellation date.'
-    if (!lastGstr3bFiled.trim()) newErrors.lastGstr3bFiled = 'Please enter last GSTR-3B filed ARN/Period.'
-    if (!closingStockDetails.trim()) newErrors.closingStockDetails = 'Please enter closing stock details.'
+    const lastFiledError = gstFieldRules.text('Last GSTR-3B filed ARN / period', 6, 60)(lastGstr3bFiled)
+    if (lastFiledError) newErrors.lastGstr3bFiled = lastFiledError
+    const closingStockError = gstFieldRules.text('Closing stock details', 5, 500)(closingStockDetails)
+    if (closingStockError) newErrors.closingStockDetails = closingStockError
     if (!finalReturnDeclaration) {
       newErrors.finalReturnDeclaration = 'You must confirm the final return declaration before proceeding.'
     }
@@ -128,8 +133,9 @@ export const useGSTCancellationForm = ({ onSubmit }: UseGSTCancellationFormProps
     setIsSubmitting(true)
     setTimeout(() => {
       setIsSubmitting(false)
+      setReferenceNumber(generateGstReference('GST-CAN'))
       setIsSubmitted(true)
-      userStorage.deleteDraft('gst-cancellation')
+      draft.clearDraft()
       onSubmit?.({
         gstin: gstin.trim().toUpperCase(),
         reason,
@@ -171,9 +177,11 @@ export const useGSTCancellationForm = ({ onSubmit }: UseGSTCancellationFormProps
     isSubmitting,
     isSubmitted,
     setIsSubmitted,
-    isModalOpen,
-    handleSaveAndExit,
-    handleDiscardAndExit,
-    handleKeepEditing,
+    referenceNumber,
+    isModalOpen: draft.isDraftModalOpen,
+    openDraftModal: draft.openDraftModal,
+    handleSaveAndExit: draft.handleSaveAndExit,
+    handleDiscardAndExit: draft.handleDiscardAndExit,
+    handleKeepEditing: draft.handleKeepEditing,
   }
 }

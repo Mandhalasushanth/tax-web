@@ -1,3 +1,4 @@
+import { orNotAvailable } from '@modules/gst/services/gstProfileService'
 import type { AddressDetailsItem, BankDetailsItem, ContactDetailsItem, SignatoryDetailsItem } from './GSTAmendmentReview'
 
 export interface RowItem {
@@ -60,7 +61,7 @@ export function getSignatoryRows(details: SignatoryDetailsItem, isRequested: boo
     return [
       { label: 'Signatory Name', value: details.name },
       { label: 'Signatory PAN', value: details.pan },
-      { label: 'Date of Birth', value: details.dob || '01-01-2000' },
+      { label: 'Date of Birth', value: orNotAvailable(details.dob) },
       { label: 'Designation', value: details.designation },
       { label: 'Signatory Mobile', value: details.mobile },
       { label: 'Signatory Email', value: details.email },

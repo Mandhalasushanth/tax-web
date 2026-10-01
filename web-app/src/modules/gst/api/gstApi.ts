@@ -7,7 +7,7 @@ import type {
   GstRegistrationPayload,
   GstReturn,
   GstReturnPayload,
-} from '../types/gst.types'
+} from '@modules/gst/types/gst.types'
 
 export const gstApi = {
   listApplications: (filters?: GstListFilters) =>

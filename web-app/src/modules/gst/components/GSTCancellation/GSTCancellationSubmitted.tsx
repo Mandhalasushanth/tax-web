@@ -1,4 +1,5 @@
 import React from 'react'
+import { orNotAvailable } from '@modules/gst/services/gstProfileService'
 import './GSTCancellationSubmitted.css'
 
 export interface GSTCancellationSubmittedProps {
@@ -10,9 +11,9 @@ export interface GSTCancellationSubmittedProps {
 }
 
 export const GSTCancellationSubmitted: React.FC<GSTCancellationSubmittedProps> = ({
-  applicationId = 'AA290926430313',
-  gstin = '29AAAAA0000A1Z8',
-  cancellationDate = '2026-09-28',
+  applicationId,
+  gstin,
+  cancellationDate,
   onAllForms,
 }) => {
   const currentDateFormatted = new Date().toLocaleDateString('en-GB', {
@@ -22,7 +23,7 @@ export const GSTCancellationSubmitted: React.FC<GSTCancellationSubmittedProps> =
   })
 
   const formatEffectiveDate = (dateStr?: string) => {
-    if (!dateStr) return '28 Sept 2026'
+    if (!dateStr) return orNotAvailable('')
     try {
       const d = new Date(dateStr)
       if (isNaN(d.getTime())) return dateStr
@@ -59,12 +60,12 @@ export const GSTCancellationSubmitted: React.FC<GSTCancellationSubmittedProps> =
 
         <div className="gst-canc-detail-row">
           <span className="gst-canc-detail-label">ARN / Reference</span>
-          <span className="gst-canc-detail-val">{applicationId}</span>
+          <span className="gst-canc-detail-val">{orNotAvailable(applicationId)}</span>
         </div>
 
         <div className="gst-canc-detail-row">
           <span className="gst-canc-detail-label">GSTIN</span>
-          <span className="gst-canc-detail-val">{gstin}</span>
+          <span className="gst-canc-detail-val">{orNotAvailable(gstin)}</span>
         </div>
 
         <div className="gst-canc-detail-row">

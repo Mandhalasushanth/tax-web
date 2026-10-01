@@ -1,2 +1,2 @@
-export { GSTComplianceCard } from '../../shared/GSTComplianceCard/GSTComplianceCard'
-export type { GSTComplianceCardProps } from '../../shared/GSTComplianceCard/GSTComplianceCard'
+export { GSTComplianceCard } from '@modules/gst/shared/GSTComplianceCard/GSTComplianceCard'
+export type { GSTComplianceCardProps } from '@modules/gst/shared/GSTComplianceCard/GSTComplianceCard'

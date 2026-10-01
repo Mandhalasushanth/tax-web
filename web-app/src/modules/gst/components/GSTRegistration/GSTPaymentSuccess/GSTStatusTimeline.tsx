@@ -8,7 +8,7 @@ export interface TimelineMilestone {
   detail: string
 }
 
-export const GST_DEFAULT_MILESTONES: TimelineMilestone[] = [
+const GST_DEFAULT_MILESTONES: TimelineMilestone[] = [
   {
     id: 'submitted',
     title: 'Application Submitted',
@@ -21,7 +21,7 @@ export const GST_DEFAULT_MILESTONES: TimelineMilestone[] = [
     title: 'Document Verification',
     desc: 'Assigned CA reviewing proofs',
     status: 'current',
-    detail: 'CA Rohit Kulkarni is reviewing PAN, Aadhaar & address proof',
+    detail: 'Your assigned CA is reviewing PAN, Aadhaar & address proof',
   },
   {
     id: 'trn',

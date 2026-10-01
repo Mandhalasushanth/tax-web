@@ -1,61 +1,41 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react'
-import { authStorage } from '@core/auth'
-import { GST_CERTIFICATE_REQUEST_TYPES } from '../../../data/gstCertificateData'
-import type { GstCertificatePayload } from '../../../types/gst.types'
+import type { ChangeEvent, FormEvent } from 'react'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
+import { GST_CERTIFICATE_REQUEST_TYPES } from '@modules/gst/data/gstCertificateData'
+import { GSTStepErrorBanner } from '@modules/gst/shared/GSTStepErrorBanner'
+import { GSTSaveDraftButton } from '@modules/gst/shared/GSTSaveDraftButton'
+import type { CertificateFields } from '@modules/gst/hooks/useGSTCertificateFlow'
 import './GSTCertificateForm.css'
 
 interface GSTCertificateFormProps {
+  values: CertificateFields
+  onChange: <K extends keyof CertificateFields>(field: K, value: CertificateFields[K]) => void
+  errors: Record<string, string>
+  stepError: string | null
+  contact: { mobile?: string; email?: string } | null
   isSubmitting?: boolean
-  onSubmit: (payload: GstCertificatePayload) => void
-  onAllFormsClick?: () => void
+  onSubmit: (e?: FormEvent) => void
+  onSaveDraft: () => void
 }
 
+/** Certificate request form; values, validation and drafts are handled by useGSTCertificateFlow */
 export const GSTCertificateForm = ({
+  values,
+  onChange,
+  errors,
+  stepError,
+  contact: user,
   isSubmitting = false,
   onSubmit,
+  onSaveDraft,
 }: GSTCertificateFormProps) => {
-  const user = authStorage.getUser()
-  const [gstin, setGstin] = useState('')
-  const [selectedRequestType, setSelectedRequestType] = useState('')
-  const [errors, setErrors] = useState<Record<string, string>>({})
-
-  const validate = () => {
-    const newErrors: Record<string, string> = {}
-    if (!gstin.trim()) {
-      newErrors.gstin = 'GSTIN is required'
-    } else if (gstin.trim().length !== 15) {
-      newErrors.gstin = 'GSTIN must be exactly 15 characters (e.g. 29AAAA0000A1Z5)'
-    }
-
-    if (!selectedRequestType) {
-      newErrors.requestType = 'Please select a request type'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault()
-    if (!validate()) return
-
-    const contactText = user?.mobile
-      ? `+91 ${user.mobile}${user.email ? ` · ${user.email}` : ''}`
-      : 'Registered Signatory Authorization'
-
-    onSubmit({
-      gstin: gstin.trim(),
-      registeredContact: contactText,
-      requestType: selectedRequestType,
-    })
-  }
+  const { gstin, requestType: selectedRequestType } = values
 
   return (
     <div className="gcf-root">
       {/* Two-column layout */}
       <div className="gcf-layout">
         {/* ── LEFT: Form ── */}
-        <form className="gcf-form" onSubmit={handleSubmit} noValidate>
+        <form className="gcf-form" onSubmit={onSubmit} noValidate>
           {/* Field 1: GSTIN */}
           <div className="gcf-field">
             <div className="gcf-field__label-row">
@@ -73,13 +53,10 @@ export const GSTCertificateForm = ({
               id="gcf-gstin"
               type="text"
               className={`gcf-input ${errors.gstin ? 'has-error' : ''}`}
-              placeholder="e.g. 29AAAA0000A1Z5"
+              placeholder="e.g. 29ABCDE1234F1Z5"
               maxLength={15}
               value={gstin}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                setGstin(e.target.value.toUpperCase())
-                if (errors.gstin) setErrors((prev) => ({ ...prev, gstin: '' }))
-              }}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => onChange('gstin', gstInput.gstin(e.target.value))}
             />
             <span className="gcf-field__hint">Enter your 15-digit GST Identification Number</span>
             {errors.gstin && <span className="gcf-field__error">{errors.gstin}</span>}
@@ -136,10 +113,7 @@ export const GSTCertificateForm = ({
                 id="gcf-request-type"
                 className={`gcf-select ${!selectedRequestType ? 'is-placeholder' : ''} ${errors.requestType ? 'has-error' : ''}`}
                 value={selectedRequestType}
-                onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-                  setSelectedRequestType(e.target.value)
-                  if (errors.requestType) setErrors((prev) => ({ ...prev, requestType: '' }))
-                }}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) => onChange('requestType', e.target.value)}
               >
                 <option value="" disabled hidden>
                   Select request type
@@ -167,6 +141,10 @@ export const GSTCertificateForm = ({
             </svg>
             <span>Your certificate will be generated using your GST registration details and saved as a PDF on your device.</span>
           </div>
+
+          <GSTStepErrorBanner message={stepError} />
+
+          <GSTSaveDraftButton onClick={onSaveDraft} />
 
           {/* Submit button */}
           <button type="submit" disabled={isSubmitting} className="gcf-submit-btn">

@@ -1,11 +1,12 @@
 import React from 'react'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
 import { routePaths } from '@core/config'
 import { GSTComplianceSubmitted } from './GSTComplianceSubmitted'
 import { ComplianceDocPreviewModal } from './GSTComplianceDocPreviewModal'
 import { ChevronIcon, FieldRow } from './GSTComplianceFileDropzone'
 import { GSTComplianceReconFields } from './GSTComplianceReconFields'
 import { GSTComplianceNoticeFields } from './GSTComplianceNoticeFields'
-import { useGSTComplianceForm } from '../../hooks/useGSTComplianceForm'
+import { useGSTComplianceForm } from '@modules/gst/hooks/useGSTComplianceForm'
 import './GSTComplianceCard.css'
 
 export interface ComplianceFormData {
@@ -35,8 +36,8 @@ export interface GSTComplianceCardProps {
 export const GSTComplianceCard: React.FC<GSTComplianceCardProps> = ({
   title = 'GST Compliance Form',
   subtitle = 'Live screen — numbered to match the field spec.',
-  initialGstin = '27AXTPD4419K1ZP',
-  initialFinancialYear = 'FY 2026-27',
+  initialGstin,
+  initialFinancialYear,
   initialRequestType = 'Reconciliation Support',
   onAllForms,
   onSubmit,
@@ -126,7 +127,7 @@ export const GSTComplianceCard: React.FC<GSTComplianceCardProps> = ({
               name="gstin"
               type="text"
               maxLength={15}
-              placeholder="e.g. 27AXTPD4419K1ZP or AXTPD4419K"
+              placeholder="e.g. 27ABCDE1234F1Z5 or ABCDE1234F"
               value={gstin}
               onChange={(e) => handleGstinChange(e.target.value)}
               className={`compliance-gstin-input ${errors.gstin ? 'has-error' : ''}`}
@@ -227,7 +228,7 @@ export const GSTComplianceCard: React.FC<GSTComplianceCardProps> = ({
             rows={4}
             placeholder="Optional. Leave blank and your GST executive will draft the reply for you."
             value={replyDraft}
-            onChange={(e) => setReplyDraft(e.target.value)}
+            onChange={(e) => setReplyDraft(gstInput.text(e.target.value, 2000))}
             className="compliance-textarea"
           />
         </FieldRow>

@@ -1,4 +1,6 @@
+import { formatGstFileSize } from '@modules/gst/utils/gstFile'
 import React from 'react'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
 import { DocumentCard, DocumentSection } from '@shared/components'
 
 interface GSTReconciliationDocsSectionProps {
@@ -10,7 +12,7 @@ interface GSTReconciliationDocsSectionProps {
   setGstr2bRef: (val: string) => void
   notes: string
   setNotes: (val: string) => void
-  errors: { purchaseFile?: string; salesFile?: string }
+  errors: { purchaseFile?: string; salesFile?: string; gstr2bRef?: string }
   setErrors: React.Dispatch<React.SetStateAction<Record<string, string | undefined>>>
   setPreviewDoc: (doc: { file: File; title: string }) => void
 }
@@ -45,7 +47,7 @@ export const GSTReconciliationDocsSection: React.FC<GSTReconciliationDocsSection
               fileName={purchaseFile?.name}
               fileSize={
                 purchaseFile
-                  ? `${(purchaseFile.size / (1024 * 1024)).toFixed(2)} MB`
+                  ? formatGstFileSize(purchaseFile.size)
                   : undefined
               }
               file={purchaseFile || undefined}
@@ -75,7 +77,7 @@ export const GSTReconciliationDocsSection: React.FC<GSTReconciliationDocsSection
               fileName={salesFile?.name}
               fileSize={
                 salesFile
-                  ? `${(salesFile.size / (1024 * 1024)).toFixed(2)} MB`
+                  ? formatGstFileSize(salesFile.size)
                   : undefined
               }
               file={salesFile || undefined}
@@ -101,11 +103,12 @@ export const GSTReconciliationDocsSection: React.FC<GSTReconciliationDocsSection
       <div className="form-group">
         <input
           type="text"
-          className="form-input"
+          className={`form-input ${errors.gstr2bRef ? 'has-error' : ''}`}
           placeholder="Enter GSTR-2B reference or ARN"
           value={gstr2bRef}
-          onChange={(e) => setGstr2bRef(e.target.value)}
+          onChange={(e) => setGstr2bRef(gstInput.reference(e.target.value))}
         />
+        {errors.gstr2bRef && <span className="form-error">{errors.gstr2bRef}</span>}
       </div>
 
       {/* CA Notes textarea */}
@@ -115,7 +118,7 @@ export const GSTReconciliationDocsSection: React.FC<GSTReconciliationDocsSection
           rows={4}
           placeholder="Tell us anything our CA should know..."
           value={notes}
-          onChange={(e) => setNotes(e.target.value)}
+          onChange={(e) => setNotes(gstInput.text(e.target.value, 1000))}
         />
       </div>
     </div>

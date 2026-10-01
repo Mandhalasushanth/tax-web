@@ -1,60 +1,36 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { routePaths } from '@core/config'
-import { gstService } from '../../services/gstService'
-import type { GstCertificatePayload, GstCertificateRecord } from '../../types/gst.types'
-import { useAppStore } from '@store/index'
+import { DraftConfirmModal } from '@shared/components'
+import { useGSTCertificateFlow } from '@modules/gst/hooks/useGSTCertificateFlow'
 import { GSTCertificateForm } from './GSTCertificateForm/GSTCertificateForm'
 import { GSTCertificateSubmitted } from './GSTCertificateSubmitted/GSTCertificateSubmitted'
 import './GSTCertificate.css'
 
 export default function GSTCertificate() {
-  const navigate = useNavigate()
-  const pushToast = useAppStore((state) => state.pushToast)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submittedRecord, setSubmittedRecord] = useState<GstCertificateRecord | null>(null)
-
-  const handleAllFormsClick = () => {
-    navigate(routePaths.gst.root)
-  }
-
-  const handleFormSubmit = async (payload: GstCertificatePayload) => {
-    setIsSubmitting(true)
-    try {
-      const record = await gstService.submitCertificateRequest(payload)
-      setSubmittedRecord(record)
-      pushToast('GST Certificate request submitted successfully (GST-2026-00135)', 'success')
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    } catch {
-      setSubmittedRecord({
-        id: `cert_${Date.now()}`,
-        reference: 'GST-2026-00135',
-        gstin: payload.gstin,
-        registeredContact: payload.registeredContact,
-        requestType: payload.requestType,
-        status: 'COMPLETED',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      })
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleBackToForm = () => {
-    setSubmittedRecord(null)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  const {
+    user,
+    fields,
+    setField,
+    errors,
+    stepError,
+    isSubmitting,
+    submittedRecord,
+    handleSubmit,
+    handleBackToForm,
+    handleAllForms,
+    isDraftModalOpen,
+    openDraftModal,
+    handleSaveAndExit,
+    handleDiscardAndExit,
+    handleKeepEditing,
+  } = useGSTCertificateFlow()
 
   if (submittedRecord) {
     return (
       <GSTCertificateSubmitted
-        applicationId="GST-2026-00135"
-        gstin={submittedRecord.gstin || '27AXTPD4419K1ZP'}
+        applicationId={submittedRecord.reference}
+        gstin={submittedRecord.gstin}
         requestType={submittedRecord.requestType}
         onBackToForm={handleBackToForm}
-        onAllForms={handleAllFormsClick}
+        onAllForms={handleAllForms}
       />
     )
   }
@@ -78,11 +54,24 @@ export default function GSTCertificate() {
       </div>
       <main className="gst-certificate-main">
         <GSTCertificateForm
+          values={fields}
+          onChange={setField}
+          errors={errors}
+          stepError={stepError}
+          contact={user}
           isSubmitting={isSubmitting}
-          onSubmit={handleFormSubmit}
-          onAllFormsClick={handleAllFormsClick}
+          onSubmit={handleSubmit}
+          onSaveDraft={openDraftModal}
         />
       </main>
+
+      <DraftConfirmModal
+        isOpen={isDraftModalOpen}
+        serviceTitle="GST Certificate"
+        onSaveAndExit={handleSaveAndExit}
+        onDiscardAndExit={handleDiscardAndExit}
+        onKeepEditing={handleKeepEditing}
+      />
     </div>
   )
 }

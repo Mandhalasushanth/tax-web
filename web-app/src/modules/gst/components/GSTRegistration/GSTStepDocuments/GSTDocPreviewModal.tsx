@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import { Modal } from '@shared/components'
-import type { DocPreviewState } from '../../../types/gstDocuments.types'
-import { DocPlaceholderIcon } from '../../../shared/GSTDocIcons/GSTDocIcons'
+import type { DocPreviewState } from '@modules/gst/types/gstDocuments.types'
+import { DocPlaceholderIcon } from '@modules/gst/shared/GSTDocIcons/GSTDocIcons'
 
 interface GSTDocPreviewModalProps {
   previewDoc: DocPreviewState | null

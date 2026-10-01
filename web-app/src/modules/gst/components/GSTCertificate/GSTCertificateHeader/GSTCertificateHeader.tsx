@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { routePaths } from '@core/config'
-import { GST_CERTIFICATE_META } from '../../../data/gstCertificateData'
+import { GST_CERTIFICATE_META } from '@modules/gst/data/gstCertificateData'
 import './GSTCertificateHeader.css'
 
 interface GSTCertificateHeaderProps {

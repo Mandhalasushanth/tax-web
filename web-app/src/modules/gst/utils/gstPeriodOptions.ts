@@ -3,11 +3,18 @@ export interface SelectOption {
   label: string
 }
 
-export const FINANCIAL_YEAR_OPTIONS: SelectOption[] = [
-  { value: 'FY 2026-27', label: 'FY 2026-27' },
-  { value: 'FY 2025-26', label: 'FY 2025-26' },
-  { value: 'FY 2024-25', label: 'FY 2024-25' },
-]
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const toOption = (value: string): SelectOption => ({ value, label: value })
+
+/** Indian financial year (April–March) that contains the given date, as its starting year */
+const fyStartYear = (date: Date): number => (date.getMonth() >= 3 ? date.getFullYear() : date.getFullYear() - 1)
+const fyLabel = (startYear: number): string => `FY ${startYear}-${String(startYear + 1).slice(-2)}`
+
+const today = new Date()
+const currentFyStart = fyStartYear(today)
+
+/** Current and two previous financial years */
+export const FINANCIAL_YEAR_OPTIONS: SelectOption[] = [0, 1, 2].map((back) => toOption(fyLabel(currentFyStart - back)))
 
 export const FILING_FREQUENCY_OPTIONS = [
   { id: 'Monthly', label: 'Monthly' },
@@ -15,25 +22,22 @@ export const FILING_FREQUENCY_OPTIONS = [
   { id: 'Annual', label: 'Annual' },
 ]
 
-export const MONTHLY_PERIOD_OPTIONS: SelectOption[] = [
-  { value: 'August 2026', label: 'August 2026' },
-  { value: 'July 2026', label: 'July 2026' },
-  { value: 'June 2026', label: 'June 2026' },
-  { value: 'May 2026', label: 'May 2026' },
-  { value: 'April 2026', label: 'April 2026' },
-]
+/** Last five completed months (a return is filed for the previous month) */
+export const MONTHLY_PERIOD_OPTIONS: SelectOption[] = [1, 2, 3, 4, 5].map((back) => {
+  const d = new Date(today.getFullYear(), today.getMonth() - back, 1)
+  return toOption(`${MONTHS[d.getMonth()]} ${d.getFullYear()}`)
+})
 
+/** Four quarters of the current financial year */
 export const QUARTERLY_PERIOD_OPTIONS: SelectOption[] = [
-  { value: 'Quarter 1 (Apr - Jun 2026)', label: 'Quarter 1 (Apr - Jun 2026)' },
-  { value: 'Quarter 2 (Jul - Sep 2026)', label: 'Quarter 2 (Jul - Sep 2026)' },
-  { value: 'Quarter 3 (Oct - Dec 2026)', label: 'Quarter 3 (Oct - Dec 2026)' },
-  { value: 'Quarter 4 (Jan - Mar 2027)', label: 'Quarter 4 (Jan - Mar 2027)' },
-]
+  ['Quarter 1', 'Apr', 'Jun', 0],
+  ['Quarter 2', 'Jul', 'Sep', 0],
+  ['Quarter 3', 'Oct', 'Dec', 0],
+  ['Quarter 4', 'Jan', 'Mar', 1],
+].map(([name, from, to, offset]) => toOption(`${name} (${from} - ${to} ${currentFyStart + Number(offset)})`))
 
-export const ANNUAL_PERIOD_OPTIONS: SelectOption[] = [
-  { value: 'FY 2026-27 Annual Return', label: 'FY 2026-27 Annual Return' },
-  { value: 'FY 2025-26 Annual Return', label: 'FY 2025-26 Annual Return' },
-]
+/** Annual returns for the current and previous financial year */
+export const ANNUAL_PERIOD_OPTIONS: SelectOption[] = [0, 1].map((back) => toOption(`${fyLabel(currentFyStart - back)} Annual Return`))
 
 export const RETURN_PERIOD_OPTIONS: SelectOption[] = [
   ...MONTHLY_PERIOD_OPTIONS,

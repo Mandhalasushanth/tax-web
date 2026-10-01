@@ -1,12 +1,15 @@
+import { GSTStepErrorBanner } from '@modules/gst/shared/GSTStepErrorBanner'
+import { formatGstFileSize } from '@modules/gst/utils/gstFile'
 import React, { useState } from 'react'
-import { GSTFilingStepper } from '../../../shared/GSTFilingStepper/GSTFilingStepper'
+import { MONTHLY_PERIOD_OPTIONS } from '@modules/gst/utils/gstPeriodOptions'
+import { GSTFilingStepper } from '@modules/gst/shared/GSTFilingStepper/GSTFilingStepper'
 import { DocumentCard, DocumentSection, DocumentTracker, StepActionBar } from '@shared/components'
 import {
   DOCUMENT_CATEGORIES,
   DEFAULT_DOCUMENT_ITEMS,
   type UploadedFileInfo,
   type DocumentIconType,
-} from '../../../utils/gstDocumentsData'
+} from '@modules/gst/utils/gstDocumentsData'
 import './GSTFilingDocuments.css'
 
 export interface GSTFilingDocumentsProps {
@@ -23,15 +26,6 @@ export interface GSTFilingDocumentsProps {
   onBack: () => void
   onNext: () => void
   onSaveDraft?: () => void
-}
-
-const formatFileSize = (bytes: number): string => {
-  const mb = bytes / (1024 * 1024)
-  if (mb >= 1) {
-    return `${mb.toFixed(1)} MB`
-  }
-  const kb = Math.round(bytes / 1024)
-  return `${Math.max(1, kb)} KB`
 }
 
 const renderGstDocIcon = (type: DocumentIconType) => {
@@ -144,7 +138,7 @@ export const GSTFilingDocuments: React.FC<GSTFilingDocumentsProps> = ({
   const uploadedFiles = externalUploadedFiles ?? internalUploadedFiles
   const notApplicableDocs = externalNotApplicableDocs ?? internalNotApplicableDocs
 
-  const periodShort = selectedMonth?.trim() || 'December 2025'
+  const periodShort = selectedMonth?.trim() || MONTHLY_PERIOD_OPTIONS[0]?.value || ''
   const completedCount = Object.keys(uploadedFiles).length
   const totalCount = DEFAULT_DOCUMENT_ITEMS.length
 
@@ -153,7 +147,7 @@ export const GSTFilingDocuments: React.FC<GSTFilingDocumentsProps> = ({
       externalOnFileUpload(id, file)
       return
     }
-    const sizeText = formatFileSize(file.size)
+    const sizeText = formatGstFileSize(file.size)
     const fileUrl = URL.createObjectURL(file)
     const fileInfo: UploadedFileInfo = {
       name: file.name,
@@ -182,7 +176,24 @@ export const GSTFilingDocuments: React.FC<GSTFilingDocumentsProps> = ({
 
   // Required docs verification: Sales, Purchases, and GSTR-2B
   const reqDocIds = ['sales-invoices', 'purchase-invoices', 'gstr2b-statement']
-  const isDocumentsValid = reqDocIds.every((id) => Boolean(uploadedFiles[id] || notApplicableDocs[id]))
+  const [showMissing, setShowMissing] = useState(false)
+  const missingDocs = DEFAULT_DOCUMENT_ITEMS.filter(
+    (doc) => reqDocIds.includes(doc.id) && !uploadedFiles[doc.id] && !notApplicableDocs[doc.id]
+  )
+  // Updates as documents are added, and disappears once nothing is missing
+  const stepError =
+    showMissing && missingDocs.length > 0
+      ? `Please upload ${missingDocs.map((doc) => doc.title).join(', ')} or mark them not applicable.`
+      : null
+
+  // Continue stays enabled (as in loans); pressing it names the documents still missing
+  const handleNext = () => {
+    if (missingDocs.length > 0) {
+      setShowMissing(true)
+      return
+    }
+    onNext()
+  }
 
   return (
     <div className="gst-docs-page">
@@ -263,13 +274,14 @@ export const GSTFilingDocuments: React.FC<GSTFilingDocumentsProps> = ({
         </p>
       </div>
 
+      <GSTStepErrorBanner message={stepError} />
+
       {/* Standard Step Action Bar (Back, Save Draft & Exit, Continue) */}
       <StepActionBar
         onBack={onBack}
-        onNext={onNext}
+        onNext={handleNext}
         onSaveDraft={onSaveDraft}
         nextLabel="Continue"
-        nextDisabled={!isDocumentsValid}
       />
     </div>
   )

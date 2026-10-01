@@ -1,4 +1,5 @@
 import { type ChangeEvent } from 'react'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
 import type { GstBusinessFormData } from '../GSTStepBusiness/GSTStepBusiness'
 import { lookupSampleBankByIfsc, fetchBankDetailsByIfsc } from '@shared/services'
 
@@ -18,7 +19,7 @@ export interface GSTBankDetailsProps {
   onClearError?: (field: string) => void
 }
 
-export const ACCOUNT_TYPE_OPTIONS = [
+const ACCOUNT_TYPE_OPTIONS = [
   'Current',
   'Savings',
   'Cash Credit',
@@ -33,20 +34,17 @@ export const GSTBankDetails = ({
   onClearError,
 }: GSTBankDetailsProps) => {
   const handleAccountHolderNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.replace(/[^a-zA-Z\s]/g, '')
-    onChange('accountHolderName', cleaned)
+    onChange('accountHolderName', gstInput.letters(e.target.value))
     onClearError?.('accountHolderName')
   }
 
   const handleAccountNumberChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.replace(/\D/g, '').slice(0, 18)
-    onChange('accountNumber', cleaned)
+    onChange('accountNumber', gstInput.accountNumber(e.target.value))
     onClearError?.('accountNumber')
   }
 
   const handleConfirmAccountNumberChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.replace(/\D/g, '').slice(0, 18)
-    onChange('confirmAccountNumber', cleaned)
+    onChange('confirmAccountNumber', gstInput.accountNumber(e.target.value))
     onClearError?.('confirmAccountNumber')
   }
 
@@ -80,12 +78,12 @@ export const GSTBankDetails = ({
   }
 
   const handleBankNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange('bankName', e.target.value)
+    onChange('bankName', gstInput.letters(e.target.value))
     onClearError?.('bankName')
   }
 
   const handleBranchChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange('branch', e.target.value)
+    onChange('branch', gstInput.letters(e.target.value))
     onClearError?.('branch')
   }
 

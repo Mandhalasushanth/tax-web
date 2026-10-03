@@ -13,12 +13,18 @@ export const CapitalDetails: React.FC = () => {
   const companyType = formData.companyType || 'pvt_ltd'
   const isOpc = companyType === 'opc'
 
-  const capital = formData.capitalDetails?.authorisedCapital ? formData.capitalDetails : {
-    authorisedCapital: '',
-    subscribedCapital: '',
-    totalShares: '',
-    faceValue: '',
+  const capital: {
+    authorisedCapital: string
+    subscribedCapital: string
+    totalShares: string
+    faceValue: string
+  } = {
+    authorisedCapital: formData.capitalDetails?.authorisedCapital || '',
+    subscribedCapital: formData.capitalDetails?.subscribedCapital || '',
+    totalShares: formData.capitalDetails?.totalShares || '',
+    faceValue: formData.capitalDetails?.faceValue || '',
   }
+
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -100,7 +106,7 @@ export const CapitalDetails: React.FC = () => {
             <input
               type="text"
               className={`capital-details-input ${errors.authorisedCapital ? 'capital-details-input--error' : ''}`}
-              placeholder="e.g. 100000"
+              placeholder="Enter authorised capital (₹)"
               value={capital.authorisedCapital}
               onChange={(e) => handleChange('authorisedCapital', e.target.value)}
             />
@@ -114,7 +120,7 @@ export const CapitalDetails: React.FC = () => {
             <input
               type="text"
               className={`capital-details-input ${errors.subscribedCapital ? 'capital-details-input--error' : ''}`}
-              placeholder="e.g. 100000"
+              placeholder="Enter subscribed capital (₹)"
               value={capital.subscribedCapital}
               onChange={(e) => handleChange('subscribedCapital', e.target.value)}
             />
@@ -128,7 +134,7 @@ export const CapitalDetails: React.FC = () => {
             <input
               type="text"
               className={`capital-details-input ${errors.totalShares ? 'capital-details-input--error' : ''}`}
-              placeholder="e.g. 10000"
+              placeholder="Enter total number of shares"
               value={capital.totalShares}
               onChange={(e) => handleChange('totalShares', e.target.value)}
             />
@@ -142,7 +148,7 @@ export const CapitalDetails: React.FC = () => {
             <input
               type="text"
               className={`capital-details-input ${errors.faceValue ? 'capital-details-input--error' : ''}`}
-              placeholder="e.g. 10"
+              placeholder="Enter face value per share (₹)"
               value={capital.faceValue}
               onChange={(e) => handleChange('faceValue', e.target.value)}
             />
@@ -226,7 +232,7 @@ export const CapitalDetails: React.FC = () => {
         onNext={handleContinue}
         onSaveDraft={() => navigate(routePaths.dashboard)}
         nextDisabled={
-          !Boolean(
+          !(
             Number(capital.authorisedCapital || 0) > 0 &&
             Number(capital.subscribedCapital || 0) > 0 &&
             Number(capital.subscribedCapital || 0) <= Number(capital.authorisedCapital || 0) &&

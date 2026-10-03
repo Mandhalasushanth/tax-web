@@ -139,7 +139,7 @@ export const GSTBusinessAddressSection: React.FC<GSTBusinessAddressSectionProps>
             inputMode="numeric"
             maxLength={6}
             className={`gst-form-input ${errors.pinCode ? 'gst-input--error' : ''}`}
-            placeholder="560001"
+            placeholder="Enter your PIN code"
             value={data.pinCode}
             onChange={handlePinCodeChange}
           />
@@ -156,7 +156,7 @@ export const GSTBusinessAddressSection: React.FC<GSTBusinessAddressSectionProps>
           id="hsnSacCode"
           type="text"
           className={`gst-form-input ${errors.hsnSacCode ? 'gst-input--error' : ''}`}
-          placeholder="e.g. 998311"
+          placeholder="Enter HSN or SAC code"
           value={data.hsnSacCode}
           onChange={handleHsnSacChange}
         />

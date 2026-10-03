@@ -208,7 +208,8 @@ export const NoticeDocument: React.FC<NoticeDocumentProps> = ({
         onNext={handleNextClick}
         onSaveDraft={onSaveDraftAndExit}
         backLabel="Back"
-        nextLabel="Continue to Staff Review"
+        nextLabel="Continue"
+        nextAriaLabel="Continue to staff review"
         nextDisabled={!hasDocument}
         isSubmitting={isSubmitting}
       />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { routePaths } from '@core/config'
+import { StepActionBar } from '@shared/components'
 import './PreviousYearItr.css'
 
 export interface AssessmentYearOptionItem {
@@ -87,8 +88,10 @@ const renderAyCard = (
       aria-checked={isSelected}
       tabIndex={opt.isEligible ? 0 : -1}
       onKeyDown={(e) => {
-        const shouldTrigger = opt.isEligible && (e.key === 'Enter' || e.key === ' ')
-        shouldTrigger && (e.preventDefault(), onSelect(opt))
+        if (opt.isEligible && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault()
+          onSelect(opt)
+        }
       }}
     >
       <div className="prev-itr-ay-card-left">
@@ -149,7 +152,7 @@ const renderYearSelectionView = (
           <div className="prev-itr-summary-row"><span className="prev-itr-summary-label">Validity Window</span><span className="prev-itr-summary-value">{selectedItem.subtitle.replace('Updated Return (ITR-U) can be filed ', '')}</span></div>
         </div>
         <button type="button" className="prev-itr-continue-btn" onClick={onContinue}>
-          Continue to Application →
+          Continue
         </button>
       </div>
 
@@ -191,10 +194,13 @@ const renderFilingOverviewView = (
       </div>
     </div>
 
-    <div className="prev-itr-action-row">
-      <button type="button" className="prev-itr-btn-back" onClick={onBack}>← Back to Year Selection</button>
-      <button type="button" className="prev-itr-btn-submit" onClick={onContinue}>Start {selectedAy} Filing →</button>
-    </div>
+    <StepActionBar
+      onBack={onBack}
+      onNext={onContinue}
+      backLabel="Back"
+      nextLabel="Continue"
+      saveDraftLabel="Save Draft & Exit"
+    />
   </div>
 )
 
@@ -207,7 +213,9 @@ export const PreviousYearItr: React.FC = () => {
 
   const handleSelectAy = (opt: AssessmentYearOptionItem) => {
     try {
-      opt.isEligible && setSelectedAy(opt.ay)
+      if (opt.isEligible) {
+        setSelectedAy(opt.ay)
+      }
     } catch {
       setSelectedAy('AY 2024-25')
     }
@@ -223,11 +231,7 @@ export const PreviousYearItr: React.FC = () => {
   }
 
   const handlePage2Continue = () => {
-    try {
-      navigate(routePaths.itr.itrFiling)
-    } catch {
-      window.location.href = routePaths.itr.itrFiling
-    }
+    navigate(routePaths.itr.itrFiling)
   }
 
   const handleBack = () => {

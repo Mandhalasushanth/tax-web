@@ -39,15 +39,15 @@ export interface PaymentErrors {
 export interface UpiAppOption {
   id: string
   name: string
-  iconSrc: string
+  iconSrc?: string
   suffix?: string
 }
 
 export const UPI_APPS: UpiAppOption[] = [
-  { id: 'phonepe', name: 'PhonePe', iconSrc: '/assets/icons/gst/app-phonepe.svg', suffix: '@ybl' },
-  { id: 'gpay', name: 'GPay', iconSrc: '/assets/icons/gst/app-gpay.svg', suffix: '@okaxis' },
-  { id: 'paytm', name: 'Paytm', iconSrc: '/assets/icons/gst/app-paytm.svg', suffix: '@paytm' },
-  { id: 'bhim', name: 'BHIM', iconSrc: '/assets/icons/gst/app-bhim.svg', suffix: '@upi' },
+  { id: 'phonepe', name: 'PhonePe', suffix: '@ybl' },
+  { id: 'gpay', name: 'GPay', suffix: '@okaxis' },
+  { id: 'paytm', name: 'Paytm', suffix: '@paytm' },
+  { id: 'bhim', name: 'BHIM', suffix: '@upi' },
 ]
 
 export const POPULAR_BANKS = ['HDFC Bank', 'ICICI Bank', 'State Bank of India', 'Axis Bank', 'Kotak Mahindra']

@@ -86,25 +86,25 @@ export const RegisteredOffice: React.FC = () => {
 
   const handleContinue = () => {
     const newErrors: Record<string, string> = {}
-    if (!addressData.addressLine1.trim()) newErrors.addressLine1 = 'Premises address line is required'
+    if (!addressData.addressLine1.trim()) newErrors.addressLine1 = 'Building / premises address is required'
     if (!addressData.city.trim()) newErrors.city = 'City is required'
     if (!addressData.district.trim()) newErrors.district = 'District is required'
     if (!addressData.state.trim()) newErrors.state = 'State is required'
     if (!addressData.pincode.trim()) {
-      newErrors.pincode = 'PIN Code is required'
+      newErrors.pincode = 'PIN code is required'
     } else if (!isValidPincode(addressData.pincode)) {
-      newErrors.pincode = 'Please enter a valid 6-digit numeric PIN code'
+      newErrors.pincode = 'Enter a valid 6-digit PIN code'
     }
-    if (!addressData.ownershipStatus) newErrors.ownershipStatus = 'Please select premises ownership status'
+    if (!addressData.ownershipStatus) newErrors.ownershipStatus = 'Premises ownership status is required'
     if (!addressData.email.trim()) {
-      newErrors.email = 'Company email is required'
+      newErrors.email = 'Email address is required'
     } else if (!isValidEmail(addressData.email)) {
-      newErrors.email = 'Please enter a valid company email address'
+      newErrors.email = 'Enter a valid email address'
     }
     if (!addressData.mobile.trim()) {
       newErrors.mobile = 'Mobile number is required'
     } else if (!isValidMobile(addressData.mobile)) {
-      newErrors.mobile = 'Please enter a valid 10-digit numeric mobile number'
+      newErrors.mobile = 'Enter a valid 10-digit Indian mobile number'
     }
     const unuploadedDoc = docs.find((d: OfficeDocItem) => d.isRequired && !d.isUploaded)
     if (unuploadedDoc) {
@@ -158,16 +158,16 @@ export const RegisteredOffice: React.FC = () => {
 
       {/* Address Form Section */}
       <section className="reg-office-section">
-        {renderInput('Building / Premises Address Line', 'addressLine1', 'e.g. Plot No. 42, Tech Park Phase 2, HITEC City')}
+        {renderInput('Building / Premises Address Line', 'addressLine1', 'Enter building / premises address')}
 
         <div className="reg-office-row-2">
-          {renderInput('City', 'city', 'e.g. Hyderabad')}
-          {renderInput('District', 'district', 'e.g. Rangareddy')}
+          {renderInput('City', 'city', 'Enter city')}
+          {renderInput('District', 'district', 'Enter district')}
         </div>
 
         <div className="reg-office-row-2">
-          {renderInput('State', 'state', 'e.g. Telangana')}
-          {renderInput('PIN Code', 'pincode', 'e.g. 500081')}
+          {renderInput('State', 'state', 'Enter state')}
+          {renderInput('PIN Code', 'pincode', 'Enter 6-digit PIN code')}
         </div>
 
         <div className="reg-office-group">
@@ -199,8 +199,8 @@ export const RegisteredOffice: React.FC = () => {
         </div>
 
         <div className="reg-office-row-2">
-          {renderInput('Company Email', 'email', 'e.g. contact@taxedge.in', 'email')}
-          {renderInput('Mobile', 'mobile', 'e.g. 9876543210', 'tel')}
+          {renderInput('Company Email', 'email', 'Enter company email address', 'email')}
+          {renderInput('Mobile', 'mobile', 'Enter 10-digit mobile number', 'tel')}
         </div>
       </section>
 
@@ -231,7 +231,7 @@ export const RegisteredOffice: React.FC = () => {
         onBack={() => navigate(routePaths.incorporation.companyDetails)}
         onNext={handleContinue}
         onSaveDraft={() => navigate(routePaths.dashboard)}
-        nextDisabled={!Boolean(addressData.addressLine1.trim() && addressData.city.trim() && addressData.state.trim() && addressData.pincode.trim().length >= 6 && addressData.ownershipStatus && addressData.email.trim() && docs.filter((d: OfficeDocItem) => d.isRequired).every((d: OfficeDocItem) => d.isUploaded))}
+        nextDisabled={!(addressData.addressLine1.trim() && addressData.city.trim() && addressData.state.trim() && addressData.pincode.trim().length >= 6 && addressData.ownershipStatus && addressData.email.trim() && docs.filter((d: OfficeDocItem) => d.isRequired).every((d: OfficeDocItem) => d.isUploaded))}
         nextLabel="Continue"
       />
     </div>

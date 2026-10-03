@@ -5,6 +5,7 @@ import { LifecycleMilestonesCard } from './LifecycleMilestonesCard'
 import { loanApplicationService } from '../../services/loanApplicationService'
 import { safeNavigateTo } from '../../utils/loanMarketplace.utils'
 import type { LoanApplicationBase } from '../../types/loanApplication.types'
+import { HelpCircle, CheckCircle2, List, Home, Download } from 'lucide-react'
 import './LoanApplicationStatus.css'
 
 /**
@@ -117,9 +118,9 @@ export const LoanApplicationStatus: React.FC = () => {
    */
   const handleCopyRef = useCallback(() => {
     try {
-      navigator.clipboard?.writeText
-        ? navigator.clipboard.writeText(refNumber)
-        : undefined
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(refNumber)
+      }
       setIsCopied(true)
       setTimeout(() => setIsCopied(false), 2000)
     } catch (err) {
@@ -194,25 +195,14 @@ Thank you for applying with TaxEdge Fin Solutions.
           aria-label="Help and Support"
           title="Need assistance? Contact support"
         >
-          <img
-            src="/assets/icons/loans/help-circle.svg"
-            alt=""
-            width="24"
-            height="24"
-            aria-hidden="true"
-          />
+          <HelpCircle size={24} aria-hidden="true" />
         </button>
       </div>
 
       {/* 2. Success Banner */}
       <section className="loan-status-success-banner" role="status">
         <div className="loan-status-success-banner__icon" aria-hidden="true">
-          <img
-            src="/assets/icons/loans/check-circle-green-solid.svg"
-            alt=""
-            width="44"
-            height="44"
-          />
+          <CheckCircle2 size={44} color="#16a34a" />
         </div>
         <div className="loan-status-success-banner__content">
           <h2 className="loan-status-success-banner__title">
@@ -248,13 +238,7 @@ Thank you for applying with TaxEdge Fin Solutions.
           onClick={handleTrackApplications}
           data-testid="track-my-applications-btn"
         >
-          <img
-            src="/assets/icons/loans/list-white.svg"
-            alt=""
-            width="18"
-            height="18"
-            aria-hidden="true"
-          />
+          <List size={18} aria-hidden="true" />
           <span>Track My Applications</span>
         </button>
 
@@ -264,13 +248,7 @@ Thank you for applying with TaxEdge Fin Solutions.
           onClick={handleGoHome}
           data-testid="go-to-home-btn"
         >
-          <img
-            src="/assets/icons/loans/home-navy.svg"
-            alt=""
-            width="18"
-            height="18"
-            aria-hidden="true"
-          />
+          <Home size={18} aria-hidden="true" />
           <span>Go to Home</span>
         </button>
 
@@ -280,13 +258,7 @@ Thank you for applying with TaxEdge Fin Solutions.
           onClick={handleDownload}
           data-testid="download-receipt-btn"
         >
-          <img
-            src="/assets/icons/loans/download-orange.svg"
-            alt=""
-            width="18"
-            height="18"
-            aria-hidden="true"
-          />
+          <Download size={18} aria-hidden="true" />
           <span>Download Sanction Letter / Receipt</span>
         </button>
       </div>

@@ -1,12 +1,12 @@
 import React from "react";
 import { DraftConfirmModal } from "@shared/components";
-import { ItrCategorySelectionView } from "./ItrCategorySelectionView";
-import { ItrPersonalInfoView } from "./ItrPersonalInfoView";
-import { ItrIncomeSourcesView } from "./ItrIncomeSourcesView";
-import { ItrRegimeDeductionsView } from "./ItrRegimeDeductionsView";
-import { ItrDocumentsChecklistView } from "./ItrDocumentsChecklistView";
-import { ItrReviewSubmissionView } from "./ItrReviewSubmissionView";
-import { ItrFilingSubmittedView } from "./ItrFilingSubmittedView";
+import { ItrCategorySelectionView } from "./CategorySelection";
+import { ItrPersonalInfoView } from "./PersonalInfo";
+import { ItrIncomeSourcesView } from "./IncomeSources";
+import { ItrRegimeDeductionsView } from "./RegimeDeductions";
+import { ItrDocumentsChecklistView } from "./DocumentsChecklist";
+import { ItrReviewSubmissionView } from "./ReviewSubmission";
+import { ItrFilingSubmittedView } from "./FilingSubmitted";
 import { useItrFilingState } from "./useItrFilingState";
 import "./ItrFiling.css";
 

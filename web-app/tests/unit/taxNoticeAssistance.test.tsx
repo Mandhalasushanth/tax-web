@@ -14,7 +14,7 @@ vi.mock('@core/config/environment', () => ({
 
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { TaxNoticeAssistance } from '../../src/modules/itr/pages/TaxNoticeAssistance/TaxNoticeAssistance'
+import { TaxNoticeAssistance } from '../../src/modules/itr/components/TaxNoticeAssistance/TaxNoticeAssistance'
 import { userStorage } from '../../src/core/storage/userStorage'
 
 afterEach(() => {

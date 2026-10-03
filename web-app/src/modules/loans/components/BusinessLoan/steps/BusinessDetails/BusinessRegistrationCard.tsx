@@ -1,4 +1,5 @@
 import React, { useCallback } from "react";
+import { Briefcase, ChevronDown, Award } from 'lucide-react';
 import type {
   BusinessLoanFormData,
   UdyamOptionType,
@@ -51,13 +52,7 @@ export const BusinessRegistrationCard: React.FC<
         <div className="business-field-header">
           <div className="business-field-header__left">
             <div className="business-icon-tile">
-              <img
-                src="/assets/icons/loans/constitution.svg"
-                alt=""
-                width="20"
-                height="20"
-                aria-hidden="true"
-              />
+              <Briefcase size={20} aria-hidden="true" />
             </div>
             <label id="constitutionLabel" className="business-field-title">
               Business Constitution / Type{" "}
@@ -89,13 +84,7 @@ export const BusinessRegistrationCard: React.FC<
               className={`custom-dropdown-chevron ${isConstitutionOpen ? "custom-dropdown-chevron--open" : ""}`}
               aria-hidden="true"
             >
-              <img
-                src="/assets/icons/loans/chevron-down.svg"
-                alt=""
-                width="18"
-                height="18"
-                aria-hidden="true"
-              />
+              <ChevronDown size={18} aria-hidden="true" />
             </span>
           </button>
 
@@ -156,13 +145,7 @@ export const BusinessRegistrationCard: React.FC<
         <div className="udyam-header-row">
           <div className="udyam-header-left">
             <div className="business-icon-tile udyam-icon-tile">
-              <img
-                src="/assets/icons/loans/udyam-gear.svg"
-                alt=""
-                width="20"
-                height="20"
-                aria-hidden="true"
-              />
+              <Award size={20} aria-hidden="true" />
             </div>
             <div className="udyam-title-wrap">
               <span className="business-field-title">

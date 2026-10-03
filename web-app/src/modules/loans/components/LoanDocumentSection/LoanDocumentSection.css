@@ -1,0 +1,89 @@
+.loan-doc-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 2rem;
+}
+
+.loan-doc-section__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.loan-doc-section__header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ea580c;
+  flex-shrink: 0;
+}
+
+.loan-doc-section__title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.loan-doc-section__badge {
+  font-size: 0.725rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.loan-doc-section__badge--required {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.loan-doc-section__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* Individual card badge matching wireframe */
+.loan-doc-item__badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  letter-spacing: 0.01em;
+}
+
+.loan-doc-item__badge--required {
+  background-color: #ffe4e6;
+  color: #e11d48;
+  border: 1px solid rgba(225, 29, 72, 0.15);
+}
+
+.loan-doc-item__badge--optional {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid rgba(100, 116, 139, 0.15);
+}
+
+.loan-doc-item__badge--error {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  font-weight: 700;
+}
+
+/* Red outline and subtle background when required document is missing */
+.loan-doc-section .supporting-doc-item.loan-doc-item--error {
+  border-color: #ef4444 !important;
+  background-color: #fffbfb !important;
+  box-shadow: 0 0 0 1px #ef4444, 0 2px 8px rgba(239, 68, 68, 0.08) !important;
+}
+

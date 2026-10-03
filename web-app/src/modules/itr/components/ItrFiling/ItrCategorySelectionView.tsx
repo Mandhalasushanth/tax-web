@@ -4,6 +4,7 @@ import {
   type ItrCategoryId,
   type ItrCategoryItem,
   CalculatorIcon,
+  CheckIcon,
   UserCategoryIcon,
   StoreCategoryIcon,
   MedicalCategoryIcon,
@@ -15,7 +16,26 @@ import {
 } from './itrFiling.constants'
 import './ItrCategorySelectionView.css'
 
-/* --- Recommendation Banner --- */
+const CATEGORY_ICON_MAP: Record<string, React.FC<{ size?: number; className?: string }>> = {
+  user: UserCategoryIcon,
+  store: StoreCategoryIcon,
+  medical: MedicalCategoryIcon,
+  laptop: LaptopCategoryIcon,
+  trending: TrendingCategoryIcon,
+  home: HomeCategoryIcon,
+  document: DocumentCategoryIcon,
+  link: LinkCategoryIcon,
+}
+
+const renderCategoryIcon = (name: string): React.ReactNode => {
+  try {
+    const IconComponent = CATEGORY_ICON_MAP[name] || UserCategoryIcon
+    return <IconComponent size={22} />
+  } catch {
+    return <UserCategoryIcon size={22} />
+  }
+}
+
 export const ItrCategoryBanner: React.FC = () => (
   <div className="itr-cat-banner">
     <div className="itr-cat-banner__top">
@@ -35,7 +55,6 @@ export const ItrCategoryBanner: React.FC = () => (
   </div>
 )
 
-/* --- Category Card --- */
 export interface ItrCategoryCardProps {
   item: ItrCategoryItem
   isSelected: boolean
@@ -43,24 +62,14 @@ export interface ItrCategoryCardProps {
 }
 
 export const ItrCategoryCard: React.FC<ItrCategoryCardProps> = ({ item, isSelected, onSelect }) => {
-  const renderIcon = (name: string) => {
-    switch (name) {
-      case 'user': return <UserCategoryIcon size={22} />
-      case 'store': return <StoreCategoryIcon size={22} />
-      case 'medical': return <MedicalCategoryIcon size={22} />
-      case 'laptop': return <LaptopCategoryIcon size={22} />
-      case 'trending': return <TrendingCategoryIcon size={22} />
-      case 'home': return <HomeCategoryIcon size={22} />
-      case 'document': return <DocumentCategoryIcon size={22} />
-      case 'link': return <LinkCategoryIcon size={22} />
-      default: return <UserCategoryIcon size={22} />
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      onSelect(item.id)
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    try {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        onSelect(item.id)
+      }
+    } catch {
+      // No-op
     }
   }
 
@@ -75,14 +84,10 @@ export const ItrCategoryCard: React.FC<ItrCategoryCardProps> = ({ item, isSelect
     >
       <div className="itr-cat-card__header">
         <div className="itr-cat-card__icon-box" aria-hidden="true">
-          {renderIcon(item.iconName)}
+          {renderCategoryIcon(item.iconName)}
         </div>
         <div className="itr-cat-card__radio-badge" aria-hidden="true">
-          {isSelected && (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" className="itr-cat-card__check-icon">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          )}
+          {isSelected && <CheckIcon size={14} className="itr-cat-card__check-icon" />}
         </div>
       </div>
       <div className="itr-cat-card__body">
@@ -115,17 +120,48 @@ export const ItrCategorySelectionView: React.FC<ItrCategorySelectionViewProps> =
 }) => {
   const activeId = selectedCategoryId ?? selectedId ?? null
   const handleSelect = onSelectCategory || onSelect || (() => {})
-  const handleStart = () => {
-    if (!activeId) return
-    if (onStartApplication) onStartApplication()
-    if (onStart) onStart(activeId)
-  }
   const selectedItem = activeId ? ITR_CATEGORIES.find((c) => c.id === activeId) : null
+
+  const handleStart = () => {
+    try {
+      if (!activeId) return
+      onStartApplication?.()
+      onStart?.(activeId)
+    } catch {
+      // No-op
+    }
+  }
+
+  const renderFooter = () => (
+    <div className="itr-cat-action-footer">
+      <div className="itr-cat-action-summary">
+        {selectedItem ? (
+          <>
+            <span className="itr-cat-action-summary__label">Selected Category:</span>
+            <strong className="itr-cat-action-summary__val">{selectedItem.title}</strong>
+          </>
+        ) : (
+          <span className="itr-cat-action-summary__prompt">
+            Please select an income category above to proceed
+          </span>
+        )}
+      </div>
+
+      <button
+        type="button"
+        className={`itr-cat-start-btn ${!activeId ? 'itr-cat-start-btn--disabled' : ''}`}
+        disabled={!activeId}
+        onClick={handleStart}
+      >
+        <span>Start Application</span>
+        <span aria-hidden="true" className="itr-cat-start-arrow">→</span>
+      </button>
+    </div>
+  )
 
   return (
     <div className="itr-cat-view-container">
       <ItrCategoryBanner />
-
       <section className="itr-cat-grid" role="radiogroup" aria-label="Select income category">
         {ITR_CATEGORIES.map((cat) => (
           <ItrCategoryCard
@@ -136,33 +172,7 @@ export const ItrCategorySelectionView: React.FC<ItrCategorySelectionViewProps> =
           />
         ))}
       </section>
-
-      <div className="itr-cat-action-footer">
-        <div className="itr-cat-action-summary">
-          {selectedItem ? (
-            <>
-              <span className="itr-cat-action-summary__label">Selected Category:</span>
-              <strong className="itr-cat-action-summary__val">
-                {selectedItem.title}
-              </strong>
-            </>
-          ) : (
-            <span className="itr-cat-action-summary__prompt">
-              Please select an income category above to proceed
-            </span>
-          )}
-        </div>
-
-        <button
-          type="button"
-          className={`itr-cat-start-btn ${!activeId ? 'itr-cat-start-btn--disabled' : ''}`}
-          disabled={!activeId}
-          onClick={handleStart}
-        >
-          <span>Start Application</span>
-          <span aria-hidden="true" className="itr-cat-start-arrow">→</span>
-        </button>
-      </div>
+      {renderFooter()}
     </div>
   )
 }

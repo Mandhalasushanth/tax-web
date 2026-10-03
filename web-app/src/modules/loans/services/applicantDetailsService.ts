@@ -1,6 +1,6 @@
 import { authStorage } from '@core/auth'
 import { useAuthStore } from '@store/index'
-import type { ApplicantIdentityProfile } from '../types/businessLoan.types'
+import type { ApplicantIdentityProfile } from '@modules/loans/types/businessLoan.types'
 
 /**
  * Default empty applicant profile when no account session is active
@@ -17,7 +17,7 @@ const EMPTY_APPLICANT_PROFILE: ApplicantIdentityProfile = {
 }
 
 /**
- * Builds an address string safely from address components without loops (Pure functional)
+ * Builds an address string from its parts, preferring a full address when present
  */
 function composeAddress(
   address?: string,
@@ -26,20 +26,13 @@ function composeAddress(
   state?: string,
   pincode?: string
 ): string {
-  try {
-    const isDirectAddress = Boolean(address && address.trim().length > 0)
-    const parts = [line1, city, state].filter(Boolean)
-    const base = parts.join(', ')
-    const withPin = pincode ? (base ? `${base} - ${pincode}` : pincode) : base
-    return isDirectAddress ? String(address).trim() : withPin
-  } catch (err) {
-    console.error('[applicantDetailsService] Error composing address:', err)
-    return ''
-  }
+  if (address && address.trim()) return address.trim()
+  const base = [line1, city, state].filter(Boolean).join(', ')
+  return pincode ? (base ? `${base} - ${pincode}` : pincode) : base
 }
 
 /**
- * Securely retrieves applicant details from the logged-in session or stored profile (Pure functional)
+ * Securely retrieves applicant details from the logged-in session or stored profile
  */
 export function getApplicantIdentityDetails(): ApplicantIdentityProfile {
   try {
@@ -65,8 +58,8 @@ export function getApplicantIdentityDetails(): ApplicantIdentityProfile {
           ),
           isVerified: Boolean(user.isProfileComplete || user.pan || user.aadhaar),
         }
-  } catch (err) {
-    console.error('[applicantDetailsService] Failed to fetch identity profile:', err)
+  } catch {
+    // Stored session data could not be read; show an empty profile
     return EMPTY_APPLICANT_PROFILE
   }
 }

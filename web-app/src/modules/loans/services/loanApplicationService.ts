@@ -1,31 +1,41 @@
+import { authStorage } from '@core/auth'
 import { localStore } from '@core/storage/localStorage'
 import { userStorage } from '@core/storage/userStorage'
-import type { LoanApplicationBase } from '../types/loanApplication.types'
+import type { LoanApplicationBase } from '@modules/loans/types/loanApplication.types'
 
 const STORAGE_PREFIX = 'taxedge_loan_app_'
 
+/**
+ * Storage keys are scoped to the signed-in user so that drafts and submitted
+ * applications never leak between accounts sharing a browser.
+ */
+export const loanStorageKey = (suffix: string): string => {
+  const userId = authStorage.getUser()?.id || 'guest'
+  return `${STORAGE_PREFIX}${userId}_${suffix}`
+}
+
 export const loanApplicationService = {
   getDraft: <T>(loanType: string): T | null => {
-    return localStore.get<T>(`${STORAGE_PREFIX}${loanType}`)
+    return localStore.get<T>(loanStorageKey(loanType))
   },
 
   saveDraft: <T>(loanType: string, data: T): void => {
-    localStore.set(`${STORAGE_PREFIX}${loanType}`, data)
+    localStore.set(loanStorageKey(loanType), data)
   },
 
   clearDraft: (loanType: string): void => {
-    localStore.remove(`${STORAGE_PREFIX}${loanType}`)
+    localStore.remove(loanStorageKey(loanType))
   },
 
   getApplication: (refNumber: string): LoanApplicationBase | null => {
     try {
       const getLatest = () => {
-        const latest = localStorage.getItem('taxedge_loan_app_latest')
+        const latest = localStorage.getItem(loanStorageKey('latest'))
         return latest ? JSON.parse(latest) : null
       }
 
       const getByRef = () => {
-        const data = localStorage.getItem(`${STORAGE_PREFIX}record_${refNumber}`)
+        const data = localStorage.getItem(loanStorageKey(`record_${refNumber}`))
         const latest = getLatest()
         const parsedData = data ? JSON.parse(data) : null
         const isLatestMatch = latest && (latest.refNumber === refNumber || latest.id === refNumber)
@@ -33,18 +43,18 @@ export const loanApplicationService = {
       }
 
       return !refNumber ? getLatest() : getByRef()
-    } catch (e) {
-      console.warn('Failed to retrieve loan application', e)
+    } catch {
+      // Stored record is missing or corrupt
       return null
     }
   },
 
   saveApplication: (app: LoanApplicationBase): void => {
     try {
-      localStorage.setItem(`${STORAGE_PREFIX}record_${app.refNumber}`, JSON.stringify(app))
-      localStorage.setItem('taxedge_loan_app_latest', JSON.stringify(app))
-    } catch (e) {
-      console.warn('Failed to persist loan application', e)
+      localStorage.setItem(loanStorageKey(`record_${app.refNumber}`), JSON.stringify(app))
+      localStorage.setItem(loanStorageKey('latest'), JSON.stringify(app))
+    } catch {
+      // Storage full or unavailable; the in-memory application is still returned
     }
   },
 

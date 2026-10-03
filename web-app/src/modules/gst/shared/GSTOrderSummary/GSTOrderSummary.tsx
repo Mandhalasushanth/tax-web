@@ -120,7 +120,7 @@ export const GSTOrderSummary = ({
             <h4 className="gst-order-callout__title">Encrypted at rest</h4>
           </div>
           <p className="gst-order-callout__body">
-            Only Rohit Kulkarni, your assigned GST executive, can open these files. Every
+            Only your assigned GST executive can open these files. Every
             view is logged.
           </p>
         </div>

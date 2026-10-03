@@ -18,7 +18,6 @@ export interface LoanSummaryCardProps {
 
 /**
  * Loan Summary Card Component
- * Strictly zero inline styles, zero internal styles, and zero loops.
  */
 export const LoanSummaryCard: React.FC<LoanSummaryCardProps> = ({
   refNumber,

@@ -2,8 +2,9 @@ import { env } from '@core/config'
 import { AppError } from '@core/errors'
 import { authStorage } from '@core/auth'
 import { userStorage } from '@core/storage/userStorage'
+import { APPLICATION_STATUSES, type ApplicationStatus } from '@shared/types'
 
-import { gstApi } from '../api/gstApi'
+import { gstApi } from '@modules/gst/api/gstApi'
 import type {
   GstAmendmentPayload,
   GstAmendmentRecord,
@@ -14,7 +15,13 @@ import type {
   GstRegistrationPayload,
   GstReturn,
   GstReturnPayload,
-} from '../types/gst.types'
+} from '@modules/gst/types/gst.types'
+
+/** Maps a display label like "Under Review" to a known status, defaulting to SUBMITTED */
+const toApplicationStatus = (label: string): ApplicationStatus => {
+  const key = label.toUpperCase().replace(/\s+/g, '_')
+  return (APPLICATION_STATUSES as readonly string[]).includes(key) ? (key as ApplicationStatus) : 'SUBMITTED'
+}
 
 const delay = (ms = 300) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -44,7 +51,7 @@ export const gstService = {
         businessType: 'proprietorship',
         state: a.meta.split('·')[1]?.trim() || 'India',
         pan: userPan,
-        status: (a.statusLabel.toUpperCase().replace(/\s+/g, '_') as any) || 'SUBMITTED',
+        status: toApplicationStatus(a.statusLabel),
         timeline: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -143,7 +150,7 @@ export const gstService = {
         oldValue: payload.oldValue,
         newValue: payload.newValue,
         status: 'SUBMITTED',
-        supportingDocument: payload.supportingDocumentName || 'document.pdf',
+        supportingDocument: payload.supportingDocumentName,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }

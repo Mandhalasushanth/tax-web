@@ -1,8 +1,9 @@
 import React from 'react'
+import { LoanDocumentGrid } from '@modules/loans/shared'
 import { DocumentSection, UploadDocument } from '@shared/components'
-import { loanDocumentService, createDocDef } from '../../../../documents'
-import type { LoanDocumentDefinition } from '../../../../documents/loanDocument.types'
-import type { VehicleLoanData } from '../../../../types/vehicleLoan.types'
+import { loanDocumentService, createDocDef } from '@modules/loans/documents'
+import type { LoanDocumentDefinition } from '@modules/loans/documents/loanDocument.types'
+import type { VehicleLoanData } from '@modules/loans/types/vehicleLoan.types'
 import './DocumentDossier.css'
 
 export interface DocumentDossierProps {
@@ -123,22 +124,15 @@ export const DocumentDossier: React.FC<DocumentDossierProps> = ({
   const progressPercent = Math.round((requiredUploadedCount / totalRequiredDocs) * 100)
 
   const handleUpload = (id: string, file: File) => {
-    try {
-      const entry = loanDocumentService.createDocumentEntry(id, file)
-      onChange({ uploadedDocs: { ...uploadedDocs, [id]: entry } })
-    } catch {
-      // Fallback
-    }
+    if (!loanDocumentService.acceptFile(file)) return
+    const entry = loanDocumentService.createDocumentEntry(id, file)
+    onChange({ uploadedDocs: { ...uploadedDocs, [id]: entry } })
   }
 
   const handleRemove = (id: string) => {
-    try {
-      const next = { ...uploadedDocs }
-      delete next[id]
-      onChange({ uploadedDocs: next })
-    } catch {
-      // Fallback
-    }
+    const next = { ...uploadedDocs }
+    delete next[id]
+    onChange({ uploadedDocs: next })
   }
 
   const renderDocCard = (doc: LoanDocumentDefinition) => {
@@ -198,21 +192,27 @@ export const DocumentDossier: React.FC<DocumentDossierProps> = ({
         title="IDENTITY & ADDRESS"
         icon={SECTION_ICON_IDENTITY}
       >
-        {IDENTITY_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {IDENTITY_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
 
       <DocumentSection
         title="INCOME & BANKING"
         icon={SECTION_ICON_INCOME}
       >
-        {INCOME_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {INCOME_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
 
       <DocumentSection
         title="VEHICLE QUOTATION & COLLATERAL"
         icon={SECTION_ICON_VEHICLE}
       >
-        {VEHICLE_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {VEHICLE_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
     </div>
   )

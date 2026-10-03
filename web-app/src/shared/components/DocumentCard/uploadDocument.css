@@ -112,14 +112,13 @@
   text-overflow: ellipsis;
 }
 
-/* Upload Button: Translucent Water / Glass Capsule in Light Navy Blue */
+/* Upload Button: Lavender pill with indigo text (shared across all loans) */
 .supporting-doc-item__btn-group {
   display: flex;
   align-items: center;
   gap: 0.65rem;
   flex-shrink: 0;
-}
-
+.supporting-doc-item .supporting-doc-item__upload-btn,
 .supporting-doc-item__upload-btn {
   display: inline-flex;
   align-items: center;
@@ -147,6 +146,7 @@
   line-height: 1;
 }
 
+.supporting-doc-item .supporting-doc-item__upload-btn:hover,
 .supporting-doc-item__upload-btn:hover {
   background: linear-gradient(
     135deg,
@@ -161,11 +161,11 @@
   transform: translateY(-1px);
 }
 
-.supporting-doc-item__upload-btn:active {
-  background: rgba(8, 59, 117, 0.14);
-  border-color: rgba(8, 59, 117, 0.55);
+.supporting-doc-item .supporting-doc-item__upload-btn:active {
+  background: #d8dcf7;
+  border-color: #959be2;
   transform: translateY(0);
-  box-shadow: 0 1px 3px rgba(8, 59, 117, 0.1);
+  box-shadow: 0 1px 3px rgba(43, 42, 134, 0.1);
 }
 
 .supporting-doc-item__cloud-icon {

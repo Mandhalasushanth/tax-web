@@ -1,9 +1,10 @@
 import React from 'react'
+import { LoanDocumentGrid } from '@modules/loans/shared'
 import { DocumentSection, UploadDocument } from '@shared/components'
 import { LoanReviewSection } from '@modules/loans/shared'
-import { loanDocumentService, createDocDef } from '../../../../documents'
-import type { LoanDocumentDefinition } from '../../../../documents/loanDocument.types'
-import type { MachineryLoanData } from '../../../../types/machineryLoan.types'
+import { loanDocumentService, createDocDef } from '@modules/loans/documents'
+import type { LoanDocumentDefinition } from '@modules/loans/documents/loanDocument.types'
+import type { MachineryLoanData } from '@modules/loans/types/machineryLoan.types'
 import './DocumentsAndReview.css'
 
 export interface DocumentsAndReviewProps {
@@ -89,22 +90,15 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
   const progressPercent = Math.round((requiredUploadedCount / totalRequiredDocs) * 100)
 
   const handleUpload = (id: string, file: File) => {
-    try {
-      const entry = loanDocumentService.createDocumentEntry(id, file)
-      onChange({ uploadedDocs: { ...uploadedDocs, [id]: entry } })
-    } catch {
-      // Fallback
-    }
+    if (!loanDocumentService.acceptFile(file)) return
+    const entry = loanDocumentService.createDocumentEntry(id, file)
+    onChange({ uploadedDocs: { ...uploadedDocs, [id]: entry } })
   }
 
   const handleRemove = (id: string) => {
-    try {
-      const next = { ...uploadedDocs }
-      delete next[id]
-      onChange({ uploadedDocs: next })
-    } catch {
-      // Fallback
-    }
+    const next = { ...uploadedDocs }
+    delete next[id]
+    onChange({ uploadedDocs: next })
   }
 
   const maskedAccountNumber = data.accountNumber
@@ -113,8 +107,44 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
       : data.accountNumber
     : 'Not specified'
 
-  return (
-    <div className="machinery-loan-docs-review">
+  const renderDocCard = (doc: LoanDocumentDefinition) => {
+    const uploaded = uploadedDocs[doc.id]
+    const isMissingRequired = !uploaded && Boolean(errors[doc.id])
+    const showOptionalBadge = !doc.isRequired && !doc.hideOptionalBadge && doc.badgeLabel !== ''
+    const badge = showOptionalBadge ? (
+      <span className="loan-doc-item__badge loan-doc-item__badge--optional">
+        {doc.badgeLabel || 'Optional'}
+      </span>
+    ) : isMissingRequired ? (
+      <span className="loan-doc-item__badge loan-doc-item__badge--error">
+        Required Document Missing
+      </span>
+    ) : undefined
+
+    return (
+      <UploadDocument
+        key={doc.id}
+        id={doc.id}
+        title={doc.title}
+        subtitle={doc.subtitle}
+        isRequired={doc.isRequired}
+        badge={badge}
+        isUploaded={Boolean(uploaded)}
+        fileName={uploaded?.name}
+        fileSize={uploaded?.size}
+        file={uploaded?.file}
+        icon={doc.icon}
+        iconBg={doc.iconBg || '#fff7ed'}
+        iconColor={doc.iconColor || '#ea580c'}
+        className={isMissingRequired ? 'loan-doc-item--error' : ''}
+        onUpload={handleUpload}
+        onRemove={handleRemove}
+      />
+    )
+  }
+
+  const renderDocumentsSection = () => (
+    <>
       <div className="machinery-loan-section-heading">
         <h3 className="machinery-loan-section-heading__title">Required Documents</h3>
         <p className="machinery-loan-section-heading__desc">
@@ -134,69 +164,37 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
         </div>
       </div>
 
-      {(() => {
-        const renderDocCard = (doc: LoanDocumentDefinition) => {
-          const uploaded = uploadedDocs[doc.id]
-          const isMissingRequired = !uploaded && Boolean(errors[doc.id])
-          const showOptionalBadge = !doc.isRequired && !doc.hideOptionalBadge && doc.badgeLabel !== ''
-          const badge = showOptionalBadge ? (
-            <span className="loan-doc-item__badge loan-doc-item__badge--optional">
-              {doc.badgeLabel || 'Optional'}
-            </span>
-          ) : isMissingRequired ? (
-            <span className="loan-doc-item__badge loan-doc-item__badge--error">
-              Required Document Missing
-            </span>
-          ) : undefined
+      <DocumentSection
+        title="IDENTITY & ADDRESS"
+        icon={SECTION_ICON_IDENTITY}
+      >
+        <LoanDocumentGrid>
+          {IDENTITY_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
+      </DocumentSection>
 
-          return (
-            <UploadDocument
-              key={doc.id}
-              id={doc.id}
-              title={doc.title}
-              subtitle={doc.subtitle}
-              isRequired={doc.isRequired}
-              badge={badge}
-              isUploaded={Boolean(uploaded)}
-              fileName={uploaded?.name}
-              fileSize={uploaded?.size}
-              file={uploaded?.file}
-              icon={doc.icon}
-              iconBg={doc.iconBg || '#fff7ed'}
-              iconColor={doc.iconColor || '#ea580c'}
-              className={isMissingRequired ? 'loan-doc-item--error' : ''}
-              onUpload={handleUpload}
-              onRemove={handleRemove}
-            />
-          )
-        }
+      <DocumentSection
+        title="INCOME & BANKING"
+        icon={SECTION_ICON_BANKING}
+      >
+        <LoanDocumentGrid>
+          {INCOME_BANKING_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
+      </DocumentSection>
 
-        return (
-          <>
-            <DocumentSection
-              title="IDENTITY & ADDRESS"
-              icon={SECTION_ICON_IDENTITY}
-            >
-              {IDENTITY_DOCS.map(renderDocCard)}
-            </DocumentSection>
+      <DocumentSection
+        title="BUSINESS & TAX"
+        icon={SECTION_ICON_BUSINESS}
+      >
+        <LoanDocumentGrid>
+          {BUSINESS_TAX_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
+      </DocumentSection>
+    </>
+  )
 
-            <DocumentSection
-              title="INCOME & BANKING"
-              icon={SECTION_ICON_BANKING}
-            >
-              {INCOME_BANKING_DOCS.map(renderDocCard)}
-            </DocumentSection>
-
-            <DocumentSection
-              title="BUSINESS & TAX"
-              icon={SECTION_ICON_BUSINESS}
-            >
-              {BUSINESS_TAX_DOCS.map(renderDocCard)}
-            </DocumentSection>
-          </>
-        )
-      })()}
-
+  const renderReviewDossierSection = () => (
+    <>
       <div className="machinery-loan-section-heading machinery-loan-section-heading--mt-lg">
         <h3 className="machinery-loan-section-heading__title">Machinery Loan Dossier Review</h3>
         <p className="machinery-loan-section-heading__desc">
@@ -252,7 +250,11 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
           ]}
         />
       </div>
+    </>
+  )
 
+  const renderDeclarationSection = () => (
+    <>
       <div className="machinery-loan-review__declaration">
         <input
           id="machinery-loan-terms-checkbox"
@@ -270,6 +272,14 @@ export const DocumentsAndReview: React.FC<DocumentsAndReviewProps> = ({
           {errors.termsAccepted}
         </span>
       )}
+    </>
+  )
+
+  return (
+    <div className="machinery-loan-docs-review">
+      {renderDocumentsSection()}
+      {renderReviewDossierSection()}
+      {renderDeclarationSection()}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { type ChangeEvent } from 'react'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
 import type { GstBusinessFormData } from '../GSTStepBusiness/GSTStepBusiness'
 
 export interface GSTAuthorisedSignatoryProps {
@@ -18,14 +19,12 @@ export const GSTAuthorisedSignatory = ({
   onClearError,
 }: GSTAuthorisedSignatoryProps) => {
   const handleSignatoryNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.replace(/[^a-zA-Z\s]/g, '')
-    onChange('signatoryName', cleaned)
+    onChange('signatoryName', gstInput.letters(e.target.value))
     onClearError?.('signatoryName')
   }
 
   const handleSignatoryPanChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10)
-    onChange('signatoryPan', cleaned)
+    onChange('signatoryPan', gstInput.pan(e.target.value))
     onClearError?.('signatoryPan')
   }
 
@@ -35,18 +34,17 @@ export const GSTAuthorisedSignatory = ({
   }
 
   const handleDesignationChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange('designation', e.target.value)
+    onChange('designation', gstInput.designation(e.target.value))
     onClearError?.('designation')
   }
 
   const handleSignatoryMobileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.replace(/\D/g, '').slice(0, 10)
-    onChange('signatoryMobile', cleaned)
+    onChange('signatoryMobile', gstInput.mobile(e.target.value))
     onClearError?.('signatoryMobile')
   }
 
   const handleSignatoryEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange('signatoryEmail', e.target.value)
+    onChange('signatoryEmail', gstInput.email(e.target.value))
     onClearError?.('signatoryEmail')
   }
 

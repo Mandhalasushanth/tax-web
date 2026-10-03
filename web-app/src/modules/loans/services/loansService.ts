@@ -1,7 +1,7 @@
 import { env } from '@core/config'
 
-import { loansApi } from '../api/loansApi'
-import type { LoansFilters, LoansItem } from '../types/loans.types'
+import { loansApi } from '@modules/loans/api/loansApi'
+import type { LoansFilters, LoansItem } from '@modules/loans/types/loans.types'
 
 export const loansService = {
   async list(filters?: LoansFilters): Promise<LoansItem[]> {

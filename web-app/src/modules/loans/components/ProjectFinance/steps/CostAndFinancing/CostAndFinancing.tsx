@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 import { CapexBreakupSection } from './CapexBreakupSection'
 import { FundingAndDisbursementSection } from './FundingAndDisbursementSection'
 import './CostAndFinancing.css'
@@ -20,27 +20,15 @@ export const CostAndFinancing: React.FC<CostAndFinancingProps> = ({
   const [isDisbursementOpen, setIsDisbursementOpen] = useState<boolean>(true)
 
   const handleToggleCapex = () => {
-    try {
-      setIsCapexOpen((prev) => !prev)
-    } catch (err) {
-      console.error('Error toggling capex section:', err)
-    }
+    setIsCapexOpen((prev) => !prev)
   }
 
   const handleToggleMeansOfFinance = () => {
-    try {
-      setIsMeansOfFinanceOpen((prev) => !prev)
-    } catch (err) {
-      console.error('Error toggling means of finance section:', err)
-    }
+    setIsMeansOfFinanceOpen((prev) => !prev)
   }
 
   const handleToggleDisbursement = () => {
-    try {
-      setIsDisbursementOpen((prev) => !prev)
-    } catch (err) {
-      console.error('Error toggling disbursement section:', err)
-    }
+    setIsDisbursementOpen((prev) => !prev)
   }
 
   return (

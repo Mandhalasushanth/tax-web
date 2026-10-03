@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom'
 import { routePaths } from '@core/config'
-import { GST_AMENDMENT_FIELD_OPTIONS } from '../../../data/gstAmendmentData'
-import type { GstAmendmentPayload } from '../../../types/gst.types'
-import { useGSTAmendmentForm } from '../../../hooks/useGSTAmendmentForm'
+import type { GstAmendmentPayload } from '@modules/gst/types/gst.types'
+import { useGSTAmendmentForm } from '@modules/gst/hooks/useGSTAmendmentForm'
 import './GSTAmendmentForm.css'
 
 interface GSTAmendmentFormProps {
@@ -32,6 +31,8 @@ export const GSTAmendmentForm = ({
     setErrors,
     displayGstin,
     activeOption,
+    fieldOptions,
+    filterNewValue,
     handleFieldSelectChange,
     handleFileChange,
     handleBrowseClick,
@@ -80,7 +81,7 @@ export const GSTAmendmentForm = ({
               value={selectedFieldKey}
               onChange={handleFieldSelectChange}
             >
-              {GST_AMENDMENT_FIELD_OPTIONS.map((opt) => (
+              {fieldOptions.map((opt) => (
                 <option key={opt.key} value={opt.key}>
                   {opt.label}
                 </option>
@@ -121,7 +122,7 @@ export const GSTAmendmentForm = ({
             placeholder={`Enter new ${activeOption.label.toLowerCase()}`}
             value={newValue}
             onChange={(e) => {
-              setNewValue(e.target.value)
+              setNewValue(filterNewValue(e.target.value))
               if (errors.newValue) setErrors((prev) => ({ ...prev, newValue: undefined }))
             }}
           />

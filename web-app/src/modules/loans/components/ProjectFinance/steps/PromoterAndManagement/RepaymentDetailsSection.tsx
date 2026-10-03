@@ -1,5 +1,13 @@
 import React from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import { formatCurrencyString } from '@modules/loans/utils/loanInputFormatters'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
+import {
+  REPAYMENT_PERIOD_OPTIONS,
+  MORATORIUM_PERIOD_OPTIONS,
+  REPAYMENT_FREQUENCY_OPTIONS,
+  PRIMARY_REPAYMENT_SOURCE_OPTIONS,
+  SECONDARY_REPAYMENT_SOURCE_OPTIONS,
+} from './loanRequirementConstants'
 
 export interface RepaymentDetailsSectionProps {
   data: ProjectFinanceData
@@ -10,7 +18,7 @@ export interface RepaymentDetailsSectionProps {
   onToggleSchedule: () => void
   isSourcesOpen: boolean
   onToggleSources: () => void
-  onOpenPicker: (
+  onOpenPicker?: (
     picker:
       | 'repaymentPeriodYears'
       | 'moratoriumPeriodMonths'
@@ -62,16 +70,15 @@ export const RepaymentDetailsSection: React.FC<RepaymentDetailsSectionProps> = (
   onToggleSchedule,
   isSourcesOpen,
   onToggleSources,
-  onOpenPicker,
   errors = {},
 }) => {
+  const handleAmountInput = (field: keyof ProjectFinanceData, rawValue: string) => {
+    onChange({ [field]: formatCurrencyString(rawValue) })
+  }
+
   const handleNumericInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    try {
-      const sanitized = rawValue.replace(/[^\d.]/g, '')
-      onChange({ [field]: sanitized })
-    } catch (err) {
-      console.error(`Error updating field ${String(field)}:`, err)
-    }
+    const sanitized = rawValue.replace(/[^\d.]/g, '')
+    onChange({ [field]: sanitized })
   }
 
   return (
@@ -92,21 +99,20 @@ export const RepaymentDetailsSection: React.FC<RepaymentDetailsSectionProps> = (
           <div className="pf-collapsible-body">
             {/* Repayment Period */}
             <div className="pf-field-group">
-              <label className="pf-field-label">
+              <label htmlFor="repaymentPeriodYears" className="pf-field-label">
                 Repayment Period (Years) <span className="pf-required-star">*</span>
               </label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.repaymentPeriodYears ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => onOpenPicker('repaymentPeriodYears')}
+              <select
+                id="repaymentPeriodYears"
+                className={`pf-custom-select ${errors.repaymentPeriodYears ? 'pf-custom-select--error' : ''}`}
+                value={data.repaymentPeriodYears || ''}
+                onChange={(e) => onChange({ repaymentPeriodYears: e.target.value })}
               >
-                <span className={data.repaymentPeriodYears ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.repaymentPeriodYears || 'Select years'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select years</option>
+                {REPAYMENT_PERIOD_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
               {errors.repaymentPeriodYears && (
                 <span className="pf-field-error-msg">{errors.repaymentPeriodYears}</span>
               )}
@@ -114,38 +120,36 @@ export const RepaymentDetailsSection: React.FC<RepaymentDetailsSectionProps> = (
 
             {/* Moratorium Period */}
             <div className="pf-field-group">
-              <label className="pf-field-label">Moratorium Period (Months)</label>
-              <button
-                type="button"
-                className="pf-custom-select-btn"
-                onClick={() => onOpenPicker('moratoriumPeriodMonths')}
+              <label htmlFor="moratoriumPeriodMonths" className="pf-field-label">Moratorium Period (Months)</label>
+              <select
+                id="moratoriumPeriodMonths"
+                className="pf-custom-select"
+                value={data.moratoriumPeriodMonths || ''}
+                onChange={(e) => onChange({ moratoriumPeriodMonths: e.target.value })}
               >
-                <span className={data.moratoriumPeriodMonths ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.moratoriumPeriodMonths || 'Select months'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select months</option>
+                {MORATORIUM_PERIOD_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
             </div>
 
             {/* Repayment Frequency */}
             <div className="pf-field-group">
-              <label className="pf-field-label">
+              <label htmlFor="repaymentFrequency" className="pf-field-label">
                 Repayment Frequency <span className="pf-required-star">*</span>
               </label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.repaymentFrequency ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => onOpenPicker('repaymentFrequency')}
+              <select
+                id="repaymentFrequency"
+                className={`pf-custom-select ${errors.repaymentFrequency ? 'pf-custom-select--error' : ''}`}
+                value={data.repaymentFrequency || ''}
+                onChange={(e) => onChange({ repaymentFrequency: e.target.value })}
               >
-                <span className={data.repaymentFrequency ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.repaymentFrequency || 'Select frequency'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select frequency</option>
+                {REPAYMENT_FREQUENCY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
               {errors.repaymentFrequency && (
                 <span className="pf-field-error-msg">{errors.repaymentFrequency}</span>
               )}
@@ -201,7 +205,7 @@ export const RepaymentDetailsSection: React.FC<RepaymentDetailsSectionProps> = (
                 className="pf-custom-input"
                 placeholder="Enter amount"
                 value={data.preferredEmiInstalment || ''}
-                onChange={(e) => handleNumericInput('preferredEmiInstalment', e.target.value)}
+                onChange={(e) => handleAmountInput('preferredEmiInstalment', e.target.value)}
               />
               <span className="pf-helper-text">
                 Optional. If left blank, the auto-calculated EMI will be applied.
@@ -289,21 +293,20 @@ export const RepaymentDetailsSection: React.FC<RepaymentDetailsSectionProps> = (
 
             {/* Primary Source of Repayment */}
             <div className="pf-field-group">
-              <label className="pf-field-label">
+              <label htmlFor="primaryRepaymentSource" className="pf-field-label">
                 Primary Source of Repayment <span className="pf-required-star">*</span>
               </label>
-              <button
-                type="button"
-                className={`pf-custom-select-btn ${errors.primaryRepaymentSource ? 'pf-custom-select-btn--error' : ''}`}
-                onClick={() => onOpenPicker('primaryRepaymentSource')}
+              <select
+                id="primaryRepaymentSource"
+                className={`pf-custom-select ${errors.primaryRepaymentSource ? 'pf-custom-select--error' : ''}`}
+                value={data.primaryRepaymentSource || ''}
+                onChange={(e) => onChange({ primaryRepaymentSource: e.target.value })}
               >
-                <span className={data.primaryRepaymentSource ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.primaryRepaymentSource || 'Select source'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select source</option>
+                {PRIMARY_REPAYMENT_SOURCE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
               {errors.primaryRepaymentSource && (
                 <span className="pf-field-error-msg">{errors.primaryRepaymentSource}</span>
               )}
@@ -311,19 +314,18 @@ export const RepaymentDetailsSection: React.FC<RepaymentDetailsSectionProps> = (
 
             {/* Secondary Source (Optional) */}
             <div className="pf-field-group">
-              <label className="pf-field-label">Secondary Source (Optional)</label>
-              <button
-                type="button"
-                className="pf-custom-select-btn"
-                onClick={() => onOpenPicker('secondaryRepaymentSource')}
+              <label htmlFor="secondaryRepaymentSource" className="pf-field-label">Secondary Source (Optional)</label>
+              <select
+                id="secondaryRepaymentSource"
+                className="pf-custom-select"
+                value={data.secondaryRepaymentSource || ''}
+                onChange={(e) => onChange({ secondaryRepaymentSource: e.target.value })}
               >
-                <span className={data.secondaryRepaymentSource ? 'pf-select-value' : 'pf-select-placeholder'}>
-                  {data.secondaryRepaymentSource || 'Select source'}
-                </span>
-                <span className="pf-select-chevron">
-                  <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-                </span>
-              </button>
+                <option value="" disabled>Select source</option>
+                {SECONDARY_REPAYMENT_SOURCE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
             </div>
 
             {/* DSCR (Projected) */}

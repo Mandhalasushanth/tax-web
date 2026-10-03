@@ -1,43 +1,50 @@
 import React from 'react'
-import { GSTNoticeResponseFields } from '../../shared/GSTComplianceCard/GSTNoticeResponseFields'
-import { ComplianceDocPreviewModal } from '../../shared/GSTComplianceCard/GSTComplianceDocPreviewModal'
+import { GSTNoticeResponseFields } from '@modules/gst/shared/GSTComplianceCard/GSTNoticeResponseFields'
+import { ComplianceDocPreviewModal } from '@modules/gst/shared/GSTComplianceCard/GSTComplianceDocPreviewModal'
 import { GSTSubmitConfirmModal } from './GSTSubmitConfirmModal'
 import { GSTSuccessView } from './GSTSuccessView'
-import { useGSTComplianceState, type ComplianceRequestOption } from '../../hooks/useGSTComplianceState'
+import { useGSTComplianceState, type ComplianceRequestOption } from '@modules/gst/hooks/useGSTComplianceState'
+import { FINANCIAL_YEAR_OPTIONS } from '@modules/gst/utils/gstPeriodOptions'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
+import { DraftConfirmModal } from '@shared/components'
+import { GSTStepErrorBanner } from '@modules/gst/shared/GSTStepErrorBanner'
+import { GSTSaveDraftButton } from '@modules/gst/shared/GSTSaveDraftButton'
 import { GSTReconciliationDocsSection } from './GSTReconciliationDocsSection'
 import './GSTCompliance.css'
+import './GSTCompliance.sidebar.css'
 
 export type { ComplianceRequestOption }
 
 export const GSTCompliance: React.FC = () => {
   const {
-    gstin,
-    handleGstinChange,
-    financialYear,
-    setFinancialYear,
-    requestType,
-    setRequestType,
+    fields,
+    setField,
     purchaseFile,
     setPurchaseFile,
     salesFile,
     setSalesFile,
-    gstr2bRef,
-    setGstr2bRef,
-    notes,
-    setNotes,
+    noticeFile,
+    setNoticeFile,
     previewDoc,
     setPreviewDoc,
     isConfirmModalOpen,
     setIsConfirmModalOpen,
     errors,
     setErrors,
+    stepError,
     isSubmitting,
     isSubmitted,
     applicationId,
     handleSubmit,
     handleConfirmSubmit,
     handleReset,
+    isDraftModalOpen,
+    openDraftModal,
+    handleSaveAndExit,
+    handleDiscardAndExit,
+    handleKeepEditing,
   } = useGSTComplianceState()
+  const { gstin, financialYear, requestType } = fields
 
   if (isSubmitted) {
     return (
@@ -108,7 +115,7 @@ export const GSTCompliance: React.FC = () => {
                       className={`form-input ${errors.gstin ? 'has-error' : ''}`}
                       placeholder="Enter 15-character GSTIN"
                       value={gstin}
-                      onChange={(e) => handleGstinChange(e.target.value)}
+                      onChange={(e) => setField('gstin', gstInput.gstin(e.target.value))}
                       maxLength={15}
                     />
                     {errors.gstin && <span className="form-error">{errors.gstin}</span>}
@@ -123,18 +130,14 @@ export const GSTCompliance: React.FC = () => {
                       id="fy-select"
                       className={`form-select ${errors.financialYear ? 'has-error' : ''}`}
                       value={financialYear}
-                      onChange={(e) => {
-                        setFinancialYear(e.target.value)
-                        if (errors.financialYear) {
-                          setErrors((prev) => ({ ...prev, financialYear: undefined }))
-                        }
-                      }}
+                      onChange={(e) => setField('financialYear', e.target.value)}
                     >
                       <option value="">Select Financial Year</option>
-                      <option value="FY 2026-27">FY 2026-27</option>
-                      <option value="FY 2025-26">FY 2025-26</option>
-                      <option value="FY 2024-25">FY 2024-25</option>
-                      <option value="FY 2023-24">FY 2023-24</option>
+                      {FINANCIAL_YEAR_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
                     {errors.financialYear && <span className="form-error">{errors.financialYear}</span>}
                   </div>
@@ -148,13 +151,7 @@ export const GSTCompliance: React.FC = () => {
                       id="req-type-select"
                       className={`form-select ${errors.requestType ? 'has-error' : ''}`}
                       value={requestType}
-                      onChange={(e) => {
-                        const val = e.target.value as ComplianceRequestOption
-                        setRequestType(val)
-                        if (errors.requestType) {
-                          setErrors((prev) => ({ ...prev, requestType: undefined }))
-                        }
-                      }}
+                      onChange={(e) => setField('requestType', e.target.value as ComplianceRequestOption)}
                     >
                       <option value="">Select Request Type</option>
                       <option value="Reconciliation Support">Reconciliation Support</option>
@@ -172,10 +169,10 @@ export const GSTCompliance: React.FC = () => {
                   setPurchaseFile={setPurchaseFile}
                   salesFile={salesFile}
                   setSalesFile={setSalesFile}
-                  gstr2bRef={gstr2bRef}
-                  setGstr2bRef={setGstr2bRef}
-                  notes={notes}
-                  setNotes={setNotes}
+                  gstr2bRef={fields.gstr2bRef}
+                  setGstr2bRef={(value) => setField('gstr2bRef', value)}
+                  notes={fields.notes}
+                  setNotes={(value) => setField('notes', value)}
                   errors={errors}
                   setErrors={setErrors}
                   setPreviewDoc={setPreviewDoc}
@@ -185,15 +182,23 @@ export const GSTCompliance: React.FC = () => {
               {/* Dynamic Notice Response Section */}
               {requestType === 'Notice Response' && (
                 <GSTNoticeResponseFields
+                  values={fields}
+                  onChange={setField}
+                  noticeFile={noticeFile}
+                  onNoticeFileChange={setNoticeFile}
+                  errors={errors}
                   onPreviewDoc={(file, title) => setPreviewDoc({ file, title })}
                 />
               )}
 
+              <GSTStepErrorBanner message={stepError} />
+
               {/* Submit Request Button */}
-              <div className="submit-btn-wrapper">
+              <div className="submit-btn-wrapper gst-actions-group">
+                <GSTSaveDraftButton onClick={openDraftModal} />
                 <button
                   type="button"
-                  onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
+                  onClick={() => handleSubmit()}
                   className="gst-btn-submit-primary"
                   disabled={isSubmitting}
                 >
@@ -222,6 +227,14 @@ export const GSTCompliance: React.FC = () => {
         onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={handleConfirmSubmit}
         isSubmitting={isSubmitting}
+      />
+
+      <DraftConfirmModal
+        isOpen={isDraftModalOpen}
+        serviceTitle="GST Compliance"
+        onSaveAndExit={handleSaveAndExit}
+        onDiscardAndExit={handleDiscardAndExit}
+        onKeepEditing={handleKeepEditing}
       />
     </div>
   )

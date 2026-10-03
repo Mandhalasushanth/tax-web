@@ -2,9 +2,10 @@ import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { routePaths } from '@core/config'
 import { userStorage } from '@core/storage/userStorage'
-import type { PaymentResult } from '../../../types/gstPayment.types'
+import type { PaymentResult } from '@modules/gst/types/gstPayment.types'
 import { GSTStatusTimeline } from './GSTStatusTimeline'
 import './GSTPaymentSuccess.css'
+import './GSTPaymentSuccess.timeline.css'
 
 export interface GSTPaymentSuccessProps {
   details: PaymentResult
@@ -23,7 +24,7 @@ export const GSTPaymentSuccess: React.FC<GSTPaymentSuccessProps> = ({
 }) => {
   const navigate = useNavigate()
 
-  const appRef = details.applicationRef || 'GST-2026-72539'
+  const appRef = details.applicationRef || ''
   const displayBusinessName = businessName || 'Your Business'
 
   // Ensure this newly submitted/viewed registration appears under My Applications

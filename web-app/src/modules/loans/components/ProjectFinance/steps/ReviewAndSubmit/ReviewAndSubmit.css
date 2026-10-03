@@ -40,9 +40,16 @@
 
 /* Document Upload Cards */
 .pf-doc-upload-items-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .pf-doc-upload-items-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 .pf-doc-upload-card {
@@ -142,10 +149,10 @@
   align-items: center;
   gap: 0.45rem;
   padding: 0.5rem 0.95rem;
-  border: 1.5px solid #fed7aa;
-  background-color: #ffffff;
-  color: #ea580c;
-  border-radius: 8px;
+  border: 1.5px solid #c9ccf1;
+  background-color: #eef0fc;
+  color: #2b2a86;
+  border-radius: 9999px;
   font-size: 0.825rem;
   font-weight: 700;
   cursor: pointer;
@@ -154,8 +161,9 @@
 }
 
 .pf-doc-upload-btn-outline:hover {
-  background-color: #fff7ed;
-  border-color: #ff7a00;
+  background-color: #e3e6fa;
+  border-color: #a9aee8;
+  color: #1f1e6e;
 }
 
 .pf-doc-file-input-hidden {
@@ -346,11 +354,6 @@
 
 /* Responsive */
 @media (max-width: 640px) {
-  .pf-doc-upload-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
 
   .pf-doc-upload-btn-outline {
     width: 100%;

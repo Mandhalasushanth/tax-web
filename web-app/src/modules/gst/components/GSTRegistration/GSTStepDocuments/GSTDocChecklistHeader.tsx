@@ -1,6 +1,7 @@
 import type { FC } from 'react'
-import { DocChecklistIcon } from '../../../shared/GSTDocIcons/GSTDocIcons'
+import { DocChecklistIcon } from '@modules/gst/shared/GSTDocIcons/GSTDocIcons'
 import './GSTDocChecklistHeader.css'
+import '@modules/gst/styles/gstTones.css'
 
 interface GSTDocChecklistHeaderProps {
   completedCount: number
@@ -39,9 +40,11 @@ export const GSTDocChecklistHeader: FC<GSTDocChecklistHeaderProps> = ({
         aria-valuemin={0}
         aria-valuemax={100}
       >
-        <div
-          className="gst-docs-checklist-card__progress-fill"
-          style={{ width: `${progressPercent}%` }}
+        <progress
+          className="gst-progress gst-docs-checklist-card__progress-fill"
+          value={progressPercent}
+          max={100}
+          aria-label={`${progressPercent}% of documents uploaded`}
         />
       </div>
     </section>

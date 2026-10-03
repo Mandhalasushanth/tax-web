@@ -1,11 +1,13 @@
 import React from 'react'
 import { formatCurrency } from '@shared/utils'
-import type { TaxComputationItem } from '../../../utils/gstReviewData'
+import type { TaxComputationItem } from '@modules/gst/utils/gstReviewData'
 import './GSTReviewComputation.css'
+
+const PENDING_TEXT = 'Computed by CA'
 
 interface GSTReviewTaxComputationProps {
   items: TaxComputationItem[]
-  netLiability: number
+  netLiability: number | null
 }
 
 interface GSTReviewFilingFeeProps {
@@ -41,12 +43,12 @@ export const GSTReviewTaxComputationCard: React.FC<GSTReviewTaxComputationProps>
           {items.map((row, idx) => (
             <tr key={idx}>
               <td>{row.particulars}</td>
-              <td>{formatCurrency(row.amount)}</td>
+              <td>{row.amount === null ? PENDING_TEXT : formatCurrency(row.amount)}</td>
             </tr>
           ))}
           <tr className="gst-comp-table__highlight-row--blue">
             <td>Net Tax Liability (Govt)</td>
-            <td>{formatCurrency(netLiability)}</td>
+            <td>{netLiability === null ? PENDING_TEXT : formatCurrency(netLiability)}</td>
           </tr>
         </tbody>
       </table>

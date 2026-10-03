@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react'
-import type { UploadedLoanDocument } from '../../../../documents/loanDocument.types'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
-import { PROJECT_FINANCE_DOC_LIST, type UploadDocItem } from './reviewSubmitConstants'
+import { loanDocumentService } from '@modules/loans/documents/loanDocumentService'
+import type { UploadedLoanDocument } from '@modules/loans/documents/loanDocument.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
+import { PROJECT_FINANCE_DOC_LIST, type UploadDocItem } from '@modules/loans/constants/projectFinanceDocuments.constants'
 
 export interface UploadDocumentsSectionProps {
   data: ProjectFinanceData
@@ -103,14 +104,8 @@ export const UploadDocumentsSection: React.FC<UploadDocumentsSectionProps> = ({
   const fileInputsRef = useRef<Record<string, HTMLInputElement | null>>({})
 
   const handleFileUpload = (docId: string, file: File | null) => {
-    if (!file) return
-    const uploadedDoc: UploadedLoanDocument = {
-      id: docId,
-      name: file.name,
-      size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
-      file,
-      uploadedAt: new Date().toISOString(),
-    }
+    if (!file || !loanDocumentService.acceptFile(file)) return
+    const uploadedDoc: UploadedLoanDocument = loanDocumentService.createDocumentEntry(docId, file)
     const updatedDocs = {
       ...(data.uploadedDocs || {}),
       [docId]: uploadedDoc,
@@ -119,28 +114,20 @@ export const UploadDocumentsSection: React.FC<UploadDocumentsSectionProps> = ({
   }
 
   const handleRemoveDoc = (docId: string) => {
-    try {
-      const nextDocs = { ...(data.uploadedDocs || {}) }
-      delete nextDocs[docId]
-      onChange({ uploadedDocs: nextDocs })
-    } catch (err) {
-      console.error('Error removing document:', err)
-    }
+    const nextDocs = { ...(data.uploadedDocs || {}) }
+    delete nextDocs[docId]
+    onChange({ uploadedDocs: nextDocs })
   }
 
   const handleViewDoc = (docId: string, title: string) => {
-    try {
-      const rawDoc = data.uploadedDocs?.[docId]
-      const fileObj = rawDoc instanceof File ? rawDoc : rawDoc?.file
-      if (fileObj) {
-        const url = URL.createObjectURL(fileObj)
-        window.open(url, '_blank')
-      } else {
-        const name = (rawDoc && 'name' in rawDoc) ? rawDoc.name : title
-        alert(`Viewing: ${name}`)
-      }
-    } catch (err) {
-      console.error('Error viewing document:', err)
+    const rawDoc = data.uploadedDocs?.[docId]
+    const fileObj = rawDoc instanceof File ? rawDoc : rawDoc?.file
+    if (fileObj) {
+      const url = URL.createObjectURL(fileObj)
+      window.open(url, '_blank')
+    } else {
+      const name = (rawDoc && 'name' in rawDoc) ? rawDoc.name : title
+      alert(`Viewing: ${name}`)
     }
   }
 

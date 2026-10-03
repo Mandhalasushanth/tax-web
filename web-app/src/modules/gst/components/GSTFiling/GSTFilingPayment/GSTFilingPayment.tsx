@@ -1,11 +1,11 @@
 import type { FC } from 'react'
 import { PaymentCheckout } from '@shared/components'
-import { GSTFilingStepper } from '../../../shared/GSTFilingStepper/GSTFilingStepper'
-import type { PaymentResult } from '../../../types/gst.types'
+import { GSTFilingStepper } from '@modules/gst/shared/GSTFilingStepper/GSTFilingStepper'
+import type { PaymentResult } from '@modules/gst/types/gst.types'
 import './GSTFilingPayment.css'
 
 interface GSTFilingPaymentProps {
-  amount?: number
+  amount: number
   applicationRef?: string
   serviceTitle?: string
   onStepClick?: (stepId: number) => void
@@ -14,9 +14,9 @@ interface GSTFilingPaymentProps {
 }
 
 export const GSTFilingPayment: FC<GSTFilingPaymentProps> = ({
-  amount = 2950,
-  applicationRef = 'GST-2026-00118',
-  serviceTitle = 'GST Filing — August 2026',
+  amount,
+  applicationRef,
+  serviceTitle = 'GST Filing',
   onStepClick,
   onBack,
   onSuccess,

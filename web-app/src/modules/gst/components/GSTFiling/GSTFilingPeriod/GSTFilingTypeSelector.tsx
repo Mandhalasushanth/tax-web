@@ -1,5 +1,5 @@
 import React from 'react'
-import { FILING_TYPE_OPTIONS } from '../../../utils/gstPeriodOptions'
+import { FILING_TYPE_OPTIONS } from '@modules/gst/utils/gstPeriodOptions'
 import './GSTFilingTypeSelector.css'
 
 interface GSTFilingTypeSelectorProps {

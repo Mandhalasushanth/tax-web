@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 
 export interface DeclarationAndSubmitSectionProps {
   data: ProjectFinanceData

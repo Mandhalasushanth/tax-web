@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useAuthStore } from '@store/index'
-import type { VehicleLoanData } from '../../../../types/vehicleLoan.types'
+import type { VehicleLoanData } from '@modules/loans/types/vehicleLoan.types'
 import './ReviewAndDeclaration.css'
 
 export interface ReviewAndDeclarationProps {

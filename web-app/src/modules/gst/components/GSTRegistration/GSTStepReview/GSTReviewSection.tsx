@@ -1,12 +1,14 @@
 import type { FC, ReactNode } from 'react'
-import type { ReviewField } from '../../../types/gstReview.types'
-import { EditPencilIcon } from '../../../shared/GSTDocIcons/GSTDocIcons'
+import type { ReviewField } from '@modules/gst/types/gstReview.types'
+import { EditPencilIcon } from '@modules/gst/shared/GSTDocIcons/GSTDocIcons'
 import './GSTReviewSection.css'
+import '@modules/gst/styles/gstTones.css'
+import type { GstIconTone } from '@modules/gst/types/gstDocuments.types'
 
 interface GSTReviewSectionProps {
   title: string
   icon: ReactNode
-  iconBg: string
+  tone: GstIconTone
   fields: ReviewField[]
   onEdit: () => void
 }
@@ -14,7 +16,7 @@ interface GSTReviewSectionProps {
 export const GSTReviewSection: FC<GSTReviewSectionProps> = ({
   title,
   icon,
-  iconBg,
+  tone,
   fields,
   onEdit,
 }) => {
@@ -22,7 +24,7 @@ export const GSTReviewSection: FC<GSTReviewSectionProps> = ({
     <div className="gst-review-card">
       <div className="gst-review-card__header">
         <div className="gst-review-card__header-left">
-          <div className="gst-review-card__icon-badge" style={{ backgroundColor: iconBg }}>
+          <div className={`gst-review-card__icon-badge gst-tone--${tone}`}>
             {icon}
           </div>
           <h3 className="gst-review-card__title">{title}</h3>

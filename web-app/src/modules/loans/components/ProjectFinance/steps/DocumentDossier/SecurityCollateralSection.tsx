@@ -1,5 +1,5 @@
 import React from 'react'
-import type { SecurityItem } from '../../../../types/projectFinance.types'
+import type { SecurityItem } from '@modules/loans/types/projectFinance.types'
 import { SecurityCollateralCard } from './SecurityCollateralCard'
 
 export interface SecurityCollateralSectionProps {
@@ -9,7 +9,7 @@ export interface SecurityCollateralSectionProps {
   onUpdate: (index: number, updated: SecurityItem) => void
   onAdd: () => void
   onRemove: (index: number) => void
-  onOpenPicker: (index: number, field: 'typeOfSecurity' | 'ownershipType') => void
+  onOpenPicker?: (index: number, field: 'typeOfSecurity' | 'ownershipType') => void
   errors?: Record<string, string>
 }
 
@@ -34,7 +34,6 @@ export const SecurityCollateralSection: React.FC<SecurityCollateralSectionProps>
   onUpdate,
   onAdd,
   onRemove,
-  onOpenPicker,
   errors = {},
 }) => {
   return (
@@ -63,7 +62,6 @@ export const SecurityCollateralSection: React.FC<SecurityCollateralSectionProps>
               totalCount={items.length}
               onChange={(upd) => onUpdate(index, upd)}
               onRemove={() => onRemove(index)}
-              onOpenPicker={(field) => onOpenPicker(index, field)}
               errors={errors}
             />
           ))}

@@ -1,10 +1,13 @@
-import React, { useCallback, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useCallback, useMemo, useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { routePaths } from '@core/config'
+import { useAuthStore } from '@store/index'
+import { CompleteProfileModal } from '@shared/components'
 import { LoanMarketplaceHeader } from './LoanMarketplaceHeader'
 import { LoanMarketplaceCard } from './LoanMarketplaceCard'
-import { LOAN_MARKETPLACE_ITEMS } from '../../constants/loanMarketplace.constants'
-import { safeNavigateTo, isValidLoanMarketplaceItem } from '../../utils/loanMarketplace.utils'
-import type { LoanMarketplaceItem } from '../../types/loanMarketplace.types'
+import { LOAN_MARKETPLACE_ITEMS } from '@modules/loans/constants/loanMarketplace.constants'
+import { safeNavigateTo, isValidLoanMarketplaceItem } from '@modules/loans/utils/loanMarketplace.utils'
+import type { LoanMarketplaceItem } from '@modules/loans/types/loanMarketplace.types'
 import './LoanMarketplace.css'
 
 /**
@@ -14,34 +17,59 @@ import './LoanMarketplace.css'
  */
 export const LoanMarketplace: React.FC = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const user = useAuthStore((state) => state.user)
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
+  const [selectedTarget, setSelectedTarget] = useState('')
+
+  // Open the profile prompt when redirected here with { openProfileModal } (e.g. from a loan form)
+  const routeState = location.state as { openProfileModal?: boolean; returnTo?: string } | null
+  const [handledRouteState, setHandledRouteState] = useState<typeof routeState>(null)
+  if (routeState !== handledRouteState) {
+    setHandledRouteState(routeState)
+    if (routeState?.openProfileModal && !user?.isProfileComplete) {
+      setSelectedTarget(routeState.returnTo || '')
+      setIsProfileModalOpen(true)
+    }
+  }
 
   /**
    * Safe item selection handler with exception handling.
+   * If user profile/registration is not complete, prompts with CompleteProfileModal
+   * identical to GST services flow.
    */
   const handleLoanSelect = useCallback(
     (item: LoanMarketplaceItem): void => {
-      try {
-        !isValidLoanMarketplaceItem(item)
-          ? console.warn('[LoanMarketplace] Attempted to navigate with invalid loan item:', item)
-          : safeNavigateTo(navigate, item.applyPath, '/loans')
-      } catch (err) {
-        console.error('[LoanMarketplace] Unexpected error in handleLoanSelect:', err)
-        safeNavigateTo(navigate, '/loans')
+      if (!isValidLoanMarketplaceItem(item)) {
+        return
+      }
+
+      if (!user?.isProfileComplete) {
+        setSelectedTarget(item.applyPath)
+        setIsProfileModalOpen(true)
+      } else {
+        safeNavigateTo(navigate, item.applyPath, '/loans')
       }
     },
-    [navigate]
+    [navigate, user?.isProfileComplete]
   )
+
+  const handleConfirmProfile = useCallback(() => {
+    setIsProfileModalOpen(false)
+    navigate(routePaths.auth.register, {
+      state: { returnTo: selectedTarget, mobile: user?.mobile },
+    })
+  }, [navigate, selectedTarget, user?.mobile])
+
+  const handleCloseModal = useCallback(() => {
+    setIsProfileModalOpen(false)
+  }, [])
 
   /**
    * Filters and validates items with error containment.
    */
   const validLoanItems = useMemo((): LoanMarketplaceItem[] => {
-    try {
-      return LOAN_MARKETPLACE_ITEMS.filter((item) => isValidLoanMarketplaceItem(item))
-    } catch (err) {
-      console.error('[LoanMarketplace] Error while filtering loan items:', err)
-      return []
-    }
+    return LOAN_MARKETPLACE_ITEMS.filter((item) => isValidLoanMarketplaceItem(item))
   }, [])
 
   return (
@@ -59,6 +87,13 @@ export const LoanMarketplace: React.FC = () => {
           />
         ))}
       </main>
+
+      {/* Profile Completion Modal matching GST flow */}
+      <CompleteProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={handleCloseModal}
+        onCompleteProfile={handleConfirmProfile}
+      />
     </div>
   )
 }

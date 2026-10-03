@@ -19,10 +19,11 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   onClose,
 }) => {
   useEffect(() => {
+    if (!isOpen) return
     const handleKeyDown = (e: KeyboardEvent) => {
-      e.key === 'Escape' && onClose()
+      if (e.key === 'Escape') onClose()
     }
-    isOpen && window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose])
 

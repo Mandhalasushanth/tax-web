@@ -1,5 +1,4 @@
-.security-compliance-step,
-.project-dossier-step {
+.security-compliance-step {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -203,4 +202,3 @@
     gap: 0.85rem;
   }
 }
-

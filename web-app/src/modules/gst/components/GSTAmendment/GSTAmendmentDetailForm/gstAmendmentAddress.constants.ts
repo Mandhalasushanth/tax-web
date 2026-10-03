@@ -1,23 +1,3 @@
-import type { AddressDetails } from './GSTAmendmentAddressForm'
-
-export const DEFAULT_PRINCIPAL_DETAILS: AddressDetails = {
-  address: 'MG Road, Bengaluru',
-  city: 'Bengaluru',
-  district: 'Bengaluru Urban',
-  state: 'Karnataka',
-  pinCode: '560001',
-  natureOfPremises: '—',
-}
-
-export const DEFAULT_ADDITIONAL_DETAILS: AddressDetails = {
-  address: 'Peenya Industrial Area',
-  city: 'Bengaluru',
-  district: 'Bengaluru Urban',
-  state: 'Karnataka',
-  pinCode: '560058',
-  natureOfPremises: 'Warehouse',
-}
-
 export const ADDITIONAL_PROOFS = [
   'Property Tax Receipt',
   'Municipal Khata Certificate / Khata Copy',

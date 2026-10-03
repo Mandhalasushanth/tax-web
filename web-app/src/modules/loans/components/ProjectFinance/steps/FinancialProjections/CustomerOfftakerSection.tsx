@@ -1,5 +1,5 @@
 import React from 'react'
-import type { CustomerOfftakerItem } from '../../../../types/projectFinance.types'
+import type { CustomerOfftakerItem } from '@modules/loans/types/projectFinance.types'
 import { CustomerOfftakerCard } from './CustomerOfftakerCard'
 
 export interface CustomerOfftakerSectionProps {
@@ -9,7 +9,7 @@ export interface CustomerOfftakerSectionProps {
   onUpdate: (index: number, updated: CustomerOfftakerItem) => void
   onAdd: () => void
   onRemove: (index: number) => void
-  onOpenPicker: (index: number, field: 'customerType' | 'unit' | 'agreementStatus') => void
+  onOpenPicker?: (index: number, field: 'customerType' | 'unit' | 'agreementStatus') => void
   errors?: Record<string, string>
 }
 
@@ -37,7 +37,6 @@ export const CustomerOfftakerSection: React.FC<CustomerOfftakerSectionProps> = (
   onUpdate,
   onAdd,
   onRemove,
-  onOpenPicker,
   errors = {},
 }) => {
   return (
@@ -66,7 +65,6 @@ export const CustomerOfftakerSection: React.FC<CustomerOfftakerSectionProps> = (
               totalCount={items.length}
               onChange={(upd) => onUpdate(index, upd)}
               onRemove={() => onRemove(index)}
-              onOpenPicker={(field) => onOpenPicker(index, field)}
               errors={errors}
             />
           ))}

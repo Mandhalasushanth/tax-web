@@ -1,6 +1,4 @@
 export { GSTHeroBanner } from './GSTHeroBanner/GSTHeroBanner'
-export { GSTStats } from './GSTStats/GSTStats'
-export type { GSTStatsProps } from './GSTStats/GSTStats'
 export { GSTServices } from './GSTServices/GSTServices'
 export type { GSTServicesProps } from './GSTServices/GSTServices'
 export { GSTApplicationList } from './GSTApplicationList/GSTApplicationList'

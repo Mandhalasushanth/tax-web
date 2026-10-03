@@ -14,4 +14,4 @@ export {
   LoanFormSection,
   LoanPageNavigation,
   LoanReviewSection,
-} from '../shared'
+} from '@modules/loans/shared'

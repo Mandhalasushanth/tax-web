@@ -1,12 +1,13 @@
 import { routePaths } from '@core/config'
+import { GST_FEES } from '@modules/gst/constants/gstBusiness.constants'
 import { DraftConfirmModal } from '@shared/components'
 import { GSTStepBusiness } from './GSTStepBusiness/GSTStepBusiness'
 import { GSTStepDocuments } from './GSTStepDocuments/GSTStepDocuments'
 import { GSTStepReview } from './GSTStepReview/GSTStepReview'
 import { GSTStepPayment } from './GSTStepPayment/GSTStepPayment'
 import { GSTPaymentSuccess } from './GSTPaymentSuccess/GSTPaymentSuccess'
-import { GSTRegistrationStepper } from '../../shared/GSTRegistrationStepper/GSTRegistrationStepper'
-import { useGstRegistrationState } from '../../hooks/useGstRegistrationState'
+import { GSTRegistrationStepper } from '@modules/gst/shared/GSTRegistrationStepper/GSTRegistrationStepper'
+import { useGstRegistrationState } from '@modules/gst/hooks/useGstRegistrationState'
 import './GSTRegistration.css'
 
 export const GSTRegistration = () => {
@@ -16,6 +17,7 @@ export const GSTRegistration = () => {
     documents,
     paymentResult,
     isDraftModalOpen,
+    openDraftModal,
     handleCancel,
     handleSaveAndExit,
     handleDiscardAndExit,
@@ -91,7 +93,7 @@ export const GSTRegistration = () => {
                 onChange={handleBusinessChange}
                 onNext={handleStep1Next}
                 onCancel={handleCancel}
-                onSaveDraft={handleSaveAndExit}
+                onSaveDraft={openDraftModal}
               />
             )}
 
@@ -101,7 +103,7 @@ export const GSTRegistration = () => {
                 onDocumentsChange={setDocuments}
                 onBack={handleStep2Back}
                 onNext={handleStep2Next}
-                onSaveDraft={handleSaveAndExit}
+                onSaveDraft={openDraftModal}
               />
             )}
 
@@ -112,13 +114,13 @@ export const GSTRegistration = () => {
                 onEdit={() => goToStep(1)}
                 onBack={handleStep3Back}
                 onProceed={handleStep3Proceed}
-                onSaveDraft={handleSaveAndExit}
+                onSaveDraft={openDraftModal}
               />
             )}
 
             {currentStep === 4 && (
               <GSTStepPayment
-                amount={1499}
+                amount={GST_FEES.registration}
                 applicationRef={paymentResult.applicationRef}
                 serviceTitle="GST Registration"
                 applicantName={businessData.signatoryName || businessData.legalName || 'Applicant'}

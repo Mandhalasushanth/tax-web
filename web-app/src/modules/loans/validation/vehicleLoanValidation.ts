@@ -1,14 +1,9 @@
-import type { VehicleLoanData } from '../types/vehicleLoan.types'
-import { commonLoanValidation, loanInputHelpers } from './commonLoanValidation'
-
-export interface VehicleValidationResult {
-  isValid: boolean
-  errors: Record<string, string>
-  error?: string
-}
+import type { VehicleLoanData } from '@modules/loans/types/vehicleLoan.types'
+import { commonLoanValidation, loanFieldRules, toStepResult } from './commonLoanValidation'
+import type { LoanStepValidationResult } from './commonLoanValidation'
 
 export const vehicleLoanValidation = {
-  validateStep1(data: Partial<VehicleLoanData>): VehicleValidationResult {
+  validateStep1(data: Partial<VehicleLoanData>): LoanStepValidationResult {
     const errors: Record<string, string> = {}
 
     // 1. Required Loan Amount
@@ -17,6 +12,8 @@ export const vehicleLoanValidation = {
       errors.loanAmount = 'Please specify required vehicle loan amount'
     } else if (amountVal < 50000) {
       errors.loanAmount = 'Minimum vehicle loan amount is ₹50,000'
+    } else if (amountVal > 50000000) {
+      errors.loanAmount = 'Maximum vehicle loan amount is ₹5,00,00,000'
     }
 
     // 2. Vehicle Category & Purpose
@@ -39,6 +36,9 @@ export const vehicleLoanValidation = {
       errors.vehicleMakeModel = 'Please enter or select vehicle make and model'
     } else if (data.vehicleMakeModel === 'Other (Specify Custom Vehicle Model)' && !data.customVehicleMakeModel?.trim()) {
       errors.vehicleMakeModel = 'Please specify your custom vehicle make & model'
+    } else if (data.vehicleMakeModel === 'Other (Specify Custom Vehicle Model)') {
+      const modelError = loanFieldRules.text(data.customVehicleMakeModel, 'Vehicle make & model', 2, 100)
+      if (modelError) errors.vehicleMakeModel = modelError
     }
 
     // 6. Estimated On-Road Price / Valuation
@@ -55,15 +55,15 @@ export const vehicleLoanValidation = {
       errors.downPayment = 'Down payment cannot be greater than or equal to on-road price'
     }
 
-    const firstError = Object.values(errors)[0]
-    return {
-      isValid: Object.keys(errors).length === 0,
-      errors,
-      error: firstError,
+    // 8. Loan amount must be covered by the vehicle price after down payment
+    if (!errors.loanAmount && !errors.onRoadPrice && !errors.downPayment && amountVal > onRoadVal - downPaymentVal) {
+      errors.loanAmount = `Loan amount cannot exceed on-road price minus down payment (₹${(onRoadVal - downPaymentVal).toLocaleString('en-IN')})`
     }
+
+    return toStepResult(errors)
   },
 
-  validateStep2(data: Partial<VehicleLoanData>): VehicleValidationResult {
+  validateStep2(data: Partial<VehicleLoanData>): LoanStepValidationResult {
     const errors: Record<string, string> = {}
 
     if (!data.occupationType) {
@@ -77,7 +77,13 @@ export const vehicleLoanValidation = {
     if (data.occupationType === 'Business Owner' || data.occupationType === 'Self-Employed Pro') {
       if (!data.legalBusinessName || !data.legalBusinessName.trim()) {
         errors.legalBusinessName = 'Please enter legal business / firm name'
+      } else if (data.legalBusinessName.trim().length < 3) {
+        errors.legalBusinessName = 'Business / firm name must be at least 3 characters'
       }
+      const gstinError = loanFieldRules.optionalGstin(data.gstin)
+      if (gstinError) errors.gstin = gstinError
+      const udyamError = loanFieldRules.optionalUdyam(data.udyamNumber)
+      if (udyamError) errors.udyamNumber = udyamError
       if (!data.businessVintageYears || !data.businessVintageYears.trim()) {
         errors.businessVintageYears = 'Please enter business vintage in years'
       }
@@ -94,19 +100,15 @@ export const vehicleLoanValidation = {
       }
     }
 
-    const firstError = Object.values(errors)[0]
-    return {
-      isValid: Object.keys(errors).length === 0,
-      errors,
-      error: firstError,
-    }
+    return toStepResult(errors)
   },
 
-  validateStep3(data: Partial<VehicleLoanData>): VehicleValidationResult {
+  validateStep3(data: Partial<VehicleLoanData>): LoanStepValidationResult {
     const errors: Record<string, string> = {}
 
-    if (!data.bankName || !data.bankName.trim()) {
-      errors.bankName = 'Please enter primary bank name'
+    const bankNameError = loanFieldRules.bankName(data.bankName)
+    if (bankNameError) {
+      errors.bankName = bankNameError
     }
 
     const accRes = commonLoanValidation.validateAccountNumber(data.accountNumber || '')
@@ -126,17 +128,14 @@ export const vehicleLoanValidation = {
       if (!grossNum || grossNum <= 0) {
         errors.grossAnnualIncomeItr = 'Please enter gross total annual income as per ITR'
       }
+      const ackError = loanFieldRules.optionalItrAck(data.itrAckNumber)
+      if (ackError) errors.itrAckNumber = ackError
     }
 
-    const firstError = Object.values(errors)[0]
-    return {
-      isValid: Object.keys(errors).length === 0,
-      errors,
-      error: firstError,
-    }
+    return toStepResult(errors)
   },
 
-  validateStep4(data: Partial<VehicleLoanData>): VehicleValidationResult {
+  validateStep4(data: Partial<VehicleLoanData>): LoanStepValidationResult {
     const errors: Record<string, string> = {}
     const docs = data.uploadedDocs || {}
 
@@ -159,28 +158,17 @@ export const vehicleLoanValidation = {
       })
     }
 
-    const firstError = Object.values(errors)[0]
-    return {
-      isValid: Object.keys(errors).length === 0,
-      errors,
-      error: firstError,
-    }
+    return toStepResult(errors)
   },
 
-  validateStep5(data: Partial<VehicleLoanData>): VehicleValidationResult {
+  validateStep5(data: Partial<VehicleLoanData>): LoanStepValidationResult {
     const errors: Record<string, string> = {}
 
     if (!data.termsAccepted) {
       errors.termsAccepted = 'Please accept the authorization and declaration to proceed.'
     }
 
-    const firstError = Object.values(errors)[0]
-    return {
-      isValid: Object.keys(errors).length === 0,
-      errors,
-      error: firstError,
-    }
+    return toStepResult(errors)
   },
 }
 
-export { loanInputHelpers }

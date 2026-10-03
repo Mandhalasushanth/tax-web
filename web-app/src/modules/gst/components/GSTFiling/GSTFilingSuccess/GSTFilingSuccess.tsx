@@ -1,6 +1,6 @@
 import { formatCurrency } from '@shared/utils'
-import { GSTFilingStepper } from '../../../shared/GSTFilingStepper/GSTFilingStepper'
-import type { PaymentResult } from '../../../types/gst.types'
+import { GSTFilingStepper } from '@modules/gst/shared/GSTFilingStepper/GSTFilingStepper'
+import type { PaymentResult } from '@modules/gst/types/gst.types'
 import './GSTFilingSuccess.css'
 
 interface GSTFilingSuccessProps {

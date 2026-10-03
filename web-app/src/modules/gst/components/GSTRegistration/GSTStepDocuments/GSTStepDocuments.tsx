@@ -1,14 +1,15 @@
+import { GSTStepErrorBanner } from '@modules/gst/shared/GSTStepErrorBanner'
 import type { FC } from 'react'
-import type { GSTStepDocumentsProps, DocumentCategory } from '../../../types/gstDocuments.types'
-import { useGstDocuments } from '../../../hooks/useGstDocuments'
+import type { GSTStepDocumentsProps, DocumentCategory } from '@modules/gst/types/gstDocuments.types'
+import { useGstDocuments } from '@modules/gst/hooks/useGstDocuments'
 import { GSTDocChecklistHeader } from './GSTDocChecklistHeader'
 import { GSTDocCard } from './GSTDocCard'
 import { GSTDocPreviewModal } from './GSTDocPreviewModal'
-import { AlertCircleIcon, SecurityShieldIcon } from '../../../shared/GSTDocIcons/GSTDocIcons'
+import { SecurityShieldIcon } from '@modules/gst/shared/GSTDocIcons/GSTDocIcons'
 import { StepActionBar } from '@shared/components'
 import './GSTStepDocuments.css'
 
-export type { GSTStepDocumentsProps, UploadedDoc } from '../../../types/gstDocuments.types'
+export type { GSTStepDocumentsProps, UploadedDoc } from '@modules/gst/types/gstDocuments.types'
 
 const SECTION_CONFIG: Array<{ key: DocumentCategory; title: string }> = [
   { key: 'identity', title: 'IDENTITY PROOF' },
@@ -73,14 +74,6 @@ export const GSTStepDocuments: FC<GSTStepDocumentsProps> = ({
         progressPercent={progressPercent}
       />
 
-      {/* Validation Alert */}
-      {validationError && (
-        <div className="gst-docs-validation-alert" role="alert">
-          <AlertCircleIcon className="gst-docs-alert-icon" />
-          <span>{validationError}</span>
-        </div>
-      )}
-
       {/* Categorized Document Proof Sections */}
       {SECTION_CONFIG.map(({ key, title }) => (
         <section key={key} className="gst-docs-section">
@@ -114,13 +107,14 @@ export const GSTStepDocuments: FC<GSTStepDocumentsProps> = ({
         </p>
       </aside>
 
+      <GSTStepErrorBanner message={validationError} />
+
       {/* Step Navigation Bar */}
       <StepActionBar
         onBack={onBack}
         onSaveDraft={onSaveDraft}
         onNext={() => handleProceed(onNext)}
         nextLabel="Continue"
-        nextDisabled={completedCount < totalCount}
       />
 
       {/* Document Preview Modal */}

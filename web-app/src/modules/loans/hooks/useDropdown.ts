@@ -11,7 +11,9 @@ export function useDropdown() {
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
       const target = e.target as Node
-      Boolean(dropdownRef.current && !dropdownRef.current.contains(target)) && setIsOpen(false)
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
+        setIsOpen(false)
+      }
     }
     document.addEventListener('mousedown', handleOutsideClick)
     return () => {

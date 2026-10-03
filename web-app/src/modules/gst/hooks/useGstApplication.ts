@@ -1,7 +1,7 @@
 import { useAsync } from '@shared/hooks'
 
-import { gstService } from '../services/gstService'
-import type { GstApplication } from '../types/gst.types'
+import { gstService } from '@modules/gst/services/gstService'
+import type { GstApplication } from '@modules/gst/types/gst.types'
 
 export const useGstApplication = (id: string | undefined) =>
   useAsync<GstApplication>(

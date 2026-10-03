@@ -1,8 +1,9 @@
 import React from 'react'
+import { LoanDocumentGrid } from '@modules/loans/shared'
 import { DocumentSection, UploadDocument } from '@shared/components'
-import { loanDocumentService, createDocDef } from '../../../../documents'
-import type { LoanDocumentDefinition } from '../../../../documents/loanDocument.types'
-import type { WorkingCapitalLoanData } from '../../../../types/workingCapitalLoan.types'
+import { loanDocumentService, createDocDef } from '@modules/loans/documents'
+import type { LoanDocumentDefinition } from '@modules/loans/documents/loanDocument.types'
+import type { WorkingCapitalLoanData } from '@modules/loans/types/workingCapitalLoan.types'
 import './Documents.css'
 
 export interface DocumentsProps {
@@ -38,27 +39,27 @@ const doc = (id: string, title: string, subtitle: string, category: string, icon
   createDocDef(id, title, subtitle, category, icon, isRequired, { iconBg: '#eff6ff', iconColor: '#2563eb' })
 
 const IDENTITY_DOCS: LoanDocumentDefinition[] = [
-  doc('pan_card', 'PAN Card', 'Entity PAN card & Promoter/Director PAN c...', 'identity', CardIcon),
-  doc('aadhaar_card', 'Aadhaar Card', 'Aadhaar of all Primary Directors / Partners ...', 'identity', CardIcon),
-  doc('kyc_directors', 'KYC of Directors / Partners', 'PAN, Aadhaar, DIN and Passport photo of al...', 'identity', FileIcon),
+  doc('pan_card', 'PAN Card', 'Entity PAN card & Promoter/Director PAN card', 'identity', CardIcon),
+  doc('aadhaar_card', 'Aadhaar Card', 'Aadhaar of all Primary Directors / Partners', 'identity', CardIcon),
+  doc('kyc_directors', 'KYC of Directors / Partners', 'PAN, Aadhaar, DIN and Passport photo of all Directors / Partners', 'identity', FileIcon),
 ]
 
 const INCOME_BANKING_DOCS: LoanDocumentDefinition[] = [
-  doc('bank_statement', 'Current Account Bank Statements', 'Last 12 months continuous bank statement...', 'income', StatementIcon),
+  doc('bank_statement', 'Current Account Bank Statements', 'Last 12 months continuous bank statements', 'income', StatementIcon),
 ]
 
 const BUSINESS_TAX_DOCS: LoanDocumentDefinition[] = [
   doc('gst_certificate', 'GST Certificate (REG-06)', 'GST registration certificate with all annexures', 'business', FileIcon),
-  doc('gst_returns', 'GST Returns (12 Months)', 'Filed GSTR-3B & GSTR-1 returns for last 12 ...', 'business', FileIcon),
-  doc('business_itr', 'Business ITR (Last 2-3 Years)', 'ITR-V and computation for the last 3 assess...', 'business', FileIcon),
-  doc('audited_balance_sheet', 'Audited Balance Sheet', 'CA audited balance sheet for last 2-3 financi...', 'business', FileIcon),
-  doc('profit_loss_statement', 'Profit & Loss Statement', 'CA certified / audited P&L statement with sc...', 'business', FileIcon),
-  doc('udyam_certificate', 'Udyam Registration Certificate', 'MSME registration certificate (for MSME prio...', 'business', FileIcon, false),
-  doc('business_reg_proof', 'Business Registration Proof', 'COI, MOA/AOA, Partnership Deed, or Trade ...', 'business', FileIcon),
+  doc('gst_returns', 'GST Returns (12 Months)', 'Filed GSTR-3B & GSTR-1 returns for last 12 months', 'business', FileIcon),
+  doc('business_itr', 'Business ITR (Last 2-3 Years)', 'ITR-V and computation for the last 3 assessment years', 'business', FileIcon),
+  doc('audited_balance_sheet', 'Audited Balance Sheet', 'CA audited balance sheet for last 2-3 financial years', 'business', FileIcon),
+  doc('profit_loss_statement', 'Profit & Loss Statement', 'CA certified / audited P&L statement with schedules', 'business', FileIcon),
+  doc('udyam_certificate', 'Udyam Registration Certificate', 'MSME registration certificate (for MSME priority lending benefits)', 'business', FileIcon, false),
+  doc('business_reg_proof', 'Business Registration Proof', 'COI, MOA/AOA, Partnership Deed, or Trade License', 'business', FileIcon),
 ]
 
 const COLLATERAL_DOCS: LoanDocumentDefinition[] = [
-  doc('existing_loan_sanction', 'Existing Loan Sanction Letters', 'Sanction letters and latest 6-month repayme...', 'collateral', FileIcon, false),
+  doc('existing_loan_sanction', 'Existing Loan Sanction Letters', 'Sanction letters and latest 6-month repayment track record', 'collateral', FileIcon, false),
 ]
 
 export const Documents: React.FC<DocumentsProps> = ({
@@ -69,22 +70,15 @@ export const Documents: React.FC<DocumentsProps> = ({
   const uploadedDocs = data.uploadedDocs || {}
 
   const handleUpload = (id: string, file: File) => {
-    try {
-      const entry = loanDocumentService.createDocumentEntry(id, file)
-      onChange({ uploadedDocs: { ...uploadedDocs, [id]: entry } })
-    } catch {
-      // Fallback
-    }
+    if (!loanDocumentService.acceptFile(file)) return
+    const entry = loanDocumentService.createDocumentEntry(id, file)
+    onChange({ uploadedDocs: { ...uploadedDocs, [id]: entry } })
   }
 
   const handleRemove = (id: string) => {
-    try {
-      const next = { ...uploadedDocs }
-      delete next[id]
-      onChange({ uploadedDocs: next })
-    } catch {
-      // Fallback
-    }
+    const next = { ...uploadedDocs }
+    delete next[id]
+    onChange({ uploadedDocs: next })
   }
 
   const renderDocCard = (doc: LoanDocumentDefinition) => {
@@ -126,16 +120,24 @@ export const Documents: React.FC<DocumentsProps> = ({
   return (
     <div className="working-capital-documents-step">
       <DocumentSection title="IDENTITY & ADDRESS">
-        {IDENTITY_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {IDENTITY_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
       <DocumentSection title="INCOME & BANKING">
-        {INCOME_BANKING_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {INCOME_BANKING_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
       <DocumentSection title="BUSINESS & TAX">
-        {BUSINESS_TAX_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {BUSINESS_TAX_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
       <DocumentSection title="COLLATERAL & OTHERS">
-        {COLLATERAL_DOCS.map(renderDocCard)}
+        <LoanDocumentGrid>
+          {COLLATERAL_DOCS.map(renderDocCard)}
+        </LoanDocumentGrid>
       </DocumentSection>
     </div>
   )

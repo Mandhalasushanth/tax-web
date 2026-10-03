@@ -100,13 +100,6 @@
   gap: 0.35rem;
 }
 
-.business-info-icon {
-  display: inline-flex;
-  align-items: center;
-  color: #94a3b8;
-  cursor: help;
-}
-
 /* 4. Subtext / Hint below input */
 .input-field-subtext {
   font-size: 0.78rem;
@@ -166,8 +159,7 @@
   user-select: none;
 }
 
-.udyam-toggle-pills,
-.udyam-toggle-pill {
+.udyam-toggle-pills {
   display: inline-flex;
   align-items: center;
   background: #f1f5f9;
@@ -178,8 +170,7 @@
   flex-shrink: 0;
 }
 
-.udyam-pill-btn,
-.udyam-toggle-btn {
+.udyam-pill-btn {
   padding: 0.35rem 1.25rem;
   font-size: 0.85rem;
   font-weight: 700;
@@ -192,13 +183,11 @@
   font-family: inherit;
 }
 
-.udyam-pill-btn:hover:not(.udyam-pill-btn--active),
-.udyam-toggle-btn:hover:not(.udyam-toggle-btn--active) {
+.udyam-pill-btn:hover:not(.udyam-pill-btn--active) {
   color: #0f172a;
 }
 
-.udyam-pill-btn--active,
-.udyam-toggle-btn--active {
+.udyam-pill-btn--active {
   background: #ff7a00;
   color: #ffffff;
   box-shadow: 0 1px 4px rgba(255, 122, 0, 0.35);

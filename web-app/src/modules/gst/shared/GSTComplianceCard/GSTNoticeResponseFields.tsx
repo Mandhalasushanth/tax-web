@@ -1,17 +1,35 @@
-import React, { useState, useRef } from 'react'
+import { formatGstFileSize } from '@modules/gst/utils/gstFile'
+import React, { useRef } from 'react'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
 import { DocumentCard } from '@shared/components'
 import './GSTComplianceUploadFields.css'
 
+export interface NoticeResponseValues {
+  noticeNumber: string
+  issueDate: string
+  dueDate: string
+  additionalInfo: string
+}
+
 interface GSTNoticeResponseFieldsProps {
+  values: NoticeResponseValues
+  onChange: <K extends keyof NoticeResponseValues>(field: K, value: NoticeResponseValues[K]) => void
+  noticeFile: File | null
+  onNoticeFileChange: (file: File | null) => void
+  errors?: Partial<Record<keyof NoticeResponseValues | 'noticeFile', string>>
   onPreviewDoc?: (file: File, title: string) => void
 }
 
-export const GSTNoticeResponseFields: React.FC<GSTNoticeResponseFieldsProps> = ({ onPreviewDoc }) => {
-  const [noticeNumber, setNoticeNumber] = useState('')
-  const [issueDate, setIssueDate] = useState('')
-  const [dueDate, setDueDate] = useState('')
-  const [noticeFile, setNoticeFile] = useState<File | null>(null)
-  const [additionalInfo, setAdditionalInfo] = useState('')
+/** Notice details for a compliance request; the values live in the parent so they can be validated and drafted */
+export const GSTNoticeResponseFields: React.FC<GSTNoticeResponseFieldsProps> = ({
+  values,
+  onChange,
+  noticeFile,
+  onNoticeFileChange,
+  errors = {},
+  onPreviewDoc,
+}) => {
+  const { noticeNumber, issueDate, dueDate, additionalInfo } = values
 
   const issueDateInputRef = useRef<HTMLInputElement>(null)
   const dueDateInputRef = useRef<HTMLInputElement>(null)
@@ -74,9 +92,10 @@ export const GSTNoticeResponseFields: React.FC<GSTNoticeResponseFieldsProps> = (
             type="text"
             placeholder="Enter notice number"
             value={noticeNumber}
-            onChange={(e) => setNoticeNumber(e.target.value)}
-            className="gst-notice-input"
+            onChange={(e) => onChange('noticeNumber', gstInput.reference(e.target.value))}
+            className={`gst-notice-input ${errors.noticeNumber ? 'has-error' : ''}`}
           />
+          {errors.noticeNumber && <span className="form-error">{errors.noticeNumber}</span>}
         </div>
 
         {/* Field 2 & 3: Issue Date & Due Date (2-column row with right-aligned calendar icon) */}
@@ -90,7 +109,7 @@ export const GSTNoticeResponseFields: React.FC<GSTNoticeResponseFieldsProps> = (
                 ref={issueDateInputRef}
                 type="date"
                 value={issueDate}
-                onChange={(e) => setIssueDate(e.target.value)}
+                onChange={(e) => onChange('issueDate', e.target.value)}
                 className="gst-notice-date-input"
               />
               <span className="gst-notice-date-icon" onClick={openIssueDatePicker}>
@@ -102,6 +121,7 @@ export const GSTNoticeResponseFields: React.FC<GSTNoticeResponseFieldsProps> = (
                 </svg>
               </span>
             </div>
+            {errors.issueDate && <span className="form-error">{errors.issueDate}</span>}
           </div>
 
           <div className="gst-notice-field-group">
@@ -113,7 +133,7 @@ export const GSTNoticeResponseFields: React.FC<GSTNoticeResponseFieldsProps> = (
                 ref={dueDateInputRef}
                 type="date"
                 value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
+                onChange={(e) => onChange('dueDate', e.target.value)}
                 className="gst-notice-date-input"
               />
               <span className="gst-notice-date-icon" onClick={openDueDatePicker}>
@@ -125,6 +145,7 @@ export const GSTNoticeResponseFields: React.FC<GSTNoticeResponseFieldsProps> = (
                 </svg>
               </span>
             </div>
+            {errors.dueDate && <span className="form-error">{errors.dueDate}</span>}
           </div>
         </div>
 
@@ -136,13 +157,14 @@ export const GSTNoticeResponseFields: React.FC<GSTNoticeResponseFieldsProps> = (
           isRequired={true}
           isUploaded={Boolean(noticeFile)}
           fileName={noticeFile?.name}
-          fileSize={noticeFile ? `${(noticeFile.size / (1024 * 1024)).toFixed(2)} MB` : undefined}
+          fileSize={noticeFile ? formatGstFileSize(noticeFile.size) : undefined}
           file={noticeFile || undefined}
           accept=".pdf,.png,.jpg,.jpeg"
-          onUpload={(_, file) => setNoticeFile(file)}
-          onRemove={() => setNoticeFile(null)}
+          onUpload={(_, file) => onNoticeFileChange(file)}
+          onRemove={() => onNoticeFileChange(null)}
           onView={() => handleView()}
         />
+        {errors.noticeFile && <span className="form-error">{errors.noticeFile}</span>}
 
         {/* Section 4: Additional Information */}
         <div className="gst-notice-field-group">
@@ -161,7 +183,7 @@ export const GSTNoticeResponseFields: React.FC<GSTNoticeResponseFieldsProps> = (
               maxLength={500}
               placeholder="Add any important information for our CA team..."
               value={additionalInfo}
-              onChange={(e) => setAdditionalInfo(e.target.value)}
+              onChange={(e) => onChange('additionalInfo', gstInput.text(e.target.value, 500))}
               className="gst-notice-textarea"
             />
             <span className="gst-notice-char-counter">{additionalInfo.length}/500</span>

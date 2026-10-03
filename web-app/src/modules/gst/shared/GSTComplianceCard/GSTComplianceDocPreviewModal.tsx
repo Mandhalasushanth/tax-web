@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import { formatGstFileSize } from '@modules/gst/utils/gstFile'
+import React, { useEffect, useMemo } from 'react'
 
 export interface ComplianceDocPreviewModalProps {
   file: File
@@ -11,13 +12,8 @@ export const ComplianceDocPreviewModal: React.FC<ComplianceDocPreviewModalProps>
   title,
   onClose,
 }) => {
-  const [fileUrl, setFileUrl] = useState<string | null>(null)
-
-  useEffect(() => {
-    const u = URL.createObjectURL(file)
-    setFileUrl(u)
-    return () => URL.revokeObjectURL(u)
-  }, [file])
+  const fileUrl = useMemo(() => URL.createObjectURL(file), [file])
+  useEffect(() => () => URL.revokeObjectURL(fileUrl), [fileUrl])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -35,7 +31,7 @@ export const ComplianceDocPreviewModal: React.FC<ComplianceDocPreviewModalProps>
     /\.(xlsx|xls|csv)$/i.test(file.name) ||
     file.type.includes('spreadsheet') ||
     file.type.includes('csv')
-  const sizeMb = (file.size / (1024 * 1024)).toFixed(2)
+  const fileSize = formatGstFileSize(file.size)
 
   return (
     <div
@@ -60,7 +56,7 @@ export const ComplianceDocPreviewModal: React.FC<ComplianceDocPreviewModalProps>
               {file.name}
             </h3>
             <p className="compliance-modal-meta">
-              <span>{sizeMb} MB</span>
+              <span>{fileSize}</span>
               <span>·</span>
               <span>{file.type || 'Document'}</span>
               <span>·</span>
@@ -117,7 +113,7 @@ export const ComplianceDocPreviewModal: React.FC<ComplianceDocPreviewModalProps>
                 <span className="compliance-modal-pill">
                   Excel / CSV Format
                 </span>
-                <span className="compliance-modal-pill">{sizeMb} MB</span>
+                <span className="compliance-modal-pill">{fileSize}</span>
                 <span className="compliance-modal-pill">TaxEdge Verified</span>
               </div>
             </div>
@@ -133,7 +129,7 @@ export const ComplianceDocPreviewModal: React.FC<ComplianceDocPreviewModalProps>
                   Document attached and ready for compliance verification.
                 </p>
                 <div className="compliance-modal-sheet-tags">
-                  <span className="compliance-modal-pill">{sizeMb} MB</span>
+                  <span className="compliance-modal-pill">{fileSize}</span>
                 </div>
               </div>
             )

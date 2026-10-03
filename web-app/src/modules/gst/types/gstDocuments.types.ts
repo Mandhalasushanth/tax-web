@@ -5,8 +5,7 @@ export interface DocumentItem {
   title: string
   subtitle: string
   category: DocumentCategory
-  iconBg: string
-  iconColor: string
+  tone: GstIconTone
   fileName?: string
   isUploaded: boolean
   addressProofType?: string
@@ -26,3 +25,6 @@ export interface DocPreviewState {
   title: string
   fileName: string
 }
+
+/** Colour tone of a document/section icon tile (see styles/gstTones.css) */
+export type GstIconTone = 'sky' | 'purple' | 'indigo' | 'amber' | 'green' | 'orange' | 'mint'

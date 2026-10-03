@@ -55,7 +55,7 @@
   gap: 1.25rem;
 }
 
-/* Grid Layouts - Top-aligned to prevent height-stretching disbalance */
+/* Grid Layouts - Top-aligned to prevent height-stretching imbalance */
 .gst-form-grid {
   display: grid;
   gap: 1.25rem;

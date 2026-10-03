@@ -1,12 +1,14 @@
 import React from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import { formatCurrencyString } from '@modules/loans/utils/loanInputFormatters'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
+import { TYPE_OF_INSURANCE_OPTIONS } from './securityComplianceConstants'
 
 export interface InsuranceDetailsSectionProps {
   data: ProjectFinanceData
   onChange: (fields: Partial<ProjectFinanceData>) => void
   isOpen: boolean
   onToggle: () => void
-  onOpenPicker: () => void
+  onOpenPicker?: () => void
   errors?: Record<string, string>
 }
 
@@ -29,16 +31,10 @@ export const InsuranceDetailsSection: React.FC<InsuranceDetailsSectionProps> = (
   onChange,
   isOpen,
   onToggle,
-  onOpenPicker,
   errors = {},
 }) => {
-  const handleNumericInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    try {
-      const sanitized = rawValue.replace(/\D/g, '')
-      onChange({ [field]: sanitized })
-    } catch (err) {
-      console.error(`Error updating field ${String(field)}:`, err)
-    }
+  const handleAmountInput = (field: keyof ProjectFinanceData, rawValue: string) => {
+    onChange({ [field]: formatCurrencyString(rawValue) })
   }
 
   return (
@@ -61,19 +57,18 @@ export const InsuranceDetailsSection: React.FC<InsuranceDetailsSectionProps> = (
 
           {/* Type of Insurance */}
           <div className="pf-field-group">
-            <label className="pf-field-label">Type of Insurance</label>
-            <button
-              type="button"
-              className={`pf-custom-select-btn ${errors.typeOfInsurance ? 'pf-custom-select-btn--error' : ''}`}
-              onClick={onOpenPicker}
+            <label htmlFor="typeOfInsurance" className="pf-field-label">Type of Insurance</label>
+            <select
+              id="typeOfInsurance"
+              className={`pf-custom-select ${errors.typeOfInsurance ? 'pf-custom-select--error' : ''}`}
+              value={data.typeOfInsurance || ''}
+              onChange={(e) => onChange({ typeOfInsurance: e.target.value })}
             >
-              <span className={data.typeOfInsurance ? 'pf-select-value' : 'pf-select-placeholder'}>
-                {data.typeOfInsurance || 'Select insurance type'}
-              </span>
-              <span className="pf-select-chevron">
-                <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-              </span>
-            </button>
+              <option value="" disabled>Select insurance type</option>
+              {TYPE_OF_INSURANCE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
             {errors.typeOfInsurance && (
               <span className="pf-field-error-msg">{errors.typeOfInsurance}</span>
             )}
@@ -90,7 +85,7 @@ export const InsuranceDetailsSection: React.FC<InsuranceDetailsSectionProps> = (
               className={`pf-custom-input ${errors.insuranceCoverageAmount ? 'pf-custom-input--error' : ''}`}
               placeholder="Enter amount"
               value={data.insuranceCoverageAmount || ''}
-              onChange={(e) => handleNumericInput('insuranceCoverageAmount', e.target.value)}
+              onChange={(e) => handleAmountInput('insuranceCoverageAmount', e.target.value)}
             />
             {errors.insuranceCoverageAmount && (
               <span className="pf-field-error-msg">{errors.insuranceCoverageAmount}</span>
@@ -105,14 +100,26 @@ export const InsuranceDetailsSection: React.FC<InsuranceDetailsSectionProps> = (
             <input
               id="insurancePolicyValidity"
               type="date"
-              className={`pf-custom-input ${errors.insurancePolicyValidity ? 'pf-custom-input--error' : ''}`}
+              className="pf-custom-input"
               placeholder="DD MMM YYYY"
               value={data.insurancePolicyValidity || ''}
               onChange={(e) => onChange({ insurancePolicyValidity: e.target.value })}
             />
-            {errors.insurancePolicyValidity && (
-              <span className="pf-field-error-msg">{errors.insurancePolicyValidity}</span>
-            )}
+          </div>
+
+          {/* Insurance Provider */}
+          <div className="pf-field-group">
+            <label htmlFor="typeOfInsurance" className="pf-field-label">
+              Insurance Provider Name
+            </label>
+            <input
+              id="typeOfInsurance"
+              type="text"
+              className="pf-custom-input"
+              placeholder="Enter provider name"
+              value={data.typeOfInsurance || ''}
+              onChange={(e) => onChange({ typeOfInsurance: e.target.value })}
+            />
           </div>
         </div>
       )}

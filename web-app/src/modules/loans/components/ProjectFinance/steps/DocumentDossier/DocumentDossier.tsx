@@ -1,17 +1,10 @@
 import React, { useState } from 'react'
-import type { ProjectFinanceData, SecurityItem } from '../../../../types/projectFinance.types'
-import { LocationBottomSheet } from '../LocationLandTechnical/LocationBottomSheet'
+import type { ProjectFinanceData, SecurityItem } from '@modules/loans/types/projectFinance.types'
 import { SecurityCollateralSection } from './SecurityCollateralSection'
 import { LegalApprovalsSection } from './LegalApprovalsSection'
 import { RegulatoryComplianceSection } from './RegulatoryComplianceSection'
 import { InsuranceDetailsSection } from './InsuranceDetailsSection'
 import { OtherComplianceSection } from './OtherComplianceSection'
-import {
-  TYPE_OF_SECURITY_OPTIONS,
-  OWNERSHIP_TYPE_OPTIONS,
-  BUSINESS_REGISTRATION_TYPE_OPTIONS,
-  TYPE_OF_INSURANCE_OPTIONS,
-} from './securityComplianceConstants'
 import './DocumentDossier.css'
 
 export interface DocumentDossierProps {
@@ -30,11 +23,6 @@ export const DocumentDossier: React.FC<DocumentDossierProps> = ({
   const [isComplianceOpen, setIsComplianceOpen] = useState<boolean>(true)
   const [isInsuranceOpen, setIsInsuranceOpen] = useState<boolean>(true)
   const [isOtherComplianceOpen, setIsOtherComplianceOpen] = useState<boolean>(true)
-
-  const [activePicker, setActivePicker] = useState<{
-    type: 'typeOfSecurity' | 'ownershipType' | 'businessRegistrationType' | 'typeOfInsurance'
-    index?: number
-  } | null>(null)
 
   // Guarantee list of security items (initial empty if none)
   const securities: SecurityItem[] =
@@ -55,89 +43,53 @@ export const DocumentDossier: React.FC<DocumentDossierProps> = ({
         ]
 
   const syncSecurities = (updatedList: SecurityItem[]) => {
-    try {
-      const first = updatedList[0] || {
-        typeOfSecurity: '',
-        assetDescription: '',
-        estimatedValue: '',
-        ownershipType: '',
-        locationOfAsset: '',
-        valuationReportAvailable: true,
-        existingCharge: false,
-        existingChargeDetails: '',
-      }
-      onChange({
-        securityList: updatedList,
-        typeOfSecurity: first.typeOfSecurity,
-        securityAssetDescription: first.assetDescription,
-        securityEstimatedValue: first.estimatedValue,
-        securityOwnershipType: first.ownershipType,
-        securityLocationOfAsset: first.locationOfAsset,
-        securityValuationReportAvailable: first.valuationReportAvailable,
-        securityExistingCharge: first.existingCharge,
-        securityExistingChargeDetails: first.existingChargeDetails,
-      })
-    } catch (err) {
-      console.error('Error syncing securities:', err)
+    const first = updatedList[0] || {
+      typeOfSecurity: '',
+      assetDescription: '',
+      estimatedValue: '',
+      ownershipType: '',
+      locationOfAsset: '',
+      valuationReportAvailable: true,
+      existingCharge: false,
+      existingChargeDetails: '',
     }
+    onChange({
+      securityList: updatedList,
+      typeOfSecurity: first.typeOfSecurity,
+      securityAssetDescription: first.assetDescription,
+      securityEstimatedValue: first.estimatedValue,
+      securityOwnershipType: first.ownershipType,
+      securityLocationOfAsset: first.locationOfAsset,
+      securityValuationReportAvailable: first.valuationReportAvailable,
+      securityExistingCharge: first.existingCharge,
+      securityExistingChargeDetails: first.existingChargeDetails,
+    })
   }
 
   const handleUpdateSecurity = (index: number, updated: SecurityItem) => {
-    try {
-      const nextList = securities.map((item, idx) => (idx === index ? updated : item))
-      syncSecurities(nextList)
-    } catch (err) {
-      console.error('Error updating security item:', err)
-    }
+    const nextList = securities.map((item, idx) => (idx === index ? updated : item))
+    syncSecurities(nextList)
   }
 
   const handleAddSecurity = () => {
-    try {
-      const newSec: SecurityItem = {
-        id: `sec-${Date.now()}`,
-        typeOfSecurity: '',
-        assetDescription: '',
-        estimatedValue: '',
-        ownershipType: '',
-        locationOfAsset: '',
-        valuationReportAvailable: true,
-        existingCharge: false,
-        existingChargeDetails: '',
-      }
-      syncSecurities([...securities, newSec])
-    } catch (err) {
-      console.error('Error adding security item:', err)
+    const newSec: SecurityItem = {
+      id: `sec-${Date.now()}`,
+      typeOfSecurity: '',
+      assetDescription: '',
+      estimatedValue: '',
+      ownershipType: '',
+      locationOfAsset: '',
+      valuationReportAvailable: true,
+      existingCharge: false,
+      existingChargeDetails: '',
     }
+    syncSecurities([...securities, newSec])
   }
 
   const handleRemoveSecurity = (index: number) => {
-    try {
-      if (securities.length <= 1) return
-      const nextList = securities.filter((_, idx) => idx !== index)
-      syncSecurities(nextList)
-    } catch (err) {
-      console.error('Error removing security item:', err)
-    }
-  }
-
-  const handleSelectPickerOption = (val: string) => {
-    if (!activePicker) return
-
-    if (activePicker.type === 'businessRegistrationType') {
-      onChange({ businessRegistrationType: val })
-    } else if (activePicker.type === 'typeOfInsurance') {
-      onChange({ typeOfInsurance: val })
-    } else if (activePicker.index !== undefined) {
-      const idx = activePicker.index
-      const targetSec = securities[idx]
-      if (targetSec) {
-        handleUpdateSecurity(idx, {
-          ...targetSec,
-          [activePicker.type]: val,
-        })
-      }
-    }
-    setActivePicker(null)
+    if (securities.length <= 1) return
+    const nextList = securities.filter((_, idx) => idx !== index)
+    syncSecurities(nextList)
   }
 
   return (
@@ -150,7 +102,6 @@ export const DocumentDossier: React.FC<DocumentDossierProps> = ({
         onUpdate={handleUpdateSecurity}
         onAdd={handleAddSecurity}
         onRemove={handleRemoveSecurity}
-        onOpenPicker={(index, field) => setActivePicker({ type: field, index })}
         errors={errors}
       />
 
@@ -169,7 +120,6 @@ export const DocumentDossier: React.FC<DocumentDossierProps> = ({
         onChange={onChange}
         isOpen={isComplianceOpen}
         onToggle={() => setIsComplianceOpen((prev) => !prev)}
-        onOpenPicker={() => setActivePicker({ type: 'businessRegistrationType' })}
         errors={errors}
       />
 
@@ -179,7 +129,6 @@ export const DocumentDossier: React.FC<DocumentDossierProps> = ({
         onChange={onChange}
         isOpen={isInsuranceOpen}
         onToggle={() => setIsInsuranceOpen((prev) => !prev)}
-        onOpenPicker={() => setActivePicker({ type: 'typeOfInsurance' })}
         errors={errors}
       />
 
@@ -190,51 +139,6 @@ export const DocumentDossier: React.FC<DocumentDossierProps> = ({
         isOpen={isOtherComplianceOpen}
         onToggle={() => setIsOtherComplianceOpen((prev) => !prev)}
         errors={errors}
-      />
-
-      {/* Bottom Sheet Pickers */}
-      <LocationBottomSheet
-        isOpen={activePicker?.type === 'typeOfSecurity'}
-        title="Select Security Type"
-        options={TYPE_OF_SECURITY_OPTIONS}
-        selectedValue={
-          activePicker?.index !== undefined
-            ? securities[activePicker.index]?.typeOfSecurity || ''
-            : ''
-        }
-        onSelect={handleSelectPickerOption}
-        onClose={() => setActivePicker(null)}
-      />
-
-      <LocationBottomSheet
-        isOpen={activePicker?.type === 'ownershipType'}
-        title="Select Ownership Type"
-        options={OWNERSHIP_TYPE_OPTIONS}
-        selectedValue={
-          activePicker?.index !== undefined
-            ? securities[activePicker.index]?.ownershipType || ''
-            : ''
-        }
-        onSelect={handleSelectPickerOption}
-        onClose={() => setActivePicker(null)}
-      />
-
-      <LocationBottomSheet
-        isOpen={activePicker?.type === 'businessRegistrationType'}
-        title="Select Registration Type"
-        options={BUSINESS_REGISTRATION_TYPE_OPTIONS}
-        selectedValue={data.businessRegistrationType || ''}
-        onSelect={handleSelectPickerOption}
-        onClose={() => setActivePicker(null)}
-      />
-
-      <LocationBottomSheet
-        isOpen={activePicker?.type === 'typeOfInsurance'}
-        title="Select Insurance Type"
-        options={TYPE_OF_INSURANCE_OPTIONS}
-        selectedValue={data.typeOfInsurance || ''}
-        onSelect={handleSelectPickerOption}
-        onClose={() => setActivePicker(null)}
       />
     </div>
   )

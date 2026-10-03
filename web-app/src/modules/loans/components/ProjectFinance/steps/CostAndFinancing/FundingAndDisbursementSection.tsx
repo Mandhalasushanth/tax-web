@@ -1,5 +1,6 @@
 import React from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import { formatCurrencyString } from '@modules/loans/utils/loanInputFormatters'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 
 export interface FundingAndDisbursementSectionProps {
   data: ProjectFinanceData
@@ -44,31 +45,18 @@ export const FundingAndDisbursementSection: React.FC<FundingAndDisbursementSecti
   onToggleDisbursement,
   errors = {},
 }) => {
-  const handleNumericInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    try {
-      const sanitized = rawValue.replace(/\D/g, '')
-      onChange({ [field]: sanitized })
-    } catch (err) {
-      console.error(`Error updating field ${String(field)}:`, err)
-    }
+  const handleAmountInput = (field: keyof ProjectFinanceData, rawValue: string) => {
+    onChange({ [field]: formatCurrencyString(rawValue) })
   }
 
   const handleRatioInput = (rawValue: string) => {
-    try {
-      // Allows numbers and colon for ratio e.g. 70:30
-      const sanitized = rawValue.replace(/[^0-9:]/g, '')
-      onChange({ proposedDebtToEquityRatio: sanitized })
-    } catch (err) {
-      console.error('Error updating debt to equity ratio:', err)
-    }
+    // Allows numbers and colon for ratio e.g. 70:30
+    const sanitized = rawValue.replace(/[^0-9:]/g, '')
+    onChange({ proposedDebtToEquityRatio: sanitized })
   }
 
   const handleTextInput = (field: keyof ProjectFinanceData, rawValue: string) => {
-    try {
-      onChange({ [field]: rawValue })
-    } catch (err) {
-      console.error(`Error updating field ${String(field)}:`, err)
-    }
+    onChange({ [field]: rawValue })
   }
 
   return (
@@ -97,7 +85,7 @@ export const FundingAndDisbursementSection: React.FC<FundingAndDisbursementSecti
                 className={`pf-custom-input ${errors.promotersEquityContribution ? 'pf-custom-input--error' : ''}`}
                 placeholder="e.g. 27750000"
                 value={data.promotersEquityContribution || ''}
-                onChange={(e) => handleNumericInput('promotersEquityContribution', e.target.value)}
+                onChange={(e) => handleAmountInput('promotersEquityContribution', e.target.value)}
               />
               {errors.promotersEquityContribution && (
                 <span className="pf-field-error-msg">{errors.promotersEquityContribution}</span>
@@ -114,7 +102,7 @@ export const FundingAndDisbursementSection: React.FC<FundingAndDisbursementSecti
                 className={`pf-custom-input ${errors.debtTermLoanRequested ? 'pf-custom-input--error' : ''}`}
                 placeholder="e.g. 64750000"
                 value={data.debtTermLoanRequested || ''}
-                onChange={(e) => handleNumericInput('debtTermLoanRequested', e.target.value)}
+                onChange={(e) => handleAmountInput('debtTermLoanRequested', e.target.value)}
               />
               {errors.debtTermLoanRequested && (
                 <span className="pf-field-error-msg">{errors.debtTermLoanRequested}</span>
@@ -131,7 +119,7 @@ export const FundingAndDisbursementSection: React.FC<FundingAndDisbursementSecti
                 className="pf-custom-input"
                 placeholder="e.g. 0"
                 value={data.subordinatedDebtUnsecuredLoans || ''}
-                onChange={(e) => handleNumericInput('subordinatedDebtUnsecuredLoans', e.target.value)}
+                onChange={(e) => handleAmountInput('subordinatedDebtUnsecuredLoans', e.target.value)}
               />
             </div>
 
@@ -145,7 +133,7 @@ export const FundingAndDisbursementSection: React.FC<FundingAndDisbursementSecti
                 className="pf-custom-input"
                 placeholder="e.g. 0"
                 value={data.govtSubsidyCapitalGrant || ''}
-                onChange={(e) => handleNumericInput('govtSubsidyCapitalGrant', e.target.value)}
+                onChange={(e) => handleAmountInput('govtSubsidyCapitalGrant', e.target.value)}
               />
             </div>
 
@@ -207,7 +195,7 @@ export const FundingAndDisbursementSection: React.FC<FundingAndDisbursementSecti
                 className={`pf-custom-input ${errors.phase1DrawdownInvestment ? 'pf-custom-input--error' : ''}`}
                 placeholder="e.g. 50000000"
                 value={data.phase1DrawdownInvestment || ''}
-                onChange={(e) => handleNumericInput('phase1DrawdownInvestment', e.target.value)}
+                onChange={(e) => handleAmountInput('phase1DrawdownInvestment', e.target.value)}
               />
               {errors.phase1DrawdownInvestment && (
                 <span className="pf-field-error-msg">{errors.phase1DrawdownInvestment}</span>
@@ -241,7 +229,7 @@ export const FundingAndDisbursementSection: React.FC<FundingAndDisbursementSecti
                 className="pf-custom-input"
                 placeholder="e.g. 42500000"
                 value={data.phase2DrawdownInvestment || ''}
-                onChange={(e) => handleNumericInput('phase2DrawdownInvestment', e.target.value)}
+                onChange={(e) => handleAmountInput('phase2DrawdownInvestment', e.target.value)}
               />
             </div>
 

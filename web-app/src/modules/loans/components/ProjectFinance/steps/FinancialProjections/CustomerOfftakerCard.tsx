@@ -1,5 +1,11 @@
 import React from 'react'
-import type { CustomerOfftakerItem } from '../../../../types/projectFinance.types'
+import { formatCurrencyString } from '@modules/loans/utils/loanInputFormatters'
+import type { CustomerOfftakerItem } from '@modules/loans/types/projectFinance.types'
+import {
+  CUSTOMER_TYPE_OPTIONS,
+  UNIT_OPTIONS,
+  AGREEMENT_STATUS_OPTIONS,
+} from './financialProjectionsConstants'
 
 export interface CustomerOfftakerCardProps {
   item: CustomerOfftakerItem
@@ -7,7 +13,7 @@ export interface CustomerOfftakerCardProps {
   totalCount: number
   onChange: (updated: CustomerOfftakerItem) => void
   onRemove: () => void
-  onOpenPicker: (field: 'customerType' | 'unit' | 'agreementStatus') => void
+  onOpenPicker?: (field: 'customerType' | 'unit' | 'agreementStatus') => void
   errors?: Record<string, string>
 }
 
@@ -17,34 +23,25 @@ export const CustomerOfftakerCard: React.FC<CustomerOfftakerCardProps> = ({
   totalCount,
   onChange,
   onRemove,
-  onOpenPicker,
   errors = {},
 }) => {
   const prefix = `customer_${index}`
 
   const handleTextInput = (field: keyof CustomerOfftakerItem, value: string) => {
-    try {
-      onChange({ ...item, [field]: value })
-    } catch (err) {
-      console.error(`Error updating customer field ${field}:`, err)
-    }
+    onChange({ ...item, [field]: value })
+  }
+
+  const handleAmountInput = (field: keyof CustomerOfftakerItem, rawValue: string) => {
+    onChange({ ...item, [field]: formatCurrencyString(rawValue) })
   }
 
   const handleNumericInput = (field: keyof CustomerOfftakerItem, value: string) => {
-    try {
-      const sanitized = value.replace(/\D/g, '')
-      onChange({ ...item, [field]: sanitized })
-    } catch (err) {
-      console.error(`Error updating customer numeric field ${field}:`, err)
-    }
+    const sanitized = value.replace(/\D/g, '')
+    onChange({ ...item, [field]: sanitized })
   }
 
   const handleContractChange = (val: boolean) => {
-    try {
-      onChange({ ...item, isContractAvailable: val })
-    } catch (err) {
-      console.error('Error changing contract status:', err)
-    }
+    onChange({ ...item, isContractAvailable: val })
   }
 
   return (
@@ -84,19 +81,17 @@ export const CustomerOfftakerCard: React.FC<CustomerOfftakerCardProps> = ({
         <label htmlFor={`${prefix}_customerType`} className="pf-field-label">
           Customer Type <span className="pf-required-star">*</span>
         </label>
-        <button
+        <select
           id={`${prefix}_customerType`}
-          type="button"
-          className={`pf-custom-select-btn ${errors[`${prefix}_customerType`] ? 'pf-custom-select-btn--error' : ''}`}
-          onClick={() => onOpenPicker('customerType')}
+          className={`pf-custom-select ${errors[`${prefix}_customerType`] ? 'pf-custom-select--error' : ''}`}
+          value={item.customerType || ''}
+          onChange={(e) => handleTextInput('customerType', e.target.value)}
         >
-          <span className={item.customerType ? 'pf-select-value' : 'pf-select-placeholder'}>
-            {item.customerType || 'Select customer type'}
-          </span>
-          <span className="pf-select-chevron">
-            <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-          </span>
-        </button>
+          <option value="" disabled>Select customer type</option>
+          {CUSTOMER_TYPE_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
         {errors[`${prefix}_customerType`] && (
           <span className="pf-field-error-msg">{errors[`${prefix}_customerType`]}</span>
         )}
@@ -124,19 +119,17 @@ export const CustomerOfftakerCard: React.FC<CustomerOfftakerCardProps> = ({
           <label htmlFor={`${prefix}_unit`} className="pf-field-label">
             Unit <span className="pf-required-star">*</span>
           </label>
-          <button
+          <select
             id={`${prefix}_unit`}
-            type="button"
-            className={`pf-custom-select-btn ${errors[`${prefix}_unit`] ? 'pf-custom-select-btn--error' : ''}`}
-            onClick={() => onOpenPicker('unit')}
+            className={`pf-custom-select ${errors[`${prefix}_unit`] ? 'pf-custom-select--error' : ''}`}
+            value={item.unit || ''}
+            onChange={(e) => handleTextInput('unit', e.target.value)}
           >
-            <span className={item.unit ? 'pf-select-value' : 'pf-select-placeholder'}>
-              {item.unit || 'Select unit'}
-            </span>
-            <span className="pf-select-chevron">
-              <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-            </span>
-          </button>
+            <option value="" disabled>Select unit</option>
+            {UNIT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
           {errors[`${prefix}_unit`] && (
             <span className="pf-field-error-msg">{errors[`${prefix}_unit`]}</span>
           )}
@@ -154,7 +147,7 @@ export const CustomerOfftakerCard: React.FC<CustomerOfftakerCardProps> = ({
             className={`pf-custom-input ${errors[`${prefix}_expectedRevenue`] ? 'pf-custom-input--error' : ''}`}
             placeholder="Enter amount"
             value={item.expectedRevenue || ''}
-            onChange={(e) => handleNumericInput('expectedRevenue', e.target.value)}
+            onChange={(e) => handleAmountInput('expectedRevenue', e.target.value)}
           />
           {errors[`${prefix}_expectedRevenue`] && (
             <span className="pf-field-error-msg">{errors[`${prefix}_expectedRevenue`]}</span>
@@ -222,7 +215,7 @@ export const CustomerOfftakerCard: React.FC<CustomerOfftakerCardProps> = ({
             className="pf-custom-input"
             placeholder="Enter price"
             value={item.contractedPrice || ''}
-            onChange={(e) => handleNumericInput('contractedPrice', e.target.value)}
+            onChange={(e) => handleAmountInput('contractedPrice', e.target.value)}
           />
         </div>
       </div>
@@ -246,19 +239,17 @@ export const CustomerOfftakerCard: React.FC<CustomerOfftakerCardProps> = ({
           <label htmlFor={`${prefix}_agreementStatus`} className="pf-field-label">
             Agreement Status
           </label>
-          <button
+          <select
             id={`${prefix}_agreementStatus`}
-            type="button"
-            className="pf-custom-select-btn"
-            onClick={() => onOpenPicker('agreementStatus')}
+            className="pf-custom-select"
+            value={item.agreementStatus || ''}
+            onChange={(e) => handleTextInput('agreementStatus', e.target.value)}
           >
-            <span className={item.agreementStatus ? 'pf-select-value' : 'pf-select-placeholder'}>
-              {item.agreementStatus || 'Select status'}
-            </span>
-            <span className="pf-select-chevron">
-              <img src="/assets/icons/loans/chevron-down.svg" alt="" width="18" height="18" />
-            </span>
-          </button>
+            <option value="" disabled>Select status</option>
+            {AGREEMENT_STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
         </div>
       </div>
     </div>

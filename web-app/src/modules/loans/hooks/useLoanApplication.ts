@@ -1,9 +1,10 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { localStore } from '@core/storage/localStorage'
 import { userStorage } from '@core/storage/userStorage'
 import { useDraftBlocker } from '@shared/hooks'
-import { useAppStore } from '@store/index'
-import { loanApplicationService } from '../services/loanApplicationService'
+import { useAppStore, useAuthStore } from '@store/index'
+import { loanApplicationService, loanStorageKey } from '@modules/loans/services/loanApplicationService'
 
 export interface UseLoanApplicationOptions {
   serviceTitle?: string
@@ -12,38 +13,105 @@ export interface UseLoanApplicationOptions {
   resumeRoute?: string
 }
 
+export function hasUserEnteredData<T extends object>(formData: T, initialValues: T): boolean {
+  if (!formData || !initialValues) return false
+
+  return Object.keys(formData).some((k) => {
+    const key = k as keyof T
+    const curr = formData[key]
+    const init = initialValues[key]
+
+    if (curr === init) return false
+
+    // Check uploaded documents map
+    if (key === 'uploadedDocs' && typeof curr === 'object' && curr !== null) {
+      return Object.keys(curr).length > 0
+    }
+
+    // Check arrays
+    if (Array.isArray(curr)) {
+      if (!Array.isArray(init)) return curr.length > 0
+      return JSON.stringify(curr) !== JSON.stringify(init)
+    }
+
+    // Check generic objects
+    if (typeof curr === 'object' && curr !== null) {
+      return JSON.stringify(curr) !== JSON.stringify(init)
+    }
+
+    // Check strings
+    if (typeof curr === 'string') {
+      const initStr = typeof init === 'string' ? init : ''
+      if (!initStr) {
+        return curr.trim().length > 0
+      }
+      return curr.trim() !== initStr.trim()
+    }
+
+    // Booleans or numbers
+    return curr !== init
+  })
+}
+
+/**
+ * Uploaded files cannot be written to browser storage, so a restored draft only
+ * has their names. Drop those entries so the user re-uploads instead of seeing
+ * documents that look uploaded but have no file behind them.
+ */
+function withoutUnsavedFiles<T extends object>(data: T): T {
+  const docs = (data as { uploadedDocs?: Record<string, unknown> }).uploadedDocs
+  if (!docs || typeof docs !== 'object') return data
+  const kept = Object.fromEntries(
+    Object.entries(docs).filter(([, doc]) => doc instanceof File || (doc as { file?: unknown })?.file instanceof File)
+  )
+  return { ...data, uploadedDocs: kept }
+}
+
 export function useLoanApplication<T extends object>(
   loanType: string,
   initialValues: T,
   options?: UseLoanApplicationOptions
 ) {
   const pushToast = useAppStore((state) => state.pushToast)
-  const stepStorageKey = `taxedge_loan_step_${loanType}`
+  const user = useAuthStore((state) => state.user)
+  const navigate = useNavigate()
+  const stepStorageKey = loanStorageKey(`step_${loanType}`)
+
+  // Redirect to marketplace to complete registration if profile is incomplete
+  useEffect(() => {
+    if (user && user.isProfileComplete === false) {
+      navigate('/loans', {
+        replace: true,
+        state: { openProfileModal: true, returnTo: window.location.pathname },
+      })
+    }
+  }, [user, navigate])
 
   const [formData, setFormData] = useState<T>(() => {
     // 1. Check userStorage central draft first
     const centralDraft = userStorage.getDraft(loanType)
     if (centralDraft && centralDraft.formData) {
-      return { ...initialValues, ...(centralDraft.formData as T) }
+      return withoutUnsavedFiles({ ...initialValues, ...(centralDraft.formData as T) })
     }
 
     // 2. Fallback to loan application service storage
     const saved = loanApplicationService.getDraft<T>(loanType)
-    return saved ? { ...initialValues, ...saved } : initialValues
+    return saved ? withoutUnsavedFiles({ ...initialValues, ...saved }) : initialValues
   })
 
   const [currentStep, setCurrentStepState] = useState<number>(() => {
     const savedStep = localStore.get<number>(stepStorageKey)
-    if (typeof savedStep === 'number' && savedStep >= 1) {
+    if (typeof savedStep === 'number' && savedStep > 1) {
       return savedStep
     }
     const centralDraft = userStorage.getDraft(loanType)
-    if (centralDraft && typeof centralDraft.currentStep === 'number' && centralDraft.currentStep >= 1) {
+    if (centralDraft && typeof centralDraft.currentStep === 'number' && centralDraft.currentStep > 1) {
       return centralDraft.currentStep
     }
     return 1
   })
 
+  const [isDirty, setIsDirty] = useState<boolean>(false)
   const [isManualDraftModalOpen, setIsManualDraftModalOpen] = useState<boolean>(false)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
@@ -52,7 +120,9 @@ export function useLoanApplication<T extends object>(
     (step: number | ((prev: number) => number)) => {
       setCurrentStepState((prev) => {
         const next = typeof step === 'function' ? step(prev) : step
-        localStore.set(stepStorageKey, next)
+        if (next > 1) {
+          localStore.set(stepStorageKey, next)
+        }
         return next
       })
     },
@@ -61,6 +131,7 @@ export function useLoanApplication<T extends object>(
 
   const updateFormData = useCallback(
     (fields: Partial<T>) => {
+      setIsDirty(true)
       setFormData((prev) => {
         const updated = { ...prev, ...fields }
         loanApplicationService.saveDraft(loanType, updated)
@@ -88,9 +159,11 @@ export function useLoanApplication<T extends object>(
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [setCurrentStep])
 
-  // Automatically sync step position to storage whenever currentStep updates
+  // Automatically sync step position to storage only when user is beyond step 1
   useEffect(() => {
-    localStore.set(stepStorageKey, currentStep)
+    if (currentStep > 1) {
+      localStore.set(stepStorageKey, currentStep)
+    }
   }, [stepStorageKey, currentStep])
 
   const saveDraft = useCallback(() => {
@@ -128,6 +201,7 @@ export function useLoanApplication<T extends object>(
 
     localStore.set(stepStorageKey, currentStep)
     setIsManualDraftModalOpen(false)
+    setIsDirty(false)
     pushToast(`${serviceTitle} draft saved successfully`, 'success')
   }, [loanType, formData, currentStep, options, pushToast, stepStorageKey])
 
@@ -136,6 +210,7 @@ export function useLoanApplication<T extends object>(
     userStorage.deleteDraft(loanType)
     localStore.remove(stepStorageKey)
     setFormData(initialValues)
+    setIsDirty(false)
     setCurrentStepState(1)
     setIsManualDraftModalOpen(false)
     pushToast('Draft discarded', 'info')
@@ -143,13 +218,19 @@ export function useLoanApplication<T extends object>(
 
   const markSubmitted = useCallback(() => {
     setIsSubmitted(true)
+    setIsDirty(false)
     loanApplicationService.clearDraft(loanType)
     userStorage.deleteDraft(loanType)
     localStore.remove(stepStorageKey)
   }, [loanType, stepStorageKey])
 
-  // Block route navigation only if unsubmitted and in progress
-  const shouldBlock = !isSubmitted && (currentStep > 1 || Boolean(localStore.get(stepStorageKey))) && !isSubmitting
+  // Block route navigation only if unsubmitted, not in submitting state,
+  // and the user has actively entered data or moved past step 1.
+  const hasEnteredData = isDirty || currentStep > 1 || hasUserEnteredData(formData, initialValues)
+  const shouldBlock = !isSubmitted && !isSubmitting && hasEnteredData
+
+  // Set once the user picks "Save & Exit" or "Discard & Exit", so the exit navigation itself isn't blocked again
+  const isExitingRef = useRef(false)
 
   const draftBlocker = useDraftBlocker({
     shouldBlock,
@@ -160,29 +241,24 @@ export function useLoanApplication<T extends object>(
       discardDraft()
     },
     defaultExitRoute: '/loans',
-    isNavigationAllowed: (nextLocation) => {
-      if (isSubmitted) return true
-      if (nextLocation.pathname.includes('/loans/status')) return true
-      if (nextLocation.pathname === '/loans' || nextLocation.pathname === '/loans/all') {
-        if (isSubmitted) return true
-      }
-      return false
-    },
+    isNavigationAllowed: (nextLocation) =>
+      isExitingRef.current || isSubmitted || nextLocation.pathname.includes('/loans/status'),
   })
 
   const isDraftModalOpen = isManualDraftModalOpen || draftBlocker.isModalOpen
 
+  // The blocker calls onSaveDraft / onDiscardDraft itself, so they must not be called here as well
   const handleSaveAndExit = useCallback(() => {
-    saveDraft()
+    isExitingRef.current = true
     setIsManualDraftModalOpen(false)
     draftBlocker.handleSaveAndExit()
-  }, [saveDraft, draftBlocker])
+  }, [draftBlocker])
 
   const handleDiscardAndExit = useCallback(() => {
-    discardDraft()
+    isExitingRef.current = true
     setIsManualDraftModalOpen(false)
     draftBlocker.handleDiscardAndExit()
-  }, [discardDraft, draftBlocker])
+  }, [draftBlocker])
 
   const handleKeepEditing = useCallback(() => {
     setIsManualDraftModalOpen(false)

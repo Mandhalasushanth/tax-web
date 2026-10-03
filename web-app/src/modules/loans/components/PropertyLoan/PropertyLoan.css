@@ -49,24 +49,6 @@
   padding: 0;
 }
 
-.property-loan-page__error-banner {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  border-radius: 12px;
-  padding: 0.85rem 1.2rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  box-shadow: 0 1px 4px rgba(220, 38, 38, 0.06);
-}
-
-.property-loan-page__error-banner svg {
-  flex-shrink: 0;
-}
-
 @media (max-width: 768px) {
   .property-loan-page {
     padding: 0.5rem 0 4rem 0;

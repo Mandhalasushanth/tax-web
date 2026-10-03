@@ -1,225 +1,125 @@
-import type { PropertyLoanData } from '../types/propertyLoan.types'
+import type { PropertyLoanData } from '@modules/loans/types/propertyLoan.types'
+import { loanFieldRules, toAmount, toStepResult } from './commonLoanValidation'
+import type { LoanStepValidationResult } from './commonLoanValidation'
 
-/**
- * Custom validation error class used in the functional validation pipeline
- */
-export class ValidationError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = 'ValidationError'
-  }
-}
+const REQUIRED_FIELDS_MESSAGE = 'Please complete all required fields correctly before proceeding.'
 
-/**
- * Reusable function to throw a ValidationError
- */
-export const throwValidationError = (message: string): never => {
-  throw new ValidationError(message)
-}
+const isBlank = (val: unknown): boolean => !String(val ?? '').trim()
 
-/**
- * Reusable function that evaluates a predicate; throws an exception when false
- */
-export const assertCondition = (condition: boolean, errorMessage: string): void => {
-  try {
-    Boolean(condition) || throwValidationError(errorMessage)
-  } catch (err) {
-    throw err
-  }
-}
-
-/**
- * Reusable assertion function for non-empty string or required values
- */
-export const assertNonEmpty = (value: unknown, errorMessage: string): void => {
-  try {
-    const trimmed = String(value ?? '').trim()
-    assertCondition(trimmed.length > 0, errorMessage)
-  } catch (err) {
-    throw err
-  }
-}
-
-/**
- * Reusable assertion function for strictly positive numbers
- */
-export const assertPositiveNumber = (value: unknown, errorMessage: string): void => {
-  try {
-    const raw = String(value ?? '').replace(/,/g, '').trim()
-    const num = parseFloat(raw)
-    const isValid = raw.length > 0 && !isNaN(num) && num > 0
-    assertCondition(isValid, errorMessage)
-  } catch (err) {
-    throw err
-  }
-}
-
-/**
- * Reusable assertion function for regex matching
- */
-export const assertPattern = (
-  value: string | undefined | null,
-  pattern: RegExp,
-  errorMessage: string
+/** Adds `message` for every field in `fields` that has no value */
+const requireFields = (
+  errors: Record<string, string>,
+  data: PropertyLoanData,
+  fields: Partial<Record<keyof PropertyLoanData, string>>
 ): void => {
-  try {
-    const trimmed = String(value ?? '').trim()
-    const isValid = trimmed.length > 0 && pattern.test(trimmed)
-    assertCondition(isValid, errorMessage)
-  } catch (err) {
-    throw err
+  Object.entries(fields).forEach(([field, message]) => {
+    if (isBlank(data[field as keyof PropertyLoanData]) && message) errors[field] = message
+  })
+}
+
+/** Records the rule's message for `field` when the rule fails */
+const applyRule = (errors: Record<string, string>, field: string, message: string | undefined): void => {
+  if (message) errors[field] = message
+}
+
+/** Step 1: Loan Requirement */
+const validateStep1 = (data: PropertyLoanData): LoanStepValidationResult => {
+  const errors: Record<string, string> = {}
+  requireFields(errors, data, {
+    loanPurpose: 'Please select a loan purpose',
+    tenureYears: 'Please select preferred tenure',
+    applicantType: 'Please select applicant type',
+  })
+  applyRule(errors, 'requiredAmount', loanFieldRules.amount(data.requiredAmount, 'Loan amount', 100000, 500000000))
+  if (data.isExistingCustomer === null || data.isExistingCustomer === undefined) {
+    errors.isExistingCustomer = 'Please specify if you are an existing customer'
   }
+  return toStepResult(errors, REQUIRED_FIELDS_MESSAGE)
 }
 
-/**
- * Reusable assertion function for minimum digits
- */
-export const assertMinDigits = (
-  value: string | undefined | null,
-  minDigits: number,
-  errorMessage: string
-): void => {
-  try {
-    const digits = String(value ?? '').replace(/\D/g, '')
-    assertCondition(digits.length >= minDigits, errorMessage)
-  } catch (err) {
-    throw err
+/** Step 2: Personal & Employment Profile */
+const validateStep2 = (data: PropertyLoanData): LoanStepValidationResult => {
+  const errors: Record<string, string> = {}
+  applyRule(errors, 'personalFullName', loanFieldRules.personName(data.personalFullName, 'Full name'))
+  applyRule(errors, 'personalPan', loanFieldRules.pan(data.personalPan))
+  applyRule(errors, 'personalMobile', loanFieldRules.mobile(data.personalMobile))
+  applyRule(errors, 'personalDob', loanFieldRules.dob(data.personalDob, 21, 70))
+  applyRule(errors, 'personalAddress', loanFieldRules.text(data.personalAddress, 'Current address', 10, 250))
+  applyRule(errors, 'employerName', loanFieldRules.text(data.employerName, 'Employer name', 2, 100))
+  requireFields(errors, data, {
+    gender: 'Gender is required',
+    maritalStatus: 'Marital status is required',
+    residenceType: 'Residence type is required',
+    yearsAtCurrentAddress: 'Years at current address is required',
+    employerCategory: 'Employer category is required',
+    totalExperience: 'Total work experience is required',
+    yearsInCurrentJob: 'Years in current job is required',
+  })
+  if (toAmount(data.annualIncome) <= 0) {
+    errors.annualIncome = 'Please enter valid annual income'
   }
-}
-
-/**
- * Reusable assertion function for exact digit length
- */
-export const assertExactDigits = (
-  value: string | undefined | null,
-  count: number,
-  errorMessage: string
-): void => {
-  try {
-    const trimmed = String(value ?? '').trim()
-    const pattern = new RegExp(`^\\d{${count}}$`)
-    const isValid = trimmed.length === count && pattern.test(trimmed)
-    assertCondition(isValid, errorMessage)
-  } catch (err) {
-    throw err
+  if (data.hasExistingLoans === null || data.hasExistingLoans === undefined) {
+    errors.hasExistingLoans = 'Please indicate if you have existing loans'
   }
+  return toStepResult(errors, REQUIRED_FIELDS_MESSAGE)
 }
 
-/**
- * Reusable assertion function to ensure value is not null or undefined
- */
-export const assertNotNull = (value: unknown, errorMessage: string): void => {
-  try {
-    assertCondition(value !== null && value !== undefined, errorMessage)
-  } catch (err) {
-    throw err
+/** Step 3: Property & Asset Details */
+const validateStep3 = (data: PropertyLoanData): LoanStepValidationResult => {
+  const errors: Record<string, string> = {}
+  applyRule(errors, 'propertyPincode', loanFieldRules.pincode(data.propertyPincode))
+  applyRule(errors, 'propertyCity', loanFieldRules.placeName(data.propertyCity, 'City'))
+  applyRule(errors, 'propertyDistrict', loanFieldRules.placeName(data.propertyDistrict, 'District'))
+  applyRule(errors, 'propertyAddress', loanFieldRules.text(data.propertyAddress, 'Property address', 10, 250))
+  requireFields(errors, data, {
+    propertyState: 'State is required',
+    propertyType: 'Property type is required',
+    propertySubType: 'Property sub-type is required',
+    constructionStatus: 'Construction status is required',
+    currentUsage: 'Current usage is required',
+    areaType: 'Area type is required',
+    propertyAge: 'Property age is required',
+    approvingAuthority: 'Approving authority is required',
+  })
+  if (toAmount(data.propertyArea) <= 0) {
+    errors.propertyArea = 'Please enter valid property area'
   }
-}
-
-/**
- * Reusable assertion function for truthy boolean flag
- */
-export const assertTrue = (value: boolean | undefined | null, errorMessage: string): void => {
-  try {
-    assertCondition(Boolean(value), errorMessage)
-  } catch (err) {
-    throw err
+  const marketValue = toAmount(data.estimatedMarketValue)
+  if (marketValue <= 0) {
+    errors.estimatedMarketValue = 'Please enter estimated market value'
+  } else if (marketValue < toAmount(data.requiredAmount)) {
+    errors.estimatedMarketValue = 'Estimated market value cannot be less than the requested loan amount'
   }
+  return toStepResult(errors, REQUIRED_FIELDS_MESSAGE)
 }
 
-/**
- * Reusable execution wrapper: runs rule inside try-catch exception handling.
- * Captures thrown validation errors and populates the errors record.
- */
-export const executeRule = (
-  field: string,
-  ruleFn: () => void,
-  errors: Record<string, string>
-): void => {
-  try {
-    ruleFn()
-  } catch (err: unknown) {
-    errors[field] = err instanceof Error ? err.message : String(err)
-  }
-}
+/** Step 4: Ownership & Co-owners */
+const validateStep4 = (data: PropertyLoanData): LoanStepValidationResult => {
+  const errors: Record<string, string> = {}
+  requireFields(errors, data, { ownershipType: 'Please select ownership type' })
 
-/**
- * Step 1: Loan Requirement validators
- */
-const validateStep1 = (data: PropertyLoanData, errors: Record<string, string>): void => {
-  executeRule('loanPurpose', () => assertNonEmpty(data.loanPurpose, 'Please select a loan purpose'), errors)
-  executeRule('requiredAmount', () => assertPositiveNumber(data.requiredAmount, 'Please enter a valid loan amount'), errors)
-  executeRule('tenureYears', () => assertNonEmpty(data.tenureYears, 'Please select preferred tenure'), errors)
-  executeRule('applicantType', () => assertNonEmpty(data.applicantType, 'Please select applicant type'), errors)
-  executeRule('isExistingCustomer', () => assertNotNull(data.isExistingCustomer, 'Please specify if you are an existing customer'), errors)
-}
-
-/**
- * Step 2: Personal & Employment Profile validators
- */
-const validateStep2 = (data: PropertyLoanData, errors: Record<string, string>): void => {
-  executeRule('personalFullName', () => assertNonEmpty(data.personalFullName, 'Full name is required'), errors)
-  executeRule('personalPan', () => assertPattern(data.personalPan, /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i, 'Enter a valid 10-digit PAN (e.g. ABCDE1234F)'), errors)
-  executeRule('personalMobile', () => assertMinDigits(data.personalMobile, 10, 'Enter a valid 10-digit mobile number'), errors)
-  executeRule('personalDob', () => assertNonEmpty(data.personalDob, 'Date of birth is required'), errors)
-  executeRule('personalAddress', () => assertNonEmpty(data.personalAddress, 'Current address is required'), errors)
-  executeRule('gender', () => assertNonEmpty(data.gender, 'Gender is required'), errors)
-  executeRule('maritalStatus', () => assertNonEmpty(data.maritalStatus, 'Marital status is required'), errors)
-  executeRule('residenceType', () => assertNonEmpty(data.residenceType, 'Residence type is required'), errors)
-  executeRule('yearsAtCurrentAddress', () => assertNonEmpty(data.yearsAtCurrentAddress, 'Years at current address is required'), errors)
-  executeRule('employerCategory', () => assertNonEmpty(data.employerCategory, 'Employer category is required'), errors)
-  executeRule('employerName', () => assertNonEmpty(data.employerName, 'Employer name is required'), errors)
-  executeRule('totalExperience', () => assertNonEmpty(data.totalExperience, 'Total work experience is required'), errors)
-  executeRule('yearsInCurrentJob', () => assertNonEmpty(data.yearsInCurrentJob, 'Years in current job is required'), errors)
-  executeRule('annualIncome', () => assertPositiveNumber(data.annualIncome, 'Please enter valid annual income'), errors)
-  executeRule('hasExistingLoans', () => assertNotNull(data.hasExistingLoans, 'Please indicate if you have existing loans'), errors)
-}
-
-/**
- * Step 3: Property & Asset Details validators
- */
-const validateStep3 = (data: PropertyLoanData, errors: Record<string, string>): void => {
-  executeRule('propertyPincode', () => assertExactDigits(data.propertyPincode, 6, 'Enter a valid 6-digit PIN code'), errors)
-  executeRule('propertyCity', () => assertNonEmpty(data.propertyCity, 'City is required'), errors)
-  executeRule('propertyDistrict', () => assertNonEmpty(data.propertyDistrict, 'District is required'), errors)
-  executeRule('propertyState', () => assertNonEmpty(data.propertyState, 'State is required'), errors)
-  executeRule('propertyAddress', () => assertNonEmpty(data.propertyAddress, 'Property address is required'), errors)
-  executeRule('propertyType', () => assertNonEmpty(data.propertyType, 'Property type is required'), errors)
-  executeRule('propertySubType', () => assertNonEmpty(data.propertySubType, 'Property sub-type is required'), errors)
-  executeRule('constructionStatus', () => assertNonEmpty(data.constructionStatus, 'Construction status is required'), errors)
-  executeRule('currentUsage', () => assertNonEmpty(data.currentUsage, 'Current usage is required'), errors)
-  executeRule('areaType', () => assertNonEmpty(data.areaType, 'Area type is required'), errors)
-  executeRule('propertyArea', () => assertPositiveNumber(data.propertyArea, 'Please enter valid property area'), errors)
-  executeRule('propertyAge', () => assertNonEmpty(data.propertyAge, 'Property age is required'), errors)
-  executeRule('approvingAuthority', () => assertNonEmpty(data.approvingAuthority, 'Approving authority is required'), errors)
-  executeRule('estimatedMarketValue', () => assertPositiveNumber(data.estimatedMarketValue, 'Please enter estimated market value'), errors)
-}
-
-/**
- * Step 4: Ownership & Co-owners validators
- */
-const validateStep4 = (data: PropertyLoanData, errors: Record<string, string>): void => {
-  executeRule('ownershipType', () => assertNonEmpty(data.ownershipType, 'Please select ownership type'), errors)
-
-  // Joint ownership rules - conditionally verified via function execution without if/else
-  try {
-    const isJoint = data.ownershipType === 'joint'
-    isJoint && (() => {
-      executeRule('coOwnerFullName', () => assertNonEmpty(data.coOwnerFullName, 'Co-owner full name is required'), errors)
-      executeRule('coOwnerRelationship', () => assertNonEmpty(data.coOwnerRelationship, 'Relationship is required'), errors)
-      executeRule('coOwnerPan', () => assertPattern(data.coOwnerPan, /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i, 'Enter valid 10-digit PAN of co-owner'), errors)
-      executeRule('coOwnerMobile', () => assertMinDigits(data.coOwnerMobile, 10, 'Enter valid 10-digit mobile number'), errors)
-    })()
-  } catch (err: unknown) {
-    errors.coOwner = err instanceof Error ? err.message : 'Co-owner validation failed'
+  if (data.ownershipType === 'joint') {
+    applyRule(errors, 'coOwnerFullName', loanFieldRules.personName(data.coOwnerFullName, 'Co-owner full name'))
+    requireFields(errors, data, { coOwnerRelationship: 'Relationship is required' })
+    const coOwnerPan = (data.coOwnerPan || '').trim().toUpperCase()
+    const panError = loanFieldRules.pan(coOwnerPan, 'Co-owner PAN')
+    applyRule(
+      errors,
+      'coOwnerPan',
+      panError ||
+        (coOwnerPan === (data.personalPan || '').trim().toUpperCase()
+          ? 'Co-owner PAN cannot be the same as the applicant PAN'
+          : undefined)
+    )
+    applyRule(errors, 'coOwnerMobile', loanFieldRules.mobile(data.coOwnerMobile, 'Co-owner mobile number'))
   }
 
-  executeRule('ownershipConfirmed', () => assertTrue(data.ownershipConfirmed, 'Please confirm ownership declaration to proceed'), errors)
+  if (!data.ownershipConfirmed) {
+    errors.ownershipConfirmed = 'Please confirm ownership declaration to proceed'
+  }
+  return toStepResult(errors, REQUIRED_FIELDS_MESSAGE)
 }
 
-/**
- * Step 5: Document Dossier validators
- */
 const REQUIRED_DOC_KEYS = [
   'pan_card',
   'aadhaar_card',
@@ -233,56 +133,29 @@ const REQUIRED_DOC_KEYS = [
   'business_reg_proof',
 ] as const
 
-const validateStep5 = (data: PropertyLoanData, errors: Record<string, string>): void => {
+/** Step 5: Document Dossier */
+const validateStep5 = (data: PropertyLoanData): LoanStepValidationResult => {
   const uploaded = data.uploadedDocs || {}
-  REQUIRED_DOC_KEYS.forEach((key) => {
-    executeRule(
-      key,
-      () => {
-        try {
-          Boolean(uploaded[key]) || throwValidationError('Document is required')
-        } catch (err) {
-          throw err
-        }
-      },
-      errors
-    )
-  })
+  const errors = Object.fromEntries(
+    REQUIRED_DOC_KEYS.filter((key) => !uploaded[key]).map((key) => [key, 'Document is required'])
+  )
+  return toStepResult(errors, 'Please upload all required documents before proceeding.')
 }
 
-/**
- * Step 6: Review & Final Declaration validators
- */
-const validateStep6 = (data: PropertyLoanData, errors: Record<string, string>): void => {
-  executeRule('declarationAgreed', () => assertTrue(data.declarationAgreed, 'You must accept the declaration to submit'), errors)
-}
-
-/**
- * Step dispatch map of reusable validation functions
- */
-const STEP_VALIDATORS: Record<number, (data: PropertyLoanData, errors: Record<string, string>) => void> = {
-  1: validateStep1,
-  2: validateStep2,
-  3: validateStep3,
-  4: validateStep4,
-  5: validateStep5,
-  6: validateStep6,
-}
-
-/**
- * Main step validation entry point
- * Pure functional dispatcher using exception handling instead of if-else statements
- */
-export const validatePropertyLoanStep = (
-  step: number,
-  data: PropertyLoanData
-): Record<string, string> => {
+/** Step 6: Review & Final Declaration */
+const validateStep6 = (data: PropertyLoanData): LoanStepValidationResult => {
   const errors: Record<string, string> = {}
-  try {
-    const validator = STEP_VALIDATORS[step] || (() => {})
-    validator(data, errors)
-  } catch (err: unknown) {
-    errors.general = err instanceof Error ? err.message : 'Validation failed'
+  if (!data.declarationAgreed) {
+    errors.declarationAgreed = 'You must accept the declaration to submit'
   }
-  return errors
+  return toStepResult(errors, 'Please accept the authorization declaration before submitting.')
+}
+
+export const propertyLoanValidation = {
+  validateStep1,
+  validateStep2,
+  validateStep3,
+  validateStep4,
+  validateStep5,
+  validateStep6,
 }

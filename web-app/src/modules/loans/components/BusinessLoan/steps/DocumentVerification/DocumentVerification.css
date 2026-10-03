@@ -129,13 +129,6 @@
   width: 100%;
 }
 
-.business-doc-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.95rem;
-  width: 100%;
-}
-
 /* Styling override for DocumentCard inside Business Loan: Full Width & Fluid Content */
 .business-loan-doc-card.supporting-doc-item {
   width: 100%;
@@ -229,11 +222,11 @@
   color: #475569;
 }
 
-/* Orange Cloud Upload Button matching reference image: Fluid sizing */
+/* Lavender Cloud Upload Button (shared loan style): Fluid sizing */
 .business-loan-doc-card .supporting-doc-item__upload-btn {
-  background: #fffaf5;
-  color: #ea580c;
-  border: 1.5px solid #fed7aa;
+  background: #eef0fc;
+  color: #2b2a86;
+  border: 1.5px solid #c9ccf1;
   border-radius: 9999px;
   padding: clamp(0.42rem, 0.8vw, 0.52rem) clamp(1rem, 1.6vw, 1.35rem);
   font-size: clamp(0.8rem, 0.92vw, 0.875rem);
@@ -243,22 +236,22 @@
   align-items: center;
   gap: 8px;
   transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px rgba(234, 88, 12, 0.08);
+  box-shadow: 0 1px 3px rgba(43, 42, 134, 0.06);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .business-loan-doc-card .supporting-doc-item__upload-btn:hover {
-  background: #fff7ed;
-  border-color: #ea580c;
-  color: #c2410c;
-  box-shadow: 0 3px 10px rgba(234, 88, 12, 0.15);
+  background: #e3e6fa;
+  border-color: #a9aee8;
+  color: #1f1e6e;
+  box-shadow: 0 4px 12px rgba(43, 42, 134, 0.12);
   transform: translateY(-1px);
 }
 
 .business-loan-doc-card .supporting-doc-item__upload-btn:active {
   transform: translateY(0);
-  background: #ffedd5;
+  background: #d8dcf7;
 }
 
 /* Optional Badge for Udyam Registration Certificate */

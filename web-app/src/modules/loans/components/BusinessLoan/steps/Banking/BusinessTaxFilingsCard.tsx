@@ -1,10 +1,11 @@
 import React from 'react'
-import type { BusinessLoanFormData } from '../../../../types/businessLoan.types'
 import {
+  formatCurrencyString,
   formatDigitsOnly,
   handleNumericKeyDown,
   LOAN_FIELD_LIMITS,
-} from '../../../../utils/loanInputFormatters'
+} from '@modules/loans/utils/loanInputFormatters'
+import type { BusinessLoanFormData } from '@modules/loans/types/businessLoan.types'
 
 export interface BusinessTaxFilingsCardProps {
   data: BusinessLoanFormData
@@ -76,7 +77,7 @@ export const BusinessTaxFilingsCard: React.FC<BusinessTaxFilingsCardProps> = ({
             placeholder="e.g. 3500000"
             value={data.grossTotalIncomeItr || ''}
             onChange={(e) =>
-              onChange({ grossTotalIncomeItr: formatDigitsOnly(e.target.value) })
+              onChange({ grossTotalIncomeItr: formatCurrencyString(e.target.value) })
             }
             onKeyDown={handleNumericKeyDown}
             aria-label="Gross Total Income as per ITR"

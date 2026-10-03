@@ -1,69 +1,116 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
+import { routePaths } from '@core/config'
 import { useAppStore } from '@store/index'
+import { gstFieldRules, collectGstErrors, GST_STEP_ERROR } from '@modules/gst/validation/gstFieldRules'
+import { gstProfileService } from '@modules/gst/services/gstProfileService'
+import { generateGstReference } from '@modules/gst/utils/gstFormat'
+import { useGstDraft, readGstDraft, hasGstFormChanged } from '@modules/gst/hooks/useGstDraft'
 
 export type ComplianceRequestOption = 'Reconciliation Support' | 'Notice Response'
+
+/** Typed fields of the compliance request (uploaded files are kept separately and cannot be drafted) */
+export interface ComplianceFields {
+  gstin: string
+  financialYear: string
+  requestType: ComplianceRequestOption | ''
+  gstr2bRef: string
+  notes: string
+  noticeNumber: string
+  issueDate: string
+  dueDate: string
+  additionalInfo: string
+}
+
+export type ComplianceErrors = Record<string, string | undefined>
+
+const SERVICE_ID = 'gst-compliance'
+const SERVICE_TITLE = 'GST Compliance'
+
+const buildInitialFields = (): ComplianceFields => ({
+  gstin: gstProfileService.get().gstin,
+  financialYear: '',
+  requestType: '',
+  gstr2bRef: '',
+  notes: '',
+  noticeNumber: '',
+  issueDate: '',
+  dueDate: '',
+  additionalInfo: '',
+})
+
+const validateCompliance = (
+  fields: ComplianceFields,
+  files: { purchaseFile: File | null; salesFile: File | null; noticeFile: File | null }
+): Record<string, string> => {
+  const isRecon = fields.requestType === 'Reconciliation Support'
+  const isNotice = fields.requestType === 'Notice Response'
+  return collectGstErrors({
+    gstin: gstFieldRules.gstin(fields.gstin),
+    financialYear: fields.financialYear ? undefined : 'Financial Year is required',
+    requestType: fields.requestType ? undefined : 'Request Type is required',
+    purchaseFile: isRecon && !files.purchaseFile ? 'Purchase Register file is required' : undefined,
+    salesFile: isRecon && !files.salesFile ? 'Sales Register file is required' : undefined,
+    gstr2bRef: isRecon ? gstFieldRules.optional(gstFieldRules.reference('GSTR-2B reference'))(fields.gstr2bRef) : undefined,
+    noticeNumber: isNotice ? gstFieldRules.reference('Notice number')(fields.noticeNumber) : undefined,
+    issueDate: isNotice ? gstFieldRules.pastDate('Notice issue date')(fields.issueDate) : undefined,
+    dueDate: isNotice ? gstFieldRules.futureDate('Reply due date')(fields.dueDate) : undefined,
+    noticeFile: isNotice && !files.noticeFile ? 'Notice copy upload is required' : undefined,
+  })
+}
 
 export const useGSTComplianceState = () => {
   const pushToast = useAppStore((state) => state.pushToast)
 
-  const [gstin, setGstin] = useState('')
-  const [financialYear, setFinancialYear] = useState('')
-  const [requestType, setRequestType] = useState<ComplianceRequestOption | ''>('')
-
-  // Reconciliation fields state
+  const [initialFields] = useState(buildInitialFields)
+  const [fields, setFields] = useState<ComplianceFields>(() => ({
+    ...initialFields,
+    ...readGstDraft<ComplianceFields>(SERVICE_ID)?.formData,
+  }))
   const [purchaseFile, setPurchaseFile] = useState<File | null>(null)
   const [salesFile, setSalesFile] = useState<File | null>(null)
-  const [gstr2bRef, setGstr2bRef] = useState('')
-  const [notes, setNotes] = useState('')
+  const [noticeFile, setNoticeFile] = useState<File | null>(null)
 
-  // Document preview & confirmation modal state
   const [previewDoc, setPreviewDoc] = useState<{ file: File; title: string } | null>(null)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
-
-  const [errors, setErrors] = useState<Record<string, string | undefined>>({})
+  const [errors, setErrors] = useState<ComplianceErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [applicationId, setApplicationId] = useState('')
 
-  const handleGstinChange = (value: string) => {
-    const uppercaseVal = value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15)
-    setGstin(uppercaseVal)
-    if (errors.gstin) {
-      setErrors((prev) => ({ ...prev, gstin: undefined }))
-    }
+  const hasEnteredData =
+    hasGstFormChanged(fields, initialFields) || Boolean(purchaseFile || salesFile || noticeFile)
+
+  const draft = useGstDraft<ComplianceFields>({
+    serviceId: SERVICE_ID,
+    serviceTitle: SERVICE_TITLE,
+    totalSteps: 1,
+    currentStep: 1,
+    stepLabel: fields.requestType || 'Business & Filing Details',
+    resumeRoute: routePaths.gst.compliance,
+    exitRoute: routePaths.gst.root,
+    formData: fields,
+    hasEnteredData,
+    isComplete: isSubmitted,
+  })
+
+  /** Updates one field and clears its error */
+  const setField = <K extends keyof ComplianceFields>(field: K, value: ComplianceFields[K]) => {
+    setFields((prev) => ({ ...prev, [field]: value }))
+    setErrors((prev) => (prev[field] ? { ...prev, [field]: undefined } : prev))
   }
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {}
-    const cleanGstin = gstin.trim()
+  const setFileWithClear = (setter: (file: File | null) => void, field: string) => (file: File | null) => {
+    setter(file)
+    setErrors((prev) => (prev[field] ? { ...prev, [field]: undefined } : prev))
+  }
 
-    if (!cleanGstin) {
-      newErrors.gstin = 'GSTIN is required'
-    } else if (cleanGstin.length !== 15 && cleanGstin.length !== 10) {
-      newErrors.gstin = 'Must be a 15-character GSTIN or 10-character PAN'
-    }
+  const hasErrors = Object.values(errors).some(Boolean)
 
-    if (!financialYear) {
-      newErrors.financialYear = 'Financial Year is required'
-    }
-
-    if (!requestType) {
-      newErrors.requestType = 'Request Type is required'
-    }
-
-    if (requestType === 'Reconciliation Support') {
-      if (!purchaseFile) newErrors.purchaseFile = 'Purchase Register file is required'
-      if (!salesFile) newErrors.salesFile = 'Sales Register file is required'
-    }
-
+  const handleSubmit = (e?: FormEvent) => {
+    e?.preventDefault()
+    const newErrors = validateCompliance(fields, { purchaseFile, salesFile, noticeFile })
     setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validate()) return
-    setIsConfirmModalOpen(true)
+    if (Object.keys(newErrors).length === 0) setIsConfirmModalOpen(true)
   }
 
   const handleConfirmSubmit = () => {
@@ -71,58 +118,49 @@ export const useGSTComplianceState = () => {
     setIsSubmitting(true)
     setTimeout(() => {
       setIsSubmitting(false)
-      const generatedId = `GST-${Math.floor(100000 + Math.random() * 900000)}`
-      setApplicationId(generatedId)
+      setApplicationId(generateGstReference('GSTC'))
       setIsSubmitted(true)
-      try {
-        window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-      } catch {
-        // window fallback
-      }
-      pushToast(`GST Compliance request (${requestType}) submitted successfully!`, 'success')
+      draft.clearDraft()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      pushToast(`GST Compliance request (${fields.requestType}) submitted successfully!`, 'success')
     }, 600)
   }
 
   const handleReset = () => {
-    setGstin('')
-    setFinancialYear('')
-    setRequestType('')
+    setFields(initialFields)
     setPurchaseFile(null)
     setSalesFile(null)
-    setGstr2bRef('')
-    setNotes('')
+    setNoticeFile(null)
     setErrors({})
     setIsSubmitted(false)
   }
 
   return {
-    pushToast,
-    gstin,
-    setGstin,
-    handleGstinChange,
-    financialYear,
-    setFinancialYear,
-    requestType,
-    setRequestType,
+    fields,
+    setField,
     purchaseFile,
-    setPurchaseFile,
+    setPurchaseFile: setFileWithClear(setPurchaseFile, 'purchaseFile'),
     salesFile,
-    setSalesFile,
-    gstr2bRef,
-    setGstr2bRef,
-    notes,
-    setNotes,
+    setSalesFile: setFileWithClear(setSalesFile, 'salesFile'),
+    noticeFile,
+    setNoticeFile: setFileWithClear(setNoticeFile, 'noticeFile'),
     previewDoc,
     setPreviewDoc,
     isConfirmModalOpen,
     setIsConfirmModalOpen,
     errors,
     setErrors,
+    stepError: hasErrors ? GST_STEP_ERROR : null,
     isSubmitting,
     isSubmitted,
     applicationId,
     handleSubmit,
     handleConfirmSubmit,
     handleReset,
+    isDraftModalOpen: draft.isDraftModalOpen,
+    openDraftModal: draft.openDraftModal,
+    handleSaveAndExit: draft.handleSaveAndExit,
+    handleDiscardAndExit: draft.handleDiscardAndExit,
+    handleKeepEditing: draft.handleKeepEditing,
   }
 }

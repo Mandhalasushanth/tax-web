@@ -1,8 +1,8 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { RightChevronIcon } from '../../constants/loanMarketplace.constants'
-import { safeNavigateTo, buildLoanCardAriaLabel } from '../../utils/loanMarketplace.utils'
-import type { LoanMarketplaceCardProps } from '../../types/loanMarketplace.types'
+import { RightChevronIcon } from '@modules/loans/constants/loanMarketplace.icons'
+import { safeNavigateTo, buildLoanCardAriaLabel } from '@modules/loans/utils/loanMarketplace.utils'
+import type { LoanMarketplaceCardProps } from '@modules/loans/types/loanMarketplace.types'
 
 /**
  * Pure, reusable card component representing an individual loan product in the marketplace.
@@ -11,15 +11,23 @@ export const LoanMarketplaceCard: React.FC<LoanMarketplaceCardProps> = ({ item, 
   const navigate = useNavigate()
 
   /**
-   * Safely handles card selection and navigation.
+   * Hands the click to `onSelect` when provided; otherwise the link navigates normally.
    */
   const handleCardClick = (e: React.MouseEvent<HTMLAnchorElement>): void => {
-    try {
-      typeof onSelect === 'function' ? (e.preventDefault(), onSelect(item)) : undefined
-    } catch (err) {
+    if (onSelect) {
       e.preventDefault()
-      console.error(`[LoanMarketplaceCard] Exception while handling click on loan: ${item.id}`, err)
-      safeNavigateTo(navigate, item.applyPath, '/loans')
+      onSelect(item)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>): void => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      if (onSelect) {
+        onSelect(item)
+      } else {
+        safeNavigateTo(navigate, item.applyPath)
+      }
     }
   }
 
@@ -29,6 +37,7 @@ export const LoanMarketplaceCard: React.FC<LoanMarketplaceCardProps> = ({ item, 
     <a
       href={item.applyPath}
       onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
       className="loan-item-card"
       aria-label={ariaLabel}
       data-testid={`loan-card-${item.id}`}

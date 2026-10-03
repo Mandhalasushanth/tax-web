@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ProjectFinanceData } from '../../../../types/projectFinance.types'
+import type { ProjectFinanceData } from '@modules/loans/types/projectFinance.types'
 
 export interface LegalApprovalsSectionProps {
   data: ProjectFinanceData
@@ -64,18 +64,18 @@ export const LegalApprovalsSection: React.FC<LegalApprovalsSectionProps> = ({
           </p>
 
           <div className="pf-approvals-grid">
-            {APPROVALS_LIST.map((appr) => {
-              const checked = !!data[appr.id as keyof ProjectFinanceData]
+            {APPROVALS_LIST.map((approval) => {
+              const checked = !!data[approval.id as keyof ProjectFinanceData]
               return (
-                <label key={appr.id} className="pf-checkbox-label">
+                <label key={approval.id} className="pf-checkbox-label">
                   <input
                     type="checkbox"
                     className="pf-checkbox-input"
                     checked={checked}
-                    onChange={(e) => onChange({ [appr.id]: e.target.checked })}
+                    onChange={(e) => onChange({ [approval.id]: e.target.checked })}
                   />
                   <span className="pf-checkbox-custom" />
-                  <span className="pf-checkbox-text">{appr.label}</span>
+                  <span className="pf-checkbox-text">{approval.label}</span>
                 </label>
               )
             })}

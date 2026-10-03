@@ -1,4 +1,4 @@
-import type { UploadedLoanDocument } from '../documents/loanDocument.types'
+import type { UploadedLoanDocument } from '@modules/loans/documents/loanDocument.types'
 
 export type MachineryEquipmentType =
   | 'CNC / Automation Machinery'
@@ -15,15 +15,8 @@ export type MachineryLoanRepaymentTenure =
   | '24 Months'
   | '36 Months'
   | '48 Months'
-  | '57 Months'
   | '60 Months'
-  | '63 Months'
-  | '66 Months'
-  | '69 Months'
   | '72 Months'
-  | '75 Months'
-  | '78 Months'
-  | '81 Months'
   | '84 Months'
   | ''
 

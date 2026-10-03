@@ -62,7 +62,7 @@ function resolvePrimaryDetail(loanKey: string, rawForm: Record<string, unknown>,
       iconSrc: '/assets/icons/loans/vehicle-blue.svg',
     }
   }
-  if (loanKey.includes('machin')) {
+  if (loanKey.includes('machinery')) {
     return {
       label: 'Equipment',
       value: (rawForm.machineryName || rawForm.machineryType || (equipment !== '—' ? equipment : '') || '—') as string,
@@ -197,8 +197,7 @@ export const LoanApplicationStatus: React.FC = () => {
           { id: 'm5', title: 'Disbursed', timestamp: 'Pending', status: 'pending' },
         ],
       }
-    } catch (err) {
-      console.error('[LoanApplicationStatus] Error resolving application:', err)
+    } catch {
       return {
         id: id || 'Pending',
         refNumber: id || 'Pending',
@@ -228,13 +227,9 @@ export const LoanApplicationStatus: React.FC = () => {
   const formattedBank = resolveDisbursementBank(rawForm, application.disbursementBank)
 
   const handleCopyRef = useCallback(() => {
-    try {
-      navigator.clipboard?.writeText ? navigator.clipboard.writeText(refNumber) : undefined
-      setIsCopied(true)
-      setTimeout(() => setIsCopied(false), 2000)
-    } catch (err) {
-      console.error('[LoanApplicationStatus] Copy error:', err)
-    }
+    navigator.clipboard?.writeText?.(refNumber)
+    setIsCopied(true)
+    setTimeout(() => setIsCopied(false), 2000)
   }, [refNumber])
 
   const handleTrackApplications = useCallback(() => safeNavigateTo(navigate, '/applications'), [navigate])
@@ -271,8 +266,7 @@ Thank you for applying with TaxEdge Fin Solutions.
 
       setToastMessage('Application receipt downloaded successfully.')
       setTimeout(() => setToastMessage(null), 3000)
-    } catch (err) {
-      console.error('[LoanApplicationStatus] Download error:', err)
+    } catch {
       setToastMessage('Download error. Please try again.')
       setTimeout(() => setToastMessage(null), 3000)
     }

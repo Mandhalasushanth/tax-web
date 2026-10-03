@@ -1,4 +1,5 @@
 import React, { useRef } from 'react'
+import { gstInput } from '@modules/gst/utils/gstInputFormatters'
 
 interface GSTCancellationFieldsProps {
   gstin: string
@@ -51,7 +52,7 @@ export const GSTCancellationFields: React.FC<GSTCancellationFieldsProps> = ({
         </label>
         <input
           id="gst-canc-gstin-input" type="text" maxLength={15} placeholder="e.g. 29AAAAA0000A1Z5"
-          value={gstin} onChange={(e) => { setGstin(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); clearError('gstin') }}
+          value={gstin} onChange={(e) => { setGstin(gstInput.gstin(e.target.value)); clearError('gstin') }}
           className={`gst-canc-input ${errors.gstin ? 'has-error' : ''}`}
         />
         {errors.gstin && <span className="gst-canc-error-msg">{errors.gstin}</span>}
@@ -110,7 +111,7 @@ export const GSTCancellationFields: React.FC<GSTCancellationFieldsProps> = ({
           </label>
           <input
             id="gst-canc-gstr3b-input" type="text" placeholder="e.g. AA2908260000100X / July 2026" value={lastGstr3bFiled}
-            onChange={(e) => { setLastGstr3bFiled(e.target.value); clearError('lastGstr3bFiled') }}
+            onChange={(e) => { setLastGstr3bFiled(gstInput.text(e.target.value, 60)); clearError('lastGstr3bFiled') }}
             className={`gst-canc-input ${errors.lastGstr3bFiled ? 'has-error' : ''}`}
           />
           {errors.lastGstr3bFiled && <span className="gst-canc-error-msg">{errors.lastGstr3bFiled}</span>}
@@ -124,7 +125,7 @@ export const GSTCancellationFields: React.FC<GSTCancellationFieldsProps> = ({
         <div className="gst-canc-textarea-wrapper">
           <textarea
             id="gst-canc-stock-textarea" rows={3} maxLength={300} placeholder="Describe closing inventory value and ITC reversal or enter 'Nil'"
-            value={closingStockDetails} onChange={(e) => { setClosingStockDetails(e.target.value); clearError('closingStockDetails') }}
+            value={closingStockDetails} onChange={(e) => { setClosingStockDetails(gstInput.text(e.target.value, 500)); clearError('closingStockDetails') }}
             className={`gst-canc-textarea ${errors.closingStockDetails ? 'has-error' : ''}`}
           />
           <span className="gst-canc-char-count">{closingStockDetails.length}/300</span>

@@ -1,50 +1,48 @@
-import React, { useCallback } from 'react'
+import React, { useCallback } from "react";
 import type {
   BusinessLoanFormData,
   UdyamOptionType,
-} from '../../../../types/businessLoan.types'
-import { useDropdown } from '../../../../hooks/useDropdown'
-import { LoanDropdownOption } from '../LoanDropdownOption'
+} from "../../../../types/businessLoan.types";
+import { useDropdown } from "../../../../hooks/useDropdown";
+import { LoanDropdownOption } from "../LoanDropdownOption";
 import {
   formatUdyamNumber,
   LOAN_FIELD_LIMITS,
-} from '../../../../utils/loanInputFormatters'
+} from "../../../../utils/loanInputFormatters";
 
 export interface BusinessRegistrationCardProps {
-  data: BusinessLoanFormData
-  onChange: (fields: Partial<BusinessLoanFormData>) => void
-  errors?: Record<string, string>
+  data: BusinessLoanFormData;
+  onChange: (fields: Partial<BusinessLoanFormData>) => void;
+  errors?: Record<string, string>;
 }
 
 /**
  * Business Registration Card - Constitution & Udyam Registration Number (MSME)
  * Strictly loop-free and uses external CSS only.
  */
-export const BusinessRegistrationCard: React.FC<BusinessRegistrationCardProps> = ({
-  data,
-  onChange,
-  errors = {},
-}) => {
+export const BusinessRegistrationCard: React.FC<
+  BusinessRegistrationCardProps
+> = ({ data, onChange, errors = {} }) => {
   const {
     isOpen: isConstitutionOpen,
     setIsOpen: setIsConstitutionOpen,
     dropdownRef: constitutionRef,
-  } = useDropdown()
+  } = useDropdown();
 
   const handleConstitutionSelect = useCallback(
     (val: string) => {
-      onChange({ businessConstitution: val })
-      setIsConstitutionOpen(false)
+      onChange({ businessConstitution: val });
+      setIsConstitutionOpen(false);
     },
-    [onChange, setIsConstitutionOpen]
-  )
+    [onChange, setIsConstitutionOpen],
+  );
 
   const handleUdyamToggle = useCallback(
     (choice: UdyamOptionType) => {
-      onChange({ hasUdyam: choice })
+      onChange({ hasUdyam: choice });
     },
-    [onChange]
-  )
+    [onChange],
+  );
 
   return (
     <>
@@ -62,7 +60,8 @@ export const BusinessRegistrationCard: React.FC<BusinessRegistrationCardProps> =
               />
             </div>
             <label id="constitutionLabel" className="business-field-title">
-              Business Constitution / Type <span className="text-required">*</span>
+              Business Constitution / Type{" "}
+              <span className="text-required">*</span>
             </label>
           </div>
         </div>
@@ -70,17 +69,26 @@ export const BusinessRegistrationCard: React.FC<BusinessRegistrationCardProps> =
         <div className="custom-dropdown-container">
           <button
             type="button"
-            className={`custom-dropdown-trigger ${isConstitutionOpen ? 'custom-dropdown-trigger--open' : ''} ${errors.businessConstitution ? 'custom-dropdown-trigger--error' : ''}`}
+            className={`custom-dropdown-trigger ${isConstitutionOpen ? "custom-dropdown-trigger--open" : ""} ${errors.businessConstitution ? "custom-dropdown-trigger--error" : ""}`}
             onClick={() => setIsConstitutionOpen((prev) => !prev)}
             aria-haspopup="listbox"
             aria-expanded={isConstitutionOpen}
             aria-labelledby="constitutionLabel"
             data-testid="business-constitution-dropdown"
           >
-            <span className={data.businessConstitution ? 'custom-dropdown-value' : 'custom-dropdown-placeholder'}>
-              {data.businessConstitution || 'Select Business Type'}
+            <span
+              className={
+                data.businessConstitution
+                  ? "custom-dropdown-value"
+                  : "custom-dropdown-placeholder"
+              }
+            >
+              {data.businessConstitution || "Select Business Type"}
             </span>
-            <span className={`custom-dropdown-chevron ${isConstitutionOpen ? 'custom-dropdown-chevron--open' : ''}`} aria-hidden="true">
+            <span
+              className={`custom-dropdown-chevron ${isConstitutionOpen ? "custom-dropdown-chevron--open" : ""}`}
+              aria-hidden="true"
+            >
               <img
                 src="/assets/icons/loans/chevron-down.svg"
                 alt=""
@@ -92,48 +100,54 @@ export const BusinessRegistrationCard: React.FC<BusinessRegistrationCardProps> =
           </button>
 
           {isConstitutionOpen && (
-            <div className="custom-dropdown-menu" role="listbox" aria-labelledby="constitutionLabel">
+            <div
+              className="custom-dropdown-menu"
+              role="listbox"
+              aria-labelledby="constitutionLabel"
+            >
               <LoanDropdownOption
                 value="Proprietorship"
                 label="Proprietorship"
-                isSelected={data.businessConstitution === 'Proprietorship'}
+                isSelected={data.businessConstitution === "Proprietorship"}
                 onSelect={handleConstitutionSelect}
               />
               <LoanDropdownOption
                 value="Partnership"
                 label="Partnership"
-                isSelected={data.businessConstitution === 'Partnership'}
+                isSelected={data.businessConstitution === "Partnership"}
                 onSelect={handleConstitutionSelect}
               />
               <LoanDropdownOption
                 value="LLP"
                 label="LLP"
-                isSelected={data.businessConstitution === 'LLP'}
+                isSelected={data.businessConstitution === "LLP"}
                 onSelect={handleConstitutionSelect}
               />
               <LoanDropdownOption
                 value="Private Limited"
                 label="Private Limited"
-                isSelected={data.businessConstitution === 'Private Limited'}
+                isSelected={data.businessConstitution === "Private Limited"}
                 onSelect={handleConstitutionSelect}
               />
               <LoanDropdownOption
                 value="Public Limited"
                 label="Public Limited"
-                isSelected={data.businessConstitution === 'Public Limited'}
+                isSelected={data.businessConstitution === "Public Limited"}
                 onSelect={handleConstitutionSelect}
               />
               <LoanDropdownOption
                 value="Others"
                 label="Others"
-                isSelected={data.businessConstitution === 'Others'}
+                isSelected={data.businessConstitution === "Others"}
                 onSelect={handleConstitutionSelect}
               />
             </div>
           )}
         </div>
         {errors.businessConstitution && (
-          <span className="field-error-text">{errors.businessConstitution}</span>
+          <span className="field-error-text">
+            {errors.businessConstitution}
+          </span>
         )}
       </div>
 
@@ -153,7 +167,9 @@ export const BusinessRegistrationCard: React.FC<BusinessRegistrationCardProps> =
             <div className="udyam-title-wrap">
               <span className="business-field-title">
                 Udyam Registration Number (MSME)
-                {data.hasUdyam === 'yes' && <span className="text-required"> *</span>}
+                {data.hasUdyam === "yes" && (
+                  <span className="text-required"> *</span>
+                )}
               </span>
               <span
                 className="udyam-info-tooltip"
@@ -165,23 +181,27 @@ export const BusinessRegistrationCard: React.FC<BusinessRegistrationCardProps> =
             </div>
           </div>
 
-          <div className="udyam-toggle-pills" role="radiogroup" aria-label="Udyam Registration Available">
+          <div
+            className="udyam-toggle-pills"
+            role="radiogroup"
+            aria-label="Udyam Registration Available"
+          >
             <button
               type="button"
-              className={`udyam-pill-btn ${data.hasUdyam === 'yes' ? 'udyam-pill-btn--active' : ''}`}
-              onClick={() => handleUdyamToggle('yes')}
+              className={`udyam-pill-btn ${data.hasUdyam === "yes" ? "udyam-pill-btn--active" : ""}`}
+              onClick={() => handleUdyamToggle("yes")}
               role="radio"
-              aria-checked={data.hasUdyam === 'yes'}
+              aria-checked={data.hasUdyam === "yes"}
               data-testid="udyam-toggle-yes"
             >
               Yes
             </button>
             <button
               type="button"
-              className={`udyam-pill-btn ${data.hasUdyam === 'no' ? 'udyam-pill-btn--active' : ''}`}
-              onClick={() => handleUdyamToggle('no')}
+              className={`udyam-pill-btn ${data.hasUdyam === "no" ? "udyam-pill-btn--active" : ""}`}
+              onClick={() => handleUdyamToggle("no")}
               role="radio"
-              aria-checked={data.hasUdyam === 'no'}
+              aria-checked={data.hasUdyam === "no"}
               data-testid="udyam-toggle-no"
             >
               No
@@ -192,15 +212,15 @@ export const BusinessRegistrationCard: React.FC<BusinessRegistrationCardProps> =
           <span className="field-error-text">{errors.hasUdyam}</span>
         )}
 
-        {data.hasUdyam === 'yes' && (
+        {data.hasUdyam === "yes" && (
           <div className="udyam-input-container">
             <input
               id="udyamRegistrationNumber"
               type="text"
               maxLength={LOAN_FIELD_LIMITS.UDYAM_MAX}
-              className={`custom-form-input ${errors.udyamRegistrationNumber ? 'custom-form-input--error' : ''}`}
+              className={`custom-form-input ${errors.udyamRegistrationNumber ? "custom-form-input--error" : ""}`}
               placeholder="e.g. UDYAM-MH-01-0001234"
-              value={data.udyamRegistrationNumber || ''}
+              value={data.udyamRegistrationNumber || ""}
               onChange={(e) =>
                 onChange({
                   udyamRegistrationNumber: formatUdyamNumber(e.target.value),
@@ -208,15 +228,19 @@ export const BusinessRegistrationCard: React.FC<BusinessRegistrationCardProps> =
               }
               aria-label="Udyam Registration Number"
             />
-            <span className="input-field-subtext">Format: UDYAM-XX-00-0000000</span>
+            <span className="input-field-subtext">
+              Format: UDYAM-XX-00-0000000
+            </span>
             {errors.udyamRegistrationNumber && (
-              <span className="field-error-text">{errors.udyamRegistrationNumber}</span>
+              <span className="field-error-text">
+                {errors.udyamRegistrationNumber}
+              </span>
             )}
           </div>
         )}
       </div>
     </>
-  )
-}
+  );
+};
 
-export default BusinessRegistrationCard
+export default BusinessRegistrationCard;

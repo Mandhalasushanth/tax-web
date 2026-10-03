@@ -1,34 +1,39 @@
-import React, { useRef } from 'react'
-import './uploadDocument.css'
+import React, { useRef } from "react";
+import "./uploadDocument.css";
 
 export interface UploadDocumentProps {
-  id: string
-  title: string
-  subtitle?: string
-  desc?: string
-  isRequired?: boolean
-  badge?: React.ReactNode
-  uploadIcon?: React.ReactNode
-  iconBg?: string
-  iconColor?: string
-  isUploaded?: boolean
-  fileName?: string
-  fileSize?: string
-  file?: File
-  icon?: React.ReactNode
-  accept?: string
-  uploadLabel?: string
-  onUpload?: (id: string, file: File) => void
-  onRemove?: (id: string) => void
-  onView?: (doc: { id: string; title: string; fileName?: string; file?: File }) => void
-  onReplace?: (id: string) => void
-  isNotApplicable?: boolean
-  onToggleNotApplicable?: (id: string) => void
-  children?: React.ReactNode
-  className?: string
+  id: string;
+  title: string;
+  subtitle?: string;
+  desc?: string;
+  isRequired?: boolean;
+  badge?: React.ReactNode;
+  uploadIcon?: React.ReactNode;
+  iconBg?: string;
+  iconColor?: string;
+  isUploaded?: boolean;
+  fileName?: string;
+  fileSize?: string;
+  file?: File;
+  icon?: React.ReactNode;
+  accept?: string;
+  uploadLabel?: string;
+  onUpload?: (id: string, file: File) => void;
+  onRemove?: (id: string) => void;
+  onView?: (doc: {
+    id: string;
+    title: string;
+    fileName?: string;
+    file?: File;
+  }) => void;
+  onReplace?: (id: string) => void;
+  isNotApplicable?: boolean;
+  onToggleNotApplicable?: (id: string) => void;
+  children?: React.ReactNode;
+  className?: string;
 }
 
-export type DocumentCardProps = UploadDocumentProps
+export type DocumentCardProps = UploadDocumentProps;
 
 export const UploadDocument: React.FC<UploadDocumentProps> = ({
   id,
@@ -45,8 +50,8 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
   fileSize,
   file,
   icon,
-  accept = '.pdf,.jpg,.jpeg,.png,.docx,.xlsx,.doc,.xls,.csv,.zip',
-  uploadLabel = 'Upload',
+  accept = ".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.doc,.xls,.csv,.zip",
+  uploadLabel = "Upload",
   onUpload,
   onRemove,
   onView,
@@ -54,41 +59,41 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
   isNotApplicable = false,
   onToggleNotApplicable,
   children,
-  className = '',
+  className = "",
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      onUpload?.(id, e.target.files[0])
-      e.target.value = ''
+      onUpload?.(id, e.target.files[0]);
+      e.target.value = "";
     }
-  }
+  };
 
   const handleView = () => {
     if (onView) {
-      onView({ id, title, fileName, file })
+      onView({ id, title, fileName, file });
     } else if (file) {
-      const url = URL.createObjectURL(file)
-      window.open(url, '_blank')
+      const url = URL.createObjectURL(file);
+      window.open(url, "_blank");
     } else {
-      alert(`Viewing ${fileName || title}`)
+      alert(`Viewing ${fileName || title}`);
     }
-  }
+  };
 
   const handleReplaceClick = () => {
     if (onReplace) {
-      onReplace(id)
+      onReplace(id);
     } else {
-      fileInputRef.current?.click()
+      fileInputRef.current?.click();
     }
-  }
+  };
 
-  const effectiveSubtitle = subtitle || desc
+  const effectiveSubtitle = subtitle || desc;
 
   return (
     <div
-      className={`supporting-doc-item ${isUploaded ? 'supporting-doc-item--uploaded' : ''} ${className}`}
+      className={`supporting-doc-item ${isUploaded ? "supporting-doc-item--uploaded" : ""} ${className}`}
       data-testid={`doc-card-${id}`}
     >
       <input
@@ -104,11 +109,25 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
         <div className="supporting-doc-item__left">
           <div
             className="supporting-doc-item__icon-box"
-            {...(iconBg || iconColor ? { style: { ...(iconBg ? { backgroundColor: iconBg } : {}), ...(iconColor ? { color: iconColor } : {}) } } : {})}
+            {...(iconBg || iconColor
+              ? {
+                  style: {
+                    ...(iconBg ? { backgroundColor: iconBg } : {}),
+                    ...(iconColor ? { color: iconColor } : {}),
+                  },
+                }
+              : {})}
             aria-hidden="true"
           >
             {icon || (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <polyline points="14 2 14 8 20 8" />
               </svg>
@@ -118,16 +137,22 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
           <div className="supporting-doc-item__meta">
             <div className="supporting-doc-item__title-row">
               <span className="supporting-doc-item__title">
-                {title} {isRequired && !badge && <span className="supporting-doc-item__required">*</span>}
+                {title}{" "}
+                {isRequired && !badge && (
+                  <span className="supporting-doc-item__required">*</span>
+                )}
               </span>
               {badge}
             </div>
             {effectiveSubtitle && (
-              <span className="supporting-doc-item__subtitle">{effectiveSubtitle}</span>
+              <span className="supporting-doc-item__subtitle">
+                {effectiveSubtitle}
+              </span>
             )}
             {isUploaded && (
               <span className="supporting-doc-item__filename">
-                {fileName || file?.name || 'Document uploaded'} {fileSize ? `(${fileSize})` : ''}
+                {fileName || file?.name || "Document uploaded"}{" "}
+                {fileSize ? `(${fileSize})` : ""}
               </span>
             )}
             {children}
@@ -148,7 +173,9 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
           </div>
         ) : isNotApplicable ? (
           <div className="supporting-doc-item__na-wrap">
-            <span className="supporting-doc-item__na-badge">Not Applicable</span>
+            <span className="supporting-doc-item__na-badge">
+              Not Applicable
+            </span>
             {onToggleNotApplicable && (
               <button
                 type="button"
@@ -223,7 +250,10 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
               <span>View Document</span>
             </button>
 
-            <span className="supporting-doc-item__divider-vertical" aria-hidden="true" />
+            <span
+              className="supporting-doc-item__divider-vertical"
+              aria-hidden="true"
+            />
 
             <button
               type="button"
@@ -245,11 +275,14 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
               <span>Replace</span>
             </button>
 
-            <span className="supporting-doc-item__divider-vertical" aria-hidden="true" />
+            <span
+              className="supporting-doc-item__divider-vertical"
+              aria-hidden="true"
+            />
 
             <button
               type="button"
-              className="supporting-doc-item__trash-btn"
+              className="supporting-doc-item__action-link supporting-doc-item__action-link--delete supporting-doc-item__trash-btn"
               onClick={() => onRemove?.(id)}
               title="Delete document"
               aria-label="Delete document"
@@ -268,16 +301,17 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
                 <line x1="10" y1="11" x2="10" y2="17" />
                 <line x1="14" y1="11" x2="14" y2="17" />
               </svg>
+              <span>Delete</span>
             </button>
           </div>
         </>
       )}
     </div>
-  )
-}
+  );
+};
 
 // Aliases for compatibility
-export const uploadDocument = UploadDocument
-export const DocumentCard = UploadDocument
+export const uploadDocument = UploadDocument;
+export const DocumentCard = UploadDocument;
 
-export default UploadDocument
+export default UploadDocument;

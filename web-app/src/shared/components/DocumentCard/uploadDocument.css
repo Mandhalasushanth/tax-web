@@ -118,6 +118,8 @@
   align-items: center;
   gap: 0.65rem;
   flex-shrink: 0;
+}
+
 .supporting-doc-item .supporting-doc-item__upload-btn,
 .supporting-doc-item__upload-btn {
   display: inline-flex;

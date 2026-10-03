@@ -4,10 +4,8 @@ import { TDS_DOCUMENTS, DocIcons, TdsIcons, type TdsDocumentConfig } from '../..
 import { TdsRefundProgressTracker } from './TdsRefundOverview'
 import './TdsRefundDocuments.css'
 
-export interface UploadedFileMeta {
-  name: string
-  size: string
-}
+import type { UploadedFileMeta } from '../../types/tdsRefund.types'
+export type { UploadedFileMeta }
 
 const VERIFICATION_CHECKLIST = [
   '256-bit Bank Grade Security',

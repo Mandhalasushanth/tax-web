@@ -29,12 +29,12 @@ import {
 import type { TdsProfile, TdsBankDetails, TdsIncomeTaxData } from '../types/tdsRefund.types'
 
 const createCustomSvgIcon =
-  (src: string, defaultSize = 20): React.FC<{ size?: number; color?: string; className?: string }> =>
-  ({ size = defaultSize, className = '' }) =>
+  (src: string, defaultSize = 20): React.FC<{ size?: number; width?: number; height?: number; color?: string; className?: string }> =>
+  ({ size = defaultSize, width, height, className = '' }) =>
     React.createElement('img', {
       src,
-      width: size,
-      height: size,
+      width: width ?? size,
+      height: height ?? size,
       className,
       alt: '',
       'aria-hidden': true,

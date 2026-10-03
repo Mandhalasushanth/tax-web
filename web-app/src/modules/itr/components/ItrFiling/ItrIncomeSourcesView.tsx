@@ -612,7 +612,6 @@ export const ItrIncomeSourcesView: React.FC<ItrIncomeSourcesViewProps> = ({
   onOtherSourcesDetailsChange,
   selectedSources,
   onSourcesChange,
-  selectedCategoryId,
 }) => {
   const toggleSource = (id: string) => {
     try {

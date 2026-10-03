@@ -9,6 +9,14 @@ export type ItrViewKey =
   | 'revised-itr'
   | 'tax-notice-assistance'
 
+export interface ItrStatCard {
+  id: string
+  label: string
+  value: string
+  subtext: string
+  icon: string
+}
+
 export interface ItrServiceCard {
   id: string
   title: string

@@ -1,5 +1,5 @@
 import { env } from '@core/config'
-import { authStorage, permissionsFor } from '@core/auth'
+import { authStorage, permissionsFor, userRepository } from '@core/auth'
 import type { AuthSession, AuthUser, UserRole } from '@core/auth'
 
 import { authApi } from '../api/authApi'
@@ -27,12 +27,20 @@ const DEMO_ROLES: Record<string, { role: UserRole; fullName: string; id: string;
   '9000000005': { role: 'ITR_AGENT', fullName: 'Sneha Kulkarni', id: 'stf_005', department: 'Compliance' },
 }
 
-const DEMO_EXISTING_USERS: Record<string, { fullName: string; passcode: string; email: string }> = {
-  '7008138785': { fullName: 'Sagarika Jena', passcode: '123456', email: 'sagarika@taxedge.in' },
-}
-
 const mockUser = (mobile: string): AuthUser => {
   const clean = mobile.replace(/\D/g, '')
+
+  // 1. Retrieve previously stored user/profile data if this user has existing data
+  const existingUser = userRepository.getUserByMobile(clean) as AuthUser | null
+  if (existingUser) {
+    const hasPass = Boolean(userRepository.hasPasscode(clean))
+    return {
+      ...existingUser,
+      isProfileComplete: Boolean(existingUser.isProfileComplete || hasPass),
+    }
+  }
+
+  // 2. Demo staff roles if applicable
   const demo = DEMO_ROLES[clean]
   if (demo) {
     return {
@@ -43,36 +51,15 @@ const mockUser = (mobile: string): AuthUser => {
       role: demo.role,
       department: demo.department,
       permissions: permissionsFor(demo.role),
-      isProfileComplete: true,
+      isProfileComplete: false,
     }
   }
 
-  const registeredRecord = authStorage.getRegisteredUser(clean)
-  if (registeredRecord?.user && registeredRecord.isRegistered) {
-    return {
-      ...registeredRecord.user,
-      isProfileComplete: true,
-    }
-  }
-
-  const demoExisting = DEMO_EXISTING_USERS[clean]
-  if (demoExisting) {
-    return {
-      id: `usr_${clean}`,
-      fullName: demoExisting.fullName,
-      email: demoExisting.email,
-      mobile: clean,
-      role: 'CUSTOMER',
-      customerType: 'INDIVIDUAL',
-      permissions: [],
-      isProfileComplete: true,
-    }
-  }
-
+  // 3. Fresh user state
   return {
     id: `usr_${clean || Date.now().toString(36)}`,
-    fullName: registeredRecord?.user?.fullName || '',
-    email: registeredRecord?.user?.email || '',
+    fullName: '',
+    email: '',
     mobile: clean,
     role: 'CUSTOMER',
     customerType: 'INDIVIDUAL',
@@ -93,17 +80,63 @@ const delay = (ms = 400) => new Promise((resolve) => setTimeout(resolve, ms))
 /* ------------------------------------------------------------------ */
 
 /**
- * Business rules for signing in and registration. Pages call this, never authApi directly,
- * so the mock switch and multi-step logic lives in one place.
+ * Business rules for signing in and registration.
+ * Calls the userRepository storage abstraction, isolating UI from direct storage/API.
  */
 export const authFlowService = {
+  /** Retrieve user by mobile through storage abstraction */
+  getUserByMobile(mobile: string): AuthUser | null {
+    const clean = mobile.replace(/\D/g, '')
+    return (userRepository.getUserByMobile(clean) as AuthUser | null) || null
+  },
+
+  /** Create new user through storage abstraction */
+  createUser(user: AuthUser, passcode?: string) {
+    return userRepository.createUser(user, passcode)
+  },
+
+  /** Update existing user profile through storage abstraction */
+  updateUser(user: Partial<AuthUser> & { mobile: string }) {
+    return userRepository.updateUser(user)
+  },
+
+  /** Check dynamically if user has created a passcode */
+  hasPasscode(mobile: string): boolean {
+    const clean = mobile.replace(/\D/g, '')
+    return Boolean(userRepository.hasPasscode(clean))
+  },
+
+  /** Save passcode state through storage abstraction */
+  savePasscodeState(mobile: string, passcode: string): void {
+    const clean = mobile.replace(/\D/g, '')
+    userRepository.savePasscodeState(clean, passcode)
+  },
+
+  /** Get user profile through storage abstraction */
+  getProfile(mobile: string): AuthUser | null {
+    const clean = mobile.replace(/\D/g, '')
+    return (userRepository.getProfile(clean) as AuthUser | null) || null
+  },
+
+  /** Save user profile through storage abstraction */
+  saveProfile(mobile: string, profile: Partial<AuthUser>): void {
+    const clean = mobile.replace(/\D/g, '')
+    userRepository.saveProfile(clean, profile)
+  },
+
   /** Check if a mobile number is already registered (has completed registration with a passcode) */
   isRegistered(mobile: string): boolean {
-    const clean = mobile.replace(/\D/g, '')
-    if (DEMO_ROLES[clean]) return true
-    if (DEMO_EXISTING_USERS[clean]) return true
-    const record = authStorage.getRegisteredUser(clean)
-    return Boolean(record && record.isRegistered && record.passcode)
+    return this.hasPasscode(mobile)
+  },
+
+  /** Retrieve active session */
+  getSession(): AuthSession | null {
+    return (userRepository.getSession() as AuthSession | null) || null
+  },
+
+  /** Clear session on logout / expiry without deleting user data */
+  clearSession(): void {
+    userRepository.clearSession()
   },
 
   async login(payload: LoginPayload): Promise<AuthSession> {
@@ -118,38 +151,19 @@ export const authFlowService = {
     const clean = payload.mobile.replace(/\D/g, '')
     if (env.enableMocks) {
       await delay(300)
-      if (DEMO_ROLES[clean]) {
-        if (payload.passcode !== '123456') {
-          throw new Error('Incorrect passcode. Try 123456 in demo mode.')
-        }
-        const session = mockSession(clean)
-        authStorage.setTokens(session.tokens)
-        authStorage.setUser(session.user)
-        return session
+      const hasPass = Boolean(userRepository.hasPasscode(clean))
+      if (!hasPass) {
+        throw new Error('No passcode created for this account. Please log in via OTP.')
       }
 
-      const record = authStorage.getRegisteredUser(clean)
-      const expectedPasscode = record?.passcode || DEMO_EXISTING_USERS[clean]?.passcode
-
-      if (!expectedPasscode || (!record?.isRegistered && !DEMO_EXISTING_USERS[clean])) {
-        throw new Error('No registered account found for this mobile number.')
-      }
-
-      if (payload.passcode !== expectedPasscode) {
+      const isMatch = Boolean(userRepository.verifyPasscode(clean, payload.passcode))
+      if (!isMatch) {
         throw new Error('Incorrect passcode. Please enter the passcode you created during registration.')
       }
 
-      const userProfile: AuthUser = record?.user ? {
-        ...record.user,
-        isProfileComplete: true,
-      } : {
-        id: `usr_${clean}`,
-        fullName: DEMO_EXISTING_USERS[clean]?.fullName || 'TaxEdge User',
-        email: DEMO_EXISTING_USERS[clean]?.email || 'user@taxedge.in',
-        mobile: clean,
-        role: 'CUSTOMER',
-        customerType: 'INDIVIDUAL',
-        permissions: [],
+      const storedUser = (userRepository.getUserByMobile(clean) as AuthUser | null) || mockUser(clean)
+      const userProfile: AuthUser = {
+        ...storedUser,
         isProfileComplete: true,
       }
 
@@ -160,8 +174,7 @@ export const authFlowService = {
           refreshToken: `ref_${clean}_${Date.now().toString(36)}`,
         },
       }
-      authStorage.setTokens(session.tokens)
-      authStorage.setUser(userProfile)
+      userRepository.saveSession(session)
       return session
     }
 
@@ -174,33 +187,36 @@ export const authFlowService = {
       ...payload.user,
       isProfileComplete: true,
     }
-    authStorage.saveRegisteredUser({
-      mobile: clean,
-      passcode: payload.passcode,
-      isRegistered: true,
+
+    // Persist passcode and profile through storage abstraction
+    userRepository.createUser(step1User, payload.passcode)
+
+    const session: AuthSession = {
       user: step1User,
-    })
-    authStorage.setUser(step1User)
+      tokens: authStorage.getTokens() || {
+        accessToken: `tok_${clean}_${Date.now().toString(36)}`,
+        refreshToken: `ref_${clean}_${Date.now().toString(36)}`,
+      },
+    }
+    userRepository.saveSession(session)
   },
 
   async completeRegistration(mobile: string, customerType?: string): Promise<void> {
     const clean = mobile.replace(/\D/g, '')
-    const record = authStorage.getRegisteredUser(clean)
-    if (record) {
+    const existing = (userRepository.getUserByMobile(clean) as AuthUser | null)
+    if (existing) {
       const updatedUser: AuthUser = {
-        ...record.user,
-        customerType: customerType || record.user.customerType,
+        ...existing,
+        customerType: customerType || existing.customerType,
         isProfileComplete: true,
       }
-      authStorage.saveRegisteredUser({
-        ...record,
-        isRegistered: true,
-        user: updatedUser,
-      })
-      authStorage.setUser(updatedUser)
+      userRepository.saveProfile(clean, updatedUser)
+      const currentTokens = authStorage.getTokens()
+      if (currentTokens) {
+        userRepository.saveSession({ user: updatedUser, tokens: currentTokens })
+      }
     }
   },
-
 
   async sendOtp(mobile: string): Promise<void> {
     if (env.enableMocks) {
@@ -211,15 +227,36 @@ export const authFlowService = {
   },
 
   async verifyOtp(payload: VerifyOtpPayload): Promise<AuthSession> {
-    if (env.enableMocks) {
-      await delay()
-      if (payload.otp !== '123456') throw new Error('That code is incorrect. Try 123456 in demo mode.')
-      return mockSession(payload.mobile)
+    const cleanOtp = (payload.otp || '').trim()
+    if (!/^\d{6}$/.test(cleanOtp)) {
+      throw new Error('Please enter a valid 6-digit numeric OTP.')
     }
-    return authApi.verifyOtp(payload)
+
+    if (env.enableMocks) {
+      await delay(300)
+      const clean = payload.mobile.replace(/\D/g, '')
+      // Check if user already exists or create initial user record without passcode
+      let user = (userRepository.getUserByMobile(clean) as AuthUser | null)
+      if (!user) {
+        const initialUser = mockUser(clean)
+        userRepository.createUser(initialUser)
+        user = initialUser
+      }
+
+      const session: AuthSession = {
+        user,
+        tokens: {
+          accessToken: `tok_${clean}_${Date.now().toString(36)}`,
+          refreshToken: `ref_${clean}_${Date.now().toString(36)}`,
+        },
+      }
+      return session
+    }
+    return authApi.verifyOtp({ ...payload, otp: cleanOtp })
   },
 
   async logout(): Promise<void> {
+    userRepository.clearSession()
     if (env.enableMocks) return
     try {
       await authApi.logout()

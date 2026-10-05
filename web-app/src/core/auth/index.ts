@@ -11,3 +11,4 @@ export {
 export type { AgentRole, AuthSession, AuthTokens, AuthUser, RegisteredUserRecord, StaffRole, UserRole } from './authTypes'
 export { PERMISSIONS, ROLE_PERMISSIONS, permissionsFor, roleHasPermission } from './permissions'
 export type { Permission } from './permissions'
+export { userRepository, localStorageUserRepository, apiUserRepository, type IUserRepository, type StoredUserRecord } from '../storage/userRepository'

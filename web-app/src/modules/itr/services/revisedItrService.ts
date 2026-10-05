@@ -48,8 +48,8 @@ export const findOriginalReturn = async (
       otherOriginal: 0,
       taxableOriginal: 0,
       personalInfo: {
-        fullName: user?.fullName || 'Assessee',
-        pan: user?.pan ? `XXXXX${user.pan.slice(-4)}` : 'XXXXX0000X',
+        fullName: user?.fullName || '',
+        pan: user?.pan ? `XXXXX${user.pan.slice(-4)}` : '',
         dob: user?.dob || '—',
         mobile: user?.mobile || '—',
         email: user?.email || '—',
@@ -66,8 +66,8 @@ export const findOriginalReturn = async (
       otherOriginal: 0,
       taxableOriginal: 0,
       personalInfo: {
-        fullName: 'Assessee',
-        pan: 'XXXXX0000X',
+        fullName: '',
+        pan: '',
         dob: '—',
         mobile: '—',
         email: '—',

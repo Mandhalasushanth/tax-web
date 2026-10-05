@@ -79,15 +79,15 @@ export const SignInCard: React.FC<SignInCardProps> = ({
         otp,
       })
 
-      // Check if user is an existing registered user who already created a passcode
-      const isExistingUser = authFlowService.isRegistered(cleanMobile)
-      if (isExistingUser) {
+      // Check dynamically if user has created a passcode
+      const userHasPasscode = authFlowService.hasPasscode(cleanMobile)
+      if (userHasPasscode) {
         if (isResetFlow) {
           // If they forgot their passcode, we redirect to registration to set a new one
           navigate(routePaths.registration, { state: { resetPasscode: true, mobile: cleanMobile } })
           return
         }
-        // For existing users normal login: OTP is verified, now prompt for passcode on the same card
+        // For users who have created a passcode: OTP is verified, now prompt for passcode
         setAuthMode('passcode')
         return
       }

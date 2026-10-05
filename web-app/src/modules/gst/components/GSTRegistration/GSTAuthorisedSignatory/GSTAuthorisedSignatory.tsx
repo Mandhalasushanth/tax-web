@@ -105,7 +105,7 @@ export const GSTAuthorisedSignatory = ({
               <input
                 id="dob"
                 type="date"
-                className={`gst-form-input gst-form-input--date ${errors.dob ? 'gst-input--error' : ''}`}
+                className={`gst-form-input gst-form-input--date ${!data.dob ? 'gst-date--placeholder' : 'has-value'} ${errors.dob ? 'gst-input--error' : ''}`}
                 placeholder="DD-MM-YYYY"
                 value={data.dob}
                 onChange={handleDobChange}

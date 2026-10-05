@@ -164,7 +164,8 @@ export const GSTBankDetails = ({
             <div className="gst-select-wrapper">
               <select
                 id="accountType"
-                className={`gst-form-select ${errors.accountType ? 'gst-input--error' : ''}`}
+                className={`gst-form-select ${!data.accountType ? 'gst-select--placeholder' : ''} ${errors.accountType ? 'gst-input--error' : ''}`}
+                data-empty={!data.accountType}
                 value={data.accountType}
                 onChange={handleAccountTypeChange}
               >

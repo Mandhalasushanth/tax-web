@@ -12,7 +12,7 @@ vi.mock('@core/config/environment', () => ({
   },
 }))
 
-import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
+import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { LoanApplicationStatus } from '../../src/modules/loans/components/LoanApplicationStatus'
 import { loanApplicationService } from '../../src/modules/loans/services/loanApplicationService'

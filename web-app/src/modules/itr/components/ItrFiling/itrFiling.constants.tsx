@@ -192,7 +192,7 @@ export const ITR_STEP_LABELS = ['Personal & Filing Info', 'Income Sources', 'Reg
 export const getStoredTaxpayerProfile = (overrideUser?: AuthUser | null): TaxpayerProfile => {
   try {
     const user = overrideUser || authStorage.getUser()
-    if (!user) return { panNumber: '—', aadhaarNumber: '—', fullName: 'Taxpayer', dob: '—', mobileNumber: '—', emailAddress: '—', registeredAddress: '—' }
+    if (!user) return { panNumber: '—', aadhaarNumber: '—', fullName: '', dob: '—', mobileNumber: '—', emailAddress: '—', registeredAddress: '—' }
     const rawAadhaar = user.aadhaar?.replace(/\s+/g, '') || ''
     const maskedAadhaar = rawAadhaar.length >= 4 ? `•••• •••• ${rawAadhaar.slice(-4)}` : rawAadhaar || '—'
     const formattedMobile = user.mobile ? (user.mobile.startsWith('+91') ? user.mobile : `+91 ${user.mobile}`) : '—'
@@ -200,14 +200,14 @@ export const getStoredTaxpayerProfile = (overrideUser?: AuthUser | null): Taxpay
     return {
       panNumber: user.pan ? user.pan.toUpperCase() : '—',
       aadhaarNumber: maskedAadhaar,
-      fullName: user.fullName || '—',
+      fullName: user.fullName || '',
       dob: user.dob || '—',
       mobileNumber: formattedMobile,
       emailAddress: user.email || '—',
       registeredAddress: addressParts.length > 0 ? addressParts.join(', ') : '—',
     }
   } catch {
-    return { panNumber: '—', aadhaarNumber: '—', fullName: 'Taxpayer', dob: '—', mobileNumber: '—', emailAddress: '—', registeredAddress: '—' }
+    return { panNumber: '—', aadhaarNumber: '—', fullName: '', dob: '—', mobileNumber: '—', emailAddress: '—', registeredAddress: '—' }
   }
 }
 

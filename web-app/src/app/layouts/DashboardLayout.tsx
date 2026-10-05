@@ -5,7 +5,7 @@ import { buildProfileCompletionPath } from '@core/auth'
 import { initialsOf } from '@shared/utils'
 import { CompleteProfileModal, LogoutConfirmModal, LogoutIcon } from '@shared/components'
 import { useLogoutConfirm } from '@modules/authentication'
-import { useAuthStore } from '@store/index'
+import { useAuthStore, useNotificationStore } from '@store/index'
 import { navSections } from './navigation'
 import { useDashboardSummary } from '@modules/dashboard'
 import { DashboardBreadcrumb } from './DashboardBreadcrumb'
@@ -79,9 +79,12 @@ export const DashboardLayout = () => {
     return matchedSection || { sectionTitle: 'Overview', label: 'Dashboard' }
   }, [location.pathname])
 
-  const notificationsCount = data?.recentApplications?.length ?? 0
+  const notifications = useNotificationStore((state) => state.notifications)
+  const notificationsCount = notifications.length
+  const applicationsCount = data?.brief?.activeApplications ?? 0
+
   const badges: Partial<Record<'applications' | 'notifications', string>> = {
-    applications: data?.brief ? String(data.brief.activeApplications) : undefined,
+    applications: applicationsCount > 0 ? String(applicationsCount) : undefined,
     notifications: notificationsCount > 0 ? String(notificationsCount) : undefined,
   }
 
@@ -174,11 +177,11 @@ export const DashboardLayout = () => {
         <div className="shell__sidebar-footer">
           <div className="shell__user">
             <span className="shell__avatar" aria-hidden="true">
-              {initialsOf(user?.fullName ?? 'TaxEdge User')}
+              {initialsOf(user?.fullName || 'User')}
             </span>
             <div className="shell__user-meta">
-              <span className="shell__user-name">{user?.fullName ?? 'Guest'}</span>
-              {user && <span className="shell__user-code">{customerCode}</span>}
+              <span className="shell__user-name">{user?.fullName || 'Guest'}</span>
+              {customerCode && <span className="shell__user-code">{customerCode}</span>}
             </div>
           </div>
 
@@ -208,8 +211,8 @@ export const DashboardLayout = () => {
           <div className="shell__header-actions">
             <NavLink className="shell__icon-button" to={routePaths.notifications} aria-label="Notifications" title="Notifications">
               <BellIcon />
-              {badges.notifications && badges.notifications !== '0' && (
-                <span className="shell__badge-pill" aria-hidden="true">{badges.notifications}</span>
+              {notificationsCount > 0 && (
+                <span className="shell__badge-pill" aria-hidden="true">{notificationsCount}</span>
               )}
             </NavLink>
 

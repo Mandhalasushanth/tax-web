@@ -116,11 +116,12 @@ export const GSTBusinessAddressSection: React.FC<GSTBusinessAddressSectionProps>
           <div className="gst-select-wrapper">
             <select
               id="state"
-              className={`gst-form-select ${errors.state ? 'gst-input--error' : ''}`}
+              className={`gst-form-select ${!data.state ? 'gst-select--placeholder' : ''} ${errors.state ? 'gst-input--error' : ''}`}
+              data-empty={!data.state}
               value={data.state}
               onChange={handleStateChange}
             >
-              <option value="">Select</option>
+              <option value="">Select State / UT</option>
               {INDIAN_STATES_AND_UTS.map((st) => (
                 <option key={st} value={st}>
                   {st}

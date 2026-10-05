@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { StepActionBar, UploadDocument } from '@shared/components'
 import {
   type UploadedDocInfo,
@@ -73,31 +73,9 @@ export const ItrStepDocumentsView: React.FC<ItrStepDocumentsViewProps> = ({
   onUploadDoc,
   onRemoveDoc,
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const currentTargetDocId = useRef<string>('')
-
   const totalPossible = ALL_DOCS.length
   const uploadedCount = Object.keys(uploadedDocs).length
   const readyPercent = Math.round((uploadedCount / totalPossible) * 100)
-
-  const handleTriggerUpload = (docId: string) => {
-    currentTargetDocId.current = docId
-    fileInputRef.current?.click()
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file && currentTargetDocId.current) {
-      const sizeMb = (file.size / (1024 * 1024)).toFixed(2)
-      onUploadDoc(currentTargetDocId.current, {
-        id: currentTargetDocId.current,
-        fileName: file.name,
-        fileSize: `${sizeMb} MB`,
-        uploadedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      })
-    }
-    if (fileInputRef.current) fileInputRef.current.value = ''
-  }
 
   const isStep4Valid = REQUIRED_DOCS.every(
     (doc) => !doc.isMandatory || Boolean(uploadedDocs[doc.id])
@@ -105,14 +83,6 @@ export const ItrStepDocumentsView: React.FC<ItrStepDocumentsViewProps> = ({
 
   return (
     <div className="itr-step-view-container">
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".pdf,.jpg,.jpeg,.png"
-        className="itr-file-input-hidden"
-        onChange={handleFileChange}
-      />
 
       {/* 5-Step Progress Stepper */}
       <ItrStepHeaderStepper currentStepId={4} />

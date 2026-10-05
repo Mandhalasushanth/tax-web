@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
 import { loanDocumentService } from '@modules/loans/documents/loanDocumentService'
 import { UploadDocument } from '@shared/components'
 import type { UploadedLoanDocument } from '@modules/loans/documents/loanDocument.types'
@@ -86,14 +86,6 @@ const RenderDocIcon: React.FC<{ type: UploadDocItem['iconType'] }> = ({ type }) 
   }
 }
 
-const UploadCloudSvg: React.FC = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
-    <polyline points="12 12 12 16" />
-    <polyline points="9 13 12 10 15 13" />
-  </svg>
-)
-
 export const UploadDocumentsSection: React.FC<UploadDocumentsSectionProps> = ({
   data,
   onChange,
@@ -102,7 +94,6 @@ export const UploadDocumentsSection: React.FC<UploadDocumentsSectionProps> = ({
   errors = {},
 }) => {
   const [activeCategory, setActiveCategory] = useState<'All' | 'Applicant' | 'Project' | 'Financial'>('All')
-  const fileInputsRef = useRef<Record<string, HTMLInputElement | null>>({})
 
   const handleFileUpload = (docId: string, file: File | null) => {
     if (!file || !loanDocumentService.acceptFile(file)) return

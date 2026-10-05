@@ -30,3 +30,7 @@ export { DocumentTracker } from './DocumentCard/DocumentTracker'
 export type { DocumentTrackerProps } from './DocumentCard/DocumentTracker'
 export * from './FlowStepper'
 
+export { LogoutConfirmModal } from './LogoutConfirmModal/LogoutConfirmModal'
+export type { LogoutConfirmModalProps } from './LogoutConfirmModal/LogoutConfirmModal'
+export { LogoutIcon } from './LogoutConfirmModal/LogoutIcon'
+export type { LogoutIconProps } from './LogoutConfirmModal/LogoutIcon'

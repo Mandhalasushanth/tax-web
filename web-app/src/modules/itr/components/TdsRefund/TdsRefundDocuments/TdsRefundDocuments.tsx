@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
 import { StepActionBar, UploadDocument } from '@shared/components'
 import { TDS_DOCUMENTS, DocIcons, TdsIcons, type TdsDocumentConfig } from '../../../utils/tdsRefund.constants'
 import { TdsRefundProgressTracker } from '../TdsRefundOverview'
@@ -92,7 +92,6 @@ export const TdsRefundDocuments: React.FC<TdsRefundDocumentsProps> = ({
   onUploadsChange,
 }) => {
   const [uploads, setUploads] = useState<Record<string, UploadedFileMeta>>(initialUploads || {})
-  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
   const totalCount = TDS_DOCUMENTS.length
   const uploadedCount = Math.min(totalCount, Object.keys(uploads).length)
@@ -105,7 +104,7 @@ export const TdsRefundDocuments: React.FC<TdsRefundDocumentsProps> = ({
 
       const newUploads = {
         ...uploads,
-        [docId]: { name: file.name, size: formatFileSize(file.size) },
+        [docId]: { name: file.name, size: formatFileSize(file.size), file },
       }
       setUploads(newUploads)
       onUploadsChange?.(newUploads)
@@ -120,17 +119,6 @@ export const TdsRefundDocuments: React.FC<TdsRefundDocumentsProps> = ({
       delete updated[docId]
       setUploads(updated)
       onUploadsChange?.(updated)
-      if (fileInputRefs.current[docId]) {
-        fileInputRefs.current[docId]!.value = ''
-      }
-    } catch {
-      // Safe fallback
-    }
-  }
-
-  const triggerUpload = (docId: string) => {
-    try {
-      fileInputRefs.current[docId]?.click()
     } catch {
       // Safe fallback
     }
@@ -169,8 +157,8 @@ export const TdsRefundDocuments: React.FC<TdsRefundDocumentsProps> = ({
         iconColor="#2563eb"
         isUploaded={Boolean(uploaded)}
         fileName={uploaded?.name}
-        fileSize={uploaded?.size ? `${(uploaded.size / 1024).toFixed(1)} KB` : undefined}
-        file={uploaded || undefined}
+        fileSize={uploaded?.size}
+        file={uploaded?.file}
         accept=".pdf,.jpg,.jpeg,.png"
         onUpload={(id, file) => {
           handleFileChange(id, {

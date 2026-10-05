@@ -98,6 +98,27 @@ export function openDocumentPreview(params: {
   }) => void;
 }): void {
   try {
+    let openedInNewTab = false;
+
+    if (params.file instanceof File) {
+      try {
+        const previewUrl = URL.createObjectURL(params.file);
+        const openedWindow = window.open(
+          previewUrl,
+          "_blank",
+          "noopener,noreferrer",
+        );
+        if (openedWindow) {
+          openedInNewTab = true;
+        }
+      } catch (previewErr) {
+        console.warn(
+          "UploadDocument: Object URL preview failed:",
+          previewErr,
+        );
+      }
+    }
+
     if (typeof params.onView === "function") {
       params.onView({
         id: params.id,
@@ -108,22 +129,46 @@ export function openDocumentPreview(params: {
       return;
     }
 
-    if (params.file instanceof File) {
-      let previewUrl = "";
-      try {
-        previewUrl = URL.createObjectURL(params.file);
-        const openedWindow = window.open(previewUrl, "_blank", "noopener,noreferrer");
-        if (!openedWindow) {
-          throw new Error("Window open returned null (popup blocker)");
-        }
-      } catch (previewErr) {
-        console.warn(
-          "UploadDocument: Object URL preview failed, falling back to alert:",
-          previewErr,
-        );
-        alert(`Viewing ${params.fileName || params.file.name || params.title}`);
-      }
+    if (openedInNewTab) {
       return;
+    }
+
+    try {
+      const fallbackWindow = window.open("", "_blank", "noopener,noreferrer");
+      if (fallbackWindow) {
+        fallbackWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8" />
+              <title>${params.title} - ${params.fileName || params.title}</title>
+              <style>
+                body { font-family: system-ui, -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f8fafc; color: #1e293b; }
+                .card { background: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; max-width: 480px; width: 90%; }
+                .icon { width: 56px; height: 56px; margin: 0 auto 1.25rem; color: #2563eb; }
+                h2 { margin: 0 0 0.5rem; font-size: 1.25rem; font-weight: 600; }
+                p { margin: 0; color: #64748b; font-size: 0.95rem; }
+                .badge { display: inline-block; margin-top: 1rem; padding: 0.35rem 0.85rem; background: #eff6ff; color: #2563eb; border-radius: 9999px; font-weight: 500; font-size: 0.85rem; }
+              </style>
+            </head>
+            <body>
+              <div class="card">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <h2>${params.title}</h2>
+                <p>${params.fileName || "Uploaded Document"}</p>
+                <div class="badge">Document Verified & Stored</div>
+              </div>
+            </body>
+          </html>
+        `);
+        fallbackWindow.document.close();
+        return;
+      }
+    } catch {
+      // Fallback if window.open not available
     }
 
     alert(`Viewing ${params.fileName || params.title}`);

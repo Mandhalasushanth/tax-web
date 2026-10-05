@@ -1,5 +1,6 @@
 import React from 'react'
 import { User } from 'lucide-react'
+import { formatMobile } from '@shared/utils'
 import { TdsIcons, type TdsTaxpayerProfile } from '../../../utils/tdsRefund.constants'
 import './TdsRefundPersonalInfoSection.css'
 
@@ -102,9 +103,8 @@ export const TdsRefundPersonalInfoSection: React.FC<TdsRefundPersonalInfoSection
             type="tel"
             className="tds-input"
             value={profile.mobile}
-            onChange={(e) => onChange({ mobile: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+            onChange={(e) => onChange({ mobile: formatMobile(e.target.value) })}
             placeholder="Enter your mobile number"
-            maxLength={10}
           />
         </div>
 

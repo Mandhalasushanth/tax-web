@@ -433,12 +433,13 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
               aria-hidden="true"
             />
 
+            {/* Dedicated class (not the legacy __trash-btn) so other modules' styles cannot collapse it */}
             <button
               type="button"
-              className="supporting-doc-item__action-link supporting-doc-item__action-link--delete supporting-doc-item__trash-btn"
+              className="supporting-doc-item__action-link supporting-doc-item__delete-btn"
               onClick={handleDeleteClick}
-              title="Delete document"
-              aria-label="Delete document"
+              title={`Delete ${fileName || "document"}`}
+              aria-label={`Delete ${title}${fileName ? ` (${fileName})` : ""}`}
               data-testid={`delete-doc-${id}`}
             >
               <svg
@@ -454,7 +455,7 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
                 <line x1="10" y1="11" x2="10" y2="17" />
                 <line x1="14" y1="11" x2="14" y2="17" />
               </svg>
-              <span>Delete</span>
+              <span className="supporting-doc-item__delete-label">Delete</span>
             </button>
           </div>
         </>

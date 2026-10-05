@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { routePaths } from '@core/config'
+import { buildProfileCompletionPath } from '@core/auth'
 import { initialsOf } from '@shared/utils'
 import { CompleteProfileModal } from '@shared/components'
 import { useAuthStore } from '@store/index'
@@ -48,15 +49,17 @@ export const DashboardLayout = () => {
 
   useEffect(() => {
     const locState = location.state as { openProfileModal?: boolean; returnTo?: string } | null
-    if (locState?.openProfileModal && !user?.isProfileComplete) {
+    // Pages with their own prompt (e.g. /loans) handle the state themselves; the layout covers the dashboard
+    const isDashboard = location.pathname === routePaths.dashboard
+    if (isDashboard && locState?.openProfileModal && !user?.isProfileComplete) {
       setSelectedServiceTarget(locState.returnTo || '')
       setIsProfileModalOpen(true)
     }
-  }, [location.state, user?.isProfileComplete])
+  }, [location.pathname, location.state, user?.isProfileComplete])
 
   const handleConfirmCompleteProfile = () => {
     setIsProfileModalOpen(false)
-    navigate(routePaths.auth.register, {
+    navigate(buildProfileCompletionPath(selectedServiceTarget), {
       state: { returnTo: selectedServiceTarget, mobile: user?.mobile },
     })
   }

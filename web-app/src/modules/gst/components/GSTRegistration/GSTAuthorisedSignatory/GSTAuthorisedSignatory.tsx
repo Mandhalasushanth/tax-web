@@ -140,7 +140,6 @@ export const GSTAuthorisedSignatory = ({
               id="signatoryMobile"
               type="tel"
               inputMode="numeric"
-              maxLength={10}
               className={`gst-form-input ${errors.signatoryMobile ? 'gst-input--error' : ''}`}
               placeholder="Enter 10-digit mobile number"
               value={data.signatoryMobile}

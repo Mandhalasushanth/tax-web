@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import type { DirectorDetails } from '../../types/incorporation.types'
-import { filterDigits, filterPan } from '../../utils/validation'
+import { filterDigits, filterMobile, filterPan } from '../../utils/validation'
 import './DirectorCard.css'
 
 interface FormFieldProps {
@@ -68,7 +68,7 @@ export const DirectorCard: React.FC<DirectorCardProps> = ({
       return
     }
     if (field === 'mobile') {
-      onChange(director.id, field, filterDigits(val, 10))
+      onChange(director.id, field, filterMobile(val))
       return
     }
     if (field === 'pincode') {

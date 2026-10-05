@@ -7,10 +7,14 @@ export interface PaymentResult {
   dateText: string
   applicationRef: string
   amount: number
+  /** Set only when the payments service verified the gateway callback */
+  verified: boolean
+  orderId?: string
 }
 
 export interface GSTStepPaymentProps {
   amount?: number
+  serviceId?: string
   applicationRef?: string
   serviceTitle?: string
   applicantName?: string

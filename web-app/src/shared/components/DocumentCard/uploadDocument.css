@@ -363,3 +363,47 @@
     0 0 0 1px #ef4444,
     0 2px 8px rgba(239, 68, 68, 0.08) !important;
 }
+
+/* Delete action on uploaded cards: always a full-size, labelled control (BUG-GST-011) */
+.supporting-doc-item .supporting-doc-item__bottom-bar .supporting-doc-item__delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: 88px;
+  min-height: 32px;
+  width: auto;
+  height: auto;
+  padding: 0.35rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #dc2626;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  justify-self: center;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.supporting-doc-item .supporting-doc-item__bottom-bar .supporting-doc-item__delete-btn:hover {
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
+.supporting-doc-item .supporting-doc-item__bottom-bar .supporting-doc-item__delete-btn:focus-visible {
+  outline: 2px solid #f87171;
+  outline-offset: 2px;
+}
+
+.supporting-doc-item .supporting-doc-item__bottom-bar .supporting-doc-item__delete-btn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.supporting-doc-item .supporting-doc-item__bottom-bar .supporting-doc-item__delete-label {
+  display: inline;
+}

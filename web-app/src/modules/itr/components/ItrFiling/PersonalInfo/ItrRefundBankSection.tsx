@@ -4,7 +4,6 @@ import {
   PlusCircleIcon,
   type FilingBankAccount,
 } from '../itrFiling.constants'
-import { ConfirmAccountNumberInput } from '@shared/components'
 import './ItrRefundBankSection.css'
 
 export interface ItrRefundBankSectionProps {
@@ -25,9 +24,7 @@ export const ItrRefundBankSection: React.FC<ItrRefundBankSectionProps> = ({
   const [isAddingBank, setIsAddingBank] = useState(false)
   const [newBankName, setNewBankName] = useState('')
   const [newAccountNumber, setNewAccountNumber] = useState('')
-  const [newConfirmAccountNumber, setNewConfirmAccountNumber] = useState('')
   const [newIfsc, setNewIfsc] = useState('')
-  const [newAccountType, setNewAccountType] = useState<'savings' | 'current'>('savings')
   const [bankFormError, setBankFormError] = useState<string | null>(null)
 
   const handleBankSelect = (id: string) => {
@@ -48,14 +45,6 @@ export const ItrRefundBankSection: React.FC<ItrRefundBankSectionProps> = ({
       setBankFormError('Enter a valid bank account number')
       return
     }
-    if (!newConfirmAccountNumber.trim()) {
-      setBankFormError('Bank account number is required')
-      return
-    }
-    if (newAccountNumber !== newConfirmAccountNumber) {
-      setBankFormError('Account numbers do not match')
-      return
-    }
     if (!newIfsc.trim()) {
       setBankFormError('IFSC code is required')
       return
@@ -71,7 +60,6 @@ export const ItrRefundBankSection: React.FC<ItrRefundBankSectionProps> = ({
       bankName: newBankName.trim(),
       accountNumber: maskedAcc,
       ifsc: newIfsc.trim().toUpperCase(),
-      accountType: newAccountType,
       isPrimary: bankAccounts.length === 0,
       isPreValidated: true,
     }
@@ -83,7 +71,6 @@ export const ItrRefundBankSection: React.FC<ItrRefundBankSectionProps> = ({
     // Reset form
     setNewBankName('')
     setNewAccountNumber('')
-    setNewConfirmAccountNumber('')
     setNewIfsc('')
     setBankFormError(null)
     setIsAddingBank(false)
@@ -122,7 +109,9 @@ export const ItrRefundBankSection: React.FC<ItrRefundBankSectionProps> = ({
                     <span className={`itr-custom-radio ${isChecked ? 'itr-custom-radio--checked' : ''}`} />
                     <div className="itr-bank-title-box">
                       <strong className="itr-bank-name">{acc.bankName}</strong>
-                      <span className="itr-bank-type">{acc.accountType.toUpperCase()} ACCOUNT</span>
+                      {acc.accountType && (
+                        <span className="itr-bank-type">{acc.accountType.toUpperCase()} ACCOUNT</span>
+                      )}
                     </div>
                   </div>
                   {acc.isPreValidated && (
@@ -193,21 +182,6 @@ export const ItrRefundBankSection: React.FC<ItrRefundBankSectionProps> = ({
             </div>
 
             <div className="itr-input-group">
-              <label htmlFor="new-account-type" className="itr-input-label">
-                Account Type *
-              </label>
-              <select
-                id="new-account-type"
-                className="itr-select-input"
-                value={newAccountType}
-                onChange={(e) => setNewAccountType(e.target.value as 'savings' | 'current')}
-              >
-                <option value="savings">Savings Account</option>
-                <option value="current">Current Account</option>
-              </select>
-            </div>
-
-            <div className="itr-input-group">
               <label htmlFor="new-account-number" className="itr-input-label">
                 Account Number *
               </label>
@@ -221,20 +195,6 @@ export const ItrRefundBankSection: React.FC<ItrRefundBankSectionProps> = ({
                 placeholder="Enter your bank account number"
                 value={newAccountNumber}
                 onChange={(e) => setNewAccountNumber(e.target.value.replace(/\D/g, '').slice(0, 18))}
-              />
-            </div>
-
-            <div className="itr-input-group">
-              <label htmlFor="new-confirm-account" className="itr-input-label">
-                Confirm Account Number *
-              </label>
-              <ConfirmAccountNumberInput
-                id="new-confirm-account"
-                name="confirmAccountNumber"
-                placeholder="Enter your bank account number"
-                value={newConfirmAccountNumber}
-                onChange={(val) => setNewConfirmAccountNumber(val)}
-                className="itr-text-input itr-mono"
               />
             </div>
 

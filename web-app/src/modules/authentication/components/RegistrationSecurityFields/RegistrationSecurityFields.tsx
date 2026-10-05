@@ -70,7 +70,7 @@ export const RegistrationSecurityFields: React.FC<RegistrationSecurityFieldsProp
       <div className="reg-security-fields__row">
         <div className="reg-field">
           <label className="reg-field__label" htmlFor="reg-password">
-            Passcode <span className="reg-field__required">*</span>
+            Create Passcode <span className="reg-field__required">*</span>
           </label>
           <div className={`reg-field__control ${errors.password ? 'reg-field__control--error' : ''}`}>
             <span className="reg-field__icon">

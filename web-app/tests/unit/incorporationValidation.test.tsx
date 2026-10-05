@@ -21,7 +21,6 @@ import { RegisteredOffice } from '../../src/modules/incorporation/components/Reg
 import { CapitalDetails } from '../../src/modules/incorporation/components/CapitalDetails/CapitalDetails'
 import { PromoterDetails } from '../../src/modules/incorporation/components/PromoterDetails/PromoterDetails'
 import { DocumentsKyc } from '../../src/modules/incorporation/components/DocumentsKyc/DocumentsKyc'
-import { LinkedRegistrations } from '../../src/modules/incorporation/components/LinkedRegistrations/LinkedRegistrations'
 
 afterEach(() => {
   cleanup()

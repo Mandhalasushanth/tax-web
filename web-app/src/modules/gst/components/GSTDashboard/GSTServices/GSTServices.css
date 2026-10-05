@@ -24,8 +24,20 @@
 
 .gst-services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
+}
+
+@media (max-width: 1024px) {
+  .gst-services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .gst-services-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .gst-service-card {
@@ -153,27 +165,9 @@
 .gst-service-card__footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding-top: 1rem;
   border-top: 1px dashed #e2e8f0;
-}
-
-.gst-service-card__price-wrapper {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.gst-service-card__price {
-  font-size: 1.125rem;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.gst-service-card__price-type {
-  font-size: 0.75rem;
-  color: #94a3b8;
-  font-weight: 500;
 }
 
 .gst-service-card__action {

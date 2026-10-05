@@ -99,7 +99,8 @@ export const GSTBusinessGeneralSection: React.FC<GSTBusinessGeneralSectionProps>
           <select
             id={field}
             name={field}
-            className={`gst-form-select ${fieldError(field) ? 'gst-input--error' : ''}`}
+            className={`gst-form-select ${!data[field] ? 'gst-select--placeholder' : ''} ${fieldError(field) ? 'gst-input--error' : ''}`}
+            data-empty={!data[field]}
             value={data[field]}
             onChange={(e: ChangeEvent<HTMLSelectElement>) => update(field, e.target.value)}
             aria-invalid={Boolean(fieldError(field))}
@@ -199,7 +200,7 @@ export const GSTBusinessGeneralSection: React.FC<GSTBusinessGeneralSectionProps>
               type="date"
               min={dateBounds.min}
               max={dateBounds.max}
-              className={`gst-form-input gst-form-input--date ${fieldError('commencementDate') ? 'gst-input--error' : ''}`}
+              className={`gst-form-input gst-form-input--date ${!data.commencementDate ? 'gst-date--placeholder' : 'has-value'} ${fieldError('commencementDate') ? 'gst-input--error' : ''}`}
               placeholder="DD-MM-YYYY"
               value={data.commencementDate}
               onChange={(e) => update('commencementDate', e.target.value)}

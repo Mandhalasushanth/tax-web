@@ -9,6 +9,7 @@ export interface DocumentItem {
   fileName?: string
   isUploaded: boolean
   addressProofType?: string
+  file?: File
 }
 
 export type UploadedDoc = DocumentItem

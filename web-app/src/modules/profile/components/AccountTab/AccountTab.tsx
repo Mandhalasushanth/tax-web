@@ -1,5 +1,6 @@
 import React from 'react'
 import type { AuthUser } from '@core/auth'
+import { maskAadhaar } from '@shared/utils'
 import './AccountTab.css'
 
 export interface AccountTabProps {
@@ -7,12 +8,6 @@ export interface AccountTabProps {
 }
 
 export const AccountTab: React.FC<AccountTabProps> = ({ user }) => {
-  const maskAadhaar = (aadhaar?: string) => {
-    if (!aadhaar) return '—'
-    if (aadhaar.length === 12) return `XXXX-XXXX-${aadhaar.slice(8)}`
-    return aadhaar
-  }
-
   const formatAddress = () => {
     const parts = [user?.addressLine1, user?.addressLine2, user?.city, user?.state, user?.pincode]
     const validParts = parts.filter(Boolean)

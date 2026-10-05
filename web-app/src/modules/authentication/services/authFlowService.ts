@@ -1,10 +1,13 @@
 import { env } from '@core/config'
+import { isValidEmail } from '@shared/utils'
 import { authStorage, permissionsFor } from '@core/auth'
 import type { AuthSession, AuthUser, UserRole } from '@core/auth'
 
 import { authApi } from '../api/authApi'
+import { DuplicateIdentityError, findIdentityConflicts } from './identityRegistry'
 import type {
   LoginPayload,
+  ResetPasscodePayload,
   SaveRegistrationStep1Payload,
   VerifyOtpPayload,
   VerifyPasscodePayload,
@@ -27,7 +30,9 @@ const DEMO_ROLES: Record<string, { role: UserRole; fullName: string; id: string;
   '9000000005': { role: 'ITR_AGENT', fullName: 'Sneha Kulkarni', id: 'stf_005', department: 'Compliance' },
 }
 
-const DEMO_EXISTING_USERS: Record<string, { fullName: string; passcode: string; email: string }> = {
+const DEMO_PASSCODE = '123456'
+
+const DEMO_EXISTING_USERS:Record<string, { fullName: string; passcode: string; email: string }> = {
   '7008138785': { fullName: 'Sagarika Jena', passcode: '123456', email: 'sagarika@taxedge.in' },
 }
 
@@ -92,6 +97,29 @@ const mockSession = (mobile: string): AuthSession => ({
 const delay = (ms = 400) => new Promise((resolve) => setTimeout(resolve, ms))
 /* ------------------------------------------------------------------ */
 
+const digitsOf = (value: string | undefined) => (value ?? '').replace(/\D/g, '')
+
+/**
+ * Server-side style checks for profile creation (mirrors what the API must enforce):
+ * the profile can only be saved for the mobile number verified by OTP in this session,
+ * and the email must be well formed.
+ */
+const assertRegistrationAllowed = (payload: SaveRegistrationStep1Payload, cleanMobile: string): void => {
+  const verifiedMobile = digitsOf(authStorage.getUser()?.mobile)
+  const mobilesMatch = cleanMobile === verifiedMobile && digitsOf(payload.user.mobile) === verifiedMobile
+  if (!verifiedMobile || !mobilesMatch) {
+    throw new Error('Mobile number does not match the number verified by OTP. Please sign in again.')
+  }
+  if (!isValidEmail(payload.user.email)) {
+    throw new Error('Please enter a valid email address.')
+  }
+  // Unique constraint: one account per PAN and per email
+  const conflicts = findIdentityConflicts({ mobile: cleanMobile, pan: payload.user.pan, email: payload.user.email })
+  if (Object.keys(conflicts).length > 0) {
+    throw new DuplicateIdentityError(conflicts)
+  }
+}
+
 /**
  * Business rules for signing in and registration. Pages call this, never authApi directly,
  * so the mock switch and multi-step logic lives in one place.
@@ -119,7 +147,8 @@ export const authFlowService = {
     if (env.enableMocks) {
       await delay(300)
       if (DEMO_ROLES[clean]) {
-        if (payload.passcode !== '123456') {
+        const demoPasscode = authStorage.getRegisteredUser(clean)?.passcode || DEMO_PASSCODE
+        if (payload.passcode !== demoPasscode) {
           throw new Error('Incorrect passcode. Try 123456 in demo mode.')
         }
         const session = mockSession(clean)
@@ -170,6 +199,7 @@ export const authFlowService = {
 
   async saveRegistrationStep1(payload: SaveRegistrationStep1Payload): Promise<void> {
     const clean = payload.mobile.replace(/\D/g, '')
+    assertRegistrationAllowed(payload, clean)
     const step1User: AuthUser = {
       ...payload.user,
       isProfileComplete: true,
@@ -201,6 +231,26 @@ export const authFlowService = {
     }
   },
 
+
+  /** Replaces the passcode of an existing account after its OTP has been verified (Forgot Passcode). */
+  async resetPasscode(payload: ResetPasscodePayload): Promise<void> {
+    const clean = payload.mobile.replace(/\D/g, '')
+    if (env.enableMocks) {
+      await delay(300)
+      if (!this.isRegistered(clean)) {
+        throw new Error('No registered account found for this mobile number.')
+      }
+      const record = authStorage.getRegisteredUser(clean)
+      authStorage.saveRegisteredUser({
+        mobile: clean,
+        isRegistered: true,
+        user: record?.user ?? mockUser(clean),
+        passcode: payload.passcode,
+      })
+      return
+    }
+    await authApi.setPasscode({ mobile: clean, passcode: payload.passcode })
+  },
 
   async sendOtp(mobile: string): Promise<void> {
     if (env.enableMocks) {

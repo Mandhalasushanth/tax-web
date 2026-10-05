@@ -1,6 +1,7 @@
 import { useState, type FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { routePaths } from "@core/config";
+import { buildProfileCompletionPath } from "@core/auth";
 import { useAuthStore } from "@store/index";
 import { CompleteProfileModal } from "@shared/components";
 import { ITR_SERVICES_LIST } from "../../services/itrService";
@@ -141,7 +142,7 @@ export const Itr = () => {
   const handleConfirmProfile = () => {
     try {
       setIsProfileModalOpen(false);
-      navigate(routePaths.auth.register, {
+      navigate(buildProfileCompletionPath(selectedTarget), {
         state: { returnTo: selectedTarget, mobile: user?.mobile },
       });
     } catch {

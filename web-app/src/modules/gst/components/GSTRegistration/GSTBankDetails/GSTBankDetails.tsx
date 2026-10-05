@@ -225,11 +225,14 @@ export const GSTBankDetails = ({
             </label>
             <input
               id="branch"
+              name="branch"
               type="text"
               className={`gst-form-input ${errors.branch ? 'gst-input--error' : ''}`}
-              placeholder="Auto-fetched"
+              placeholder="Enter branch name (auto-filled from IFSC)"
               value={data.branch}
               onChange={handleBranchChange}
+              aria-required="true"
+              aria-invalid={Boolean(errors.branch)}
             />
             {errors.branch && <span className="gst-field-error">{errors.branch}</span>}
           </div>

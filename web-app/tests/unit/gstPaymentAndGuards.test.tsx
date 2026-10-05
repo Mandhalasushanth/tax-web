@@ -110,8 +110,7 @@ describe('BUG-GST-011: labelled Delete action', () => {
 
     expect(windowOpenSpy).toHaveBeenCalledWith(
       'blob:preview-1',
-      '_blank',
-      'noopener,noreferrer'
+      '_blank'
     )
     windowOpenSpy.mockRestore()
   })

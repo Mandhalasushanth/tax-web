@@ -60,6 +60,61 @@ describe('BUG-GST-011: labelled Delete action', () => {
     fireEvent.click(button)
     expect(onRemove).toHaveBeenCalledWith('pan')
   })
+
+  it('clicking Replace opens file input picker directly and replaces file on change', () => {
+    const onReplace = vi.fn()
+    const onUpload = vi.fn()
+    const { container } = render(
+      <UploadDocument
+        id="pan"
+        title="PAN Card"
+        isUploaded
+        fileName="old_pan.pdf"
+        onReplace={onReplace}
+        onUpload={onUpload}
+      />
+    )
+
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement
+    expect(fileInput).toBeTruthy()
+    const clickSpy = vi.spyOn(fileInput, 'click')
+
+    const replaceBtn = screen.getByTestId('replace-doc-pan')
+    fireEvent.click(replaceBtn)
+
+    expect(onReplace).toHaveBeenCalledWith('pan')
+    expect(clickSpy).toHaveBeenCalled()
+
+    const newFile = new File(['dummy'], 'new_pan.pdf', { type: 'application/pdf' })
+    fireEvent.change(fileInput, { target: { files: [newFile] } })
+
+    expect(onUpload).toHaveBeenCalledWith('pan', newFile)
+  })
+
+  it('clicking View Document opens the document in a new window', () => {
+    const dummyFile = new File(['dummy content'], 'aadhaar.pdf', { type: 'application/pdf' })
+    const windowOpenSpy = vi.spyOn(window, 'open').mockReturnValue({} as Window)
+
+    render(
+      <UploadDocument
+        id="aadhaar"
+        title="Aadhaar Card"
+        isUploaded
+        fileName="aadhaar.pdf"
+        file={dummyFile}
+      />
+    )
+
+    const viewBtn = screen.getByTestId('view-doc-aadhaar')
+    fireEvent.click(viewBtn)
+
+    expect(windowOpenSpy).toHaveBeenCalledWith(
+      'blob:preview-1',
+      '_blank',
+      'noopener,noreferrer'
+    )
+    windowOpenSpy.mockRestore()
+  })
 })
 
 describe('BUG-GST-012: promo codes are validated by the payments service', () => {

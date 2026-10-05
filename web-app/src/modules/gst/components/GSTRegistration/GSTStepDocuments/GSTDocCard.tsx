@@ -15,6 +15,7 @@ import {
   PhotoIcon,
 } from '@modules/gst/shared/GSTDocIcons/GSTDocIcons'
 import { UploadDocument } from '@shared/components'
+import { gstUploadedFiles } from '@modules/gst/services/gstUploadedFiles'
 import './GSTDocCard.css'
 
 interface GSTDocCardProps {
@@ -53,7 +54,7 @@ const getDocIcon = (id: string): ReactNode => {
 
 export const GSTDocCard: FC<GSTDocCardProps> = ({
   doc,
-  isReplacing,
+  isReplacing: _isReplacing,
   onTriggerUpload,
   onDirectUpload,
   onStartReplace,
@@ -100,8 +101,9 @@ export const GSTDocCard: FC<GSTDocCardProps> = ({
       icon={getDocIcon(doc.id)}
       iconBg="#eff6ff"
       iconColor="#2563eb"
-      isUploaded={doc.isUploaded && !isReplacing}
+      isUploaded={doc.isUploaded}
       fileName={doc.fileName}
+      file={gstUploadedFiles.get(doc.id)}
       accept={acceptAttributeFor(getGstDocUploadRule(doc.id))}
       onUploadClick={handleUploadClick}
       onUpload={handleUploadFile}

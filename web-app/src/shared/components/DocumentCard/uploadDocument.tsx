@@ -112,7 +112,7 @@ export function openDocumentPreview(params: {
       let previewUrl = "";
       try {
         previewUrl = URL.createObjectURL(params.file);
-        const openedWindow = window.open(previewUrl, "_blank");
+        const openedWindow = window.open(previewUrl, "_blank", "noopener,noreferrer");
         if (!openedWindow) {
           throw new Error("Window open returned null (popup blocker)");
         }
@@ -194,13 +194,14 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
     openDocumentPreview({ id, title, fileName, file, onView });
   };
 
-  const handleReplaceClick = () => {
+  const handleReplaceClick = (e: React.MouseEvent) => {
     executeSafely(
       () => {
-        if (typeof onReplace === "function") {
-          onReplace(id);
-          return;
+        if (typeof onUploadClick === "function") {
+          const allowed = onUploadClick(e);
+          if (allowed === false) return;
         }
+        onReplace?.(id);
         fileInputRef.current?.click();
       },
       undefined,

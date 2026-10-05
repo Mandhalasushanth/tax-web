@@ -103,10 +103,20 @@ export const useGstDocuments = (
   const handleCancelReplace = () => setReplacingDocId(null)
 
   const handleView = (doc: DocumentItem) => {
+    const file = gstUploadedFiles.get(doc.id)
+    if (file) {
+      try {
+        const objectUrl = URL.createObjectURL(file)
+        const opened = window.open(objectUrl, '_blank', 'noopener,noreferrer')
+        if (opened) return
+      } catch (e) {
+        console.warn('Could not open document in new window:', e)
+      }
+    }
     setPreviewDoc({
       title: doc.title,
       fileName: doc.fileName || doc.title,
-      file: gstUploadedFiles.get(doc.id),
+      file,
     })
   }
 

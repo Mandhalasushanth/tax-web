@@ -11,6 +11,7 @@ import { GSTReviewSection } from './GSTReviewSection'
 import { GSTReviewDocsList } from './GSTReviewDocsList'
 import { GSTReviewDeclaration } from './GSTReviewDeclaration'
 import { GSTDocPreviewModal } from '../GSTStepDocuments/GSTDocPreviewModal'
+import { gstUploadedFiles } from '@modules/gst/services/gstUploadedFiles'
 import type { DocPreviewState } from '@modules/gst/types/gstDocuments.types'
 import { StepActionBar } from '@shared/components'
 import './GSTStepReview.css'
@@ -41,7 +42,18 @@ export const GSTStepReview: FC<GSTStepReviewProps> = ({
   }
 
   const handleViewDoc = (title: string, fileName: string) => {
-    setPreviewDoc({ title, fileName })
+    const matchedDoc = documents.find((d) => d.title === title || d.fileName === fileName)
+    const file = matchedDoc ? gstUploadedFiles.get(matchedDoc.id) : undefined
+    if (file) {
+      try {
+        const objectUrl = URL.createObjectURL(file)
+        const opened = window.open(objectUrl, '_blank', 'noopener,noreferrer')
+        if (opened) return
+      } catch (e) {
+        console.warn('Could not open document in new window:', e)
+      }
+    }
+    setPreviewDoc({ title, fileName, file })
   }
 
   const locationString = [businessData.city, businessData.district, businessData.state, businessData.pinCode ? `- ${businessData.pinCode}` : '']

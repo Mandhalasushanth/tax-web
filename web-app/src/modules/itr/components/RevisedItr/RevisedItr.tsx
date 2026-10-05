@@ -3,10 +3,10 @@ import { StepActionBar, PaymentCheckout, DraftConfirmModal } from '@shared/compo
 import { useRevisedItr } from '../../hooks/useRevisedItr'
 import { FindOriginalReturn } from './FindOriginalReturn'
 import { ReasonForRevision } from './ReasonForRevision'
-import { RevisionCorrectionDetails } from './RevisionCorrectionDetails'
-import { RevisionDocumentUpload } from './RevisionDocumentUpload'
-import { RevisionReviewSummary } from './RevisionReviewSummary'
-import { RevisionApplicationReceived } from './RevisionApplicationReceived'
+import { RevisionCorrectionDetails } from './CorrectionDetails'
+import { RevisionDocumentUpload } from './DocumentUpload'
+import { RevisionReviewSummary } from './ReviewSummary'
+import { RevisionApplicationReceived } from './ApplicationReceived'
 import './RevisedItr.css'
 
 export const RevisedItr: React.FC = () => {
@@ -163,8 +163,8 @@ export const RevisedItr: React.FC = () => {
             onBack={handleBack}
             onNext={handleContinue}
             onSaveDraft={openModal}
-            backLabel={step === 1 ? 'Cancel' : 'Back'}
-            nextLabel={step === 5 ? 'Proceed to Payment →' : 'Continue'}
+            backLabel="Back"
+            nextLabel="Continue"
             isSubmitting={isLoading}
           />
         </>

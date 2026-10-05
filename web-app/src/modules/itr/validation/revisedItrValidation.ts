@@ -81,11 +81,15 @@ export const validateDeductionCorrections = (
 export const validateBankCorrections = (
   values: BankCorrectionState
 ): { bankAccountError?: string | null; ifscError?: string | null } => {
-  const bankAccountError = !values.accountNumber?.trim() ? 'Bank account number is required.' : null
+  const bankAccountError = !values.accountNumber?.trim()
+    ? 'Bank account number is required.'
+    : !/^\d{9,18}$/.test(values.accountNumber.trim())
+      ? 'Please enter a valid bank account number.'
+      : null
   const trimmedIfsc = values.ifsc?.trim() || ''
   const ifscError = !trimmedIfsc
     ? 'IFSC is required.'
-    : !/^[A-Z0-9]{11}$/i.test(trimmedIfsc)
+    : !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(trimmedIfsc.toUpperCase())
       ? 'Please enter a valid 11-character IFSC code.'
       : null
 

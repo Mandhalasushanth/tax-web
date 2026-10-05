@@ -154,6 +154,37 @@
   margin-bottom: 1.75rem;
 }
 
+.tds-card-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.tds-card-icon-box--user {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1.5px solid #bfdbfe;
+}
+.tds-card-icon-box--bank {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1.5px solid #a7f3d0;
+}
+.tds-card-icon-box--calc {
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1.5px solid #fed7aa;
+}
+.tds-card-icon-box--shield {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1.5px solid #ddd6fe;
+}
+
 @media (max-width: 1200px) {
   .tds-web-layout {
     grid-template-columns: 1fr;

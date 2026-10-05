@@ -71,7 +71,7 @@ export const GSTAuthorisedSignatory = ({
               id="signatoryName"
               type="text"
               className={`gst-form-input ${errors.signatoryName ? 'gst-input--error' : ''}`}
-              placeholder="Full name"
+              placeholder="Enter full name"
               value={data.signatoryName}
               onChange={handleSignatoryNameChange}
             />
@@ -87,7 +87,7 @@ export const GSTAuthorisedSignatory = ({
               type="text"
               maxLength={10}
               className={`gst-form-input ${errors.signatoryPan ? 'gst-input--error' : ''}`}
-              placeholder="ABCDE1234F"
+              placeholder="Enter PAN"
               value={data.signatoryPan}
               onChange={handleSignatoryPanChange}
             />
@@ -122,7 +122,7 @@ export const GSTAuthorisedSignatory = ({
               id="designation"
               type="text"
               className={`gst-form-input ${errors.designation ? 'gst-input--error' : ''}`}
-              placeholder="Proprietor / Director / Partner"
+              placeholder="Enter designation"
               value={data.designation}
               onChange={handleDesignationChange}
             />
@@ -142,7 +142,7 @@ export const GSTAuthorisedSignatory = ({
               inputMode="numeric"
               maxLength={10}
               className={`gst-form-input ${errors.signatoryMobile ? 'gst-input--error' : ''}`}
-              placeholder="10-digit"
+              placeholder="Enter 10-digit mobile number"
               value={data.signatoryMobile}
               onChange={handleSignatoryMobileChange}
             />
@@ -157,7 +157,7 @@ export const GSTAuthorisedSignatory = ({
               id="signatoryEmail"
               type="email"
               className={`gst-form-input ${errors.signatoryEmail ? 'gst-input--error' : ''}`}
-              placeholder="email@business.com"
+              placeholder="Enter email address"
               value={data.signatoryEmail}
               onChange={handleSignatoryEmailChange}
             />

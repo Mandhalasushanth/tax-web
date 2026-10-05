@@ -117,6 +117,17 @@ export const useGstDocuments = (
     onNext()
   }
 
+  const handleDirectUpload = (id: string, file: File) => {
+    updateDocuments((prev) =>
+      prev.map((doc) =>
+        doc.id === id ? { ...doc, isUploaded: true, fileName: file.name } : doc
+      )
+    )
+    setActiveUploadTargetId(null)
+    setReplacingDocId(null)
+    setValidationError(null)
+  }
+
   return {
     groupedDocs,
     completedCount,
@@ -130,6 +141,7 @@ export const useGstDocuments = (
     handleTriggerUpload,
     handleTriggerCamera,
     handleFileSelected,
+    handleDirectUpload,
     handleDelete,
     handleStartReplace,
     handleCancelReplace,

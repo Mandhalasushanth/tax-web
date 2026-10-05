@@ -98,36 +98,6 @@ export const ItrStepIncomeSourcesView: React.FC<ItrStepIncomeSourcesViewProps> =
       {/* 5-Step Progress Stepper */}
       <ItrStepHeaderStepper currentStepId={2} />
 
-      {/* Applicable Return Form Card */}
-      <div className="itr-applicable-card">
-        <div className="itr-applicable-card__header">
-          <div className="itr-applicable-card__title-wrap">
-            <span className="itr-applicable-card__icon">✨</span>
-            <h2 className="itr-applicable-card__title">Applicable Return Form</h2>
-          </div>
-          <span className="itr-badge-itr1">ITR-1</span>
-        </div>
-        <p className="itr-applicable-card__desc">
-          Based on your salary and interest income up to ₹50 Lakhs as a resident, ITR-1 applies.
-        </p>
-        <div className="itr-applicable-card__checklist">
-          {[
-            'Salary / Pension income declared',
-            'No business or professional income declared',
-            'No capital gains or trading declared',
-            'Resident individual with income <= ₹50 Lakhs',
-          ].map((item) => (
-            <div key={item} className="itr-applicable-card__check-item">
-              <span className="itr-check-circle-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </span>
-              <span>{item}</span>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Income Sources Selector */}
       <div className="itr-step-card">

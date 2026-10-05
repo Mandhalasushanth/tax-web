@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { StepActionBar } from '@shared/components'
 import { useAuthStore } from '@store/index'
 import {
-  getStoredTaxpayerProfile, UserIcon, CheckIcon, UploadIcon, CalculatorIcon, ItrFilingHeaderStepper,
+  getStoredTaxpayerProfile, CalculatorIcon, ItrFilingHeaderStepper,
   type SalaryDetails, type HousePropertyDetails, type BusinessDetails, type CapitalGainsDetails,
   type OtherSourcesDetails, type DeductionsData, type UploadedDocInfo, type AssessmentYearOption,
   type ResidentialStatusOption, type FilingTypeOption, type FilingBankAccount,
@@ -10,71 +10,9 @@ import {
 import { calculateItrTax, formatINR } from '../itrTaxCalculator'
 import './ItrReviewSubmissionView.css'
 
-export interface ItrReviewLeftColumnProps {
-  profile: { fullName: string; panNumber: string }
-  selectedBank?: FilingBankAccount
-  assessmentYear: AssessmentYearOption
-  applicableForm: string
-  residentialStatus: ResidentialStatusOption
-  filingType: FilingTypeOption
-  uploadedDocs: Record<string, UploadedDocInfo>
-  onEdit: () => void
-}
-
-export const ItrReviewLeftColumn: React.FC<ItrReviewLeftColumnProps> = ({
-  profile, selectedBank, assessmentYear, applicableForm, residentialStatus, filingType, uploadedDocs, onEdit,
-}) => {
-  const docCount = Object.keys(uploadedDocs).length
-  const detailRows = [
-    { label: 'Assessment Year', value: assessmentYear },
-    { label: 'Applicable Return Form', value: applicableForm },
-    { label: 'Full Name', value: profile.fullName },
-    { label: 'PAN Number', value: profile.panNumber },
-    { label: 'Residential Status', value: residentialStatus.charAt(0).toUpperCase() + residentialStatus.slice(1) },
-    { label: 'Filing Type', value: filingType.charAt(0).toUpperCase() + filingType.slice(1) + ' Return' },
-  ]
-
-  return (
-    <div className="itr-rv2-left-col">
-      <div className="itr-step-card">
-        <h3 className="itr-rv2-section-title"><UserIcon size={16} />Summary &amp; Declared Income</h3>
-        <div className="itr-rv2-identity-row">
-          <div className="itr-rv2-identity-info"><div className="itr-rv2-identity-label">Taxpayer Identity</div><div className="itr-rv2-identity-val">PAN: {profile.panNumber} &middot; Name: {profile.fullName}</div></div>
-          <span className="itr-rv2-badge itr-rv2-badge--green"><CheckIcon size={12} />Profile Verified</span>
-        </div>
-        <div className="itr-rv2-identity-row">
-          <div className="itr-rv2-identity-info"><div className="itr-rv2-identity-label">Refund Bank Account</div><div className="itr-rv2-identity-val">{selectedBank ? `${selectedBank.bankName} (·· ${selectedBank.accountNumber.replace(/\s/g, '').slice(-4)})` : 'Primary Bank Account'}</div></div>
-          <span className="itr-rv2-badge itr-rv2-badge--blue">Selected</span>
-        </div>
-      </div>
-
-      <div className="itr-step-card">
-        <div className="itr-rv2-section-header-row"><h3 className="itr-rv2-section-title"><UserIcon size={16} />Filing &amp; Taxpayer Details</h3><button type="button" className="itr-rv2-edit-btn" onClick={onEdit}>Edit</button></div>
-        <div className="itr-rv2-details-rows">
-          {detailRows.map((row) => (
-            <div key={row.label} className="itr-rv2-detail-row"><span className="itr-rv2-detail-row__label">{row.label}</span><span className="itr-rv2-detail-row__val">{row.value}</span></div>
-          ))}
-        </div>
-      </div>
-
-      <div className="itr-step-card">
-        <div className="itr-rv2-section-header-row"><h3 className="itr-rv2-section-title"><UploadIcon size={16} />Uploaded Documents ({docCount})</h3><button type="button" className="itr-rv2-edit-btn" onClick={onEdit}>Edit</button></div>
-        {docCount === 0 ? (
-          <p className="itr-rv2-no-docs">No documents uploaded. Your CA will request them separately.</p>
-        ) : (
-          <div className="itr-rv2-doc-list">
-            {Object.entries(uploadedDocs).map(([id, doc]) => (
-              <div key={id} className="itr-rv2-doc-row">
-                <span className="itr-rv2-doc-check"><CheckIcon size={14} /></span>
-                <div className="itr-rv2-doc-info"><span className="itr-rv2-doc-name">{doc.fileName}</span><span className="itr-rv2-doc-meta">{doc.fileSize} &middot; {doc.uploadedAt}</span></div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
+import { ItrReviewLeftColumn, type ItrReviewLeftColumnProps } from './ItrReviewLeftColumn'
+export { ItrReviewLeftColumn }
+export type { ItrReviewLeftColumnProps }
 
 export interface ItrReviewTaxSummaryCardProps {
   selectedRegime: 'new' | 'old' | ''
@@ -196,7 +134,23 @@ export const ItrReviewSubmissionView: React.FC<ItrReviewSubmissionViewProps> = (
     <div className="itr-filing-step itr-step-review">
       <ItrFilingHeaderStepper currentStepId={5} />
       <div className="itr-rv2-grid">
-        <ItrReviewLeftColumn profile={profile} selectedBank={selectedBank} assessmentYear={assessmentYear} applicableForm={applicableForm} residentialStatus={residentialStatus} filingType={filingType} uploadedDocs={uploadedDocs} onEdit={onBack} />
+        <ItrReviewLeftColumn
+          profile={profile}
+          selectedBank={selectedBank}
+          assessmentYear={assessmentYear}
+          applicableForm={applicableForm}
+          residentialStatus={residentialStatus}
+          filingType={filingType}
+          uploadedDocs={uploadedDocs}
+          salaryDetails={salaryDetails}
+          housePropertyDetails={housePropertyDetails}
+          businessDetails={businessDetails}
+          capitalGainsDetails={capitalGainsDetails}
+          otherSourcesDetails={otherSourcesDetails}
+          selectedSources={selectedSources}
+          tdsCredits={taxResult.tdsCredits}
+          onEdit={onBack}
+        />
         <ItrReviewTaxSummaryCard selectedRegime={selectedRegime} grossTotalIncome={taxResult.grossTotalIncome} stdDeduction={taxResult.stdDeduction} totalChapterVIDeductions={taxResult.totalChapterVIDeductions} netTaxableIncome={taxResult.netTaxableIncome} grossTax={taxResult.grossTax} cess={taxResult.cess} totalTaxLiability={taxResult.totalTaxLiability} tdsCredits={taxResult.tdsCredits} netTaxPayable={taxResult.netTaxPayable} refundDue={taxResult.refundDue} />
       </div>
       <div className={`itr-step-card itr-rv2-declaration-card ${showError && !isDeclared ? 'itr-info-card--error' : ''}`}>

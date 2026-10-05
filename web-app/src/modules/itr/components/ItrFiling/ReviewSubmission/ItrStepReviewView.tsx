@@ -102,6 +102,13 @@ export const ItrStepReviewView: React.FC<ItrStepReviewViewProps> = ({
           residentialStatus={residentialStatus}
           filingType={filingType}
           uploadedDocs={uploadedDocs}
+          salaryDetails={salaryDetails}
+          housePropertyDetails={housePropertyDetails}
+          businessDetails={businessDetails}
+          capitalGainsDetails={capitalGainsDetails}
+          otherSourcesDetails={otherSourcesDetails}
+          selectedSources={selectedSources}
+          tdsCredits={taxResult.tdsCredits}
           onEdit={onBack}
         />
 

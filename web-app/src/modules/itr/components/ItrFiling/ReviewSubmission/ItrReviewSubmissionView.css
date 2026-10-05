@@ -123,6 +123,29 @@
   color: #15803d;
   border-color: #86efac;
 }
+.itr-rv2-badge--blue {
+  background: #eff6ff;
+  color: #1e40af;
+  border-color: #bfdbfe;
+}
+.itr-rv2-badge--rect {
+  border-radius: 6px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.74rem;
+}
+.itr-rv2-amount-badge-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.28rem;
+  flex-shrink: 0;
+}
+.itr-rv2-row-amount {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
 .itr-rv2-regime-badge {
   color: #ea580c;
   background: #fff7ed;

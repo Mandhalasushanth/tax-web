@@ -66,7 +66,7 @@ export interface FilingBankAccount {
   bankName: string
   accountNumber: string
   ifsc: string
-  accountType: 'savings' | 'current'
+  accountType?: 'savings' | 'current'
   isPrimary: boolean
   isPreValidated: boolean
 }

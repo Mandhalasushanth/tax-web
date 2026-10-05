@@ -74,8 +74,7 @@ export const ItrFilingSubmittedView: React.FC<ItrFilingSubmittedViewProps> = ({
         `Documents        : ${docCount} of 5`,
         `Submitted On     : ${new Date().toLocaleString('en-IN')}`,
         '─────────────────────────────',
-        'Assigned CA: Senior CA Meera Iyer',
-        'TaxEdge — Trusted CA-Assisted Filing',
+        'TaxEdge — Trusted Tax Filing',
       ].join('\n')
 
       const blob = new Blob([content], { type: 'text/plain' })
@@ -167,7 +166,7 @@ export const ItrFilingSubmittedView: React.FC<ItrFilingSubmittedViewProps> = ({
         <InfoIcon size={14} />
         <div>
           <strong>Current Stage 2: Documents Under Review</strong>
-          <span> — Assigned CA is reviewing your Form 16, AIS, and uploaded records.</span>
+          <span> — A Tax Executive is reviewing your Form 16, AIS, and uploaded records.</span>
         </div>
       </div>
     </div>
@@ -190,57 +189,29 @@ export const ItrFilingSubmittedView: React.FC<ItrFilingSubmittedViewProps> = ({
     </div>
   )
 
-  const renderRightColumn = () => (
-    <div className="itr-success-right-col">
-      <div className="itr-step-card">
-        <div className="itr-success-card-title">
-          <InfoIcon size={18} />
-          What happens next
-        </div>
-        <p className="itr-success-next-desc">
-          A Tax Executive will verify your documents, prepare the return and send you the computation to review and approve. You will get a notification at each stage.
-        </p>
-      </div>
-
-      <div className="itr-step-card itr-ca-assigned-card">
-        <div className="itr-ca-assigned-header">
-          <div className="itr-ca-avatar">CA</div>
-          <div>
-            <div className="itr-ca-name">Senior CA Meera Iyer</div>
-            <div className="itr-ca-meta">Direct Tax Specialist · 12+ Yrs Exp</div>
-          </div>
-        </div>
-        <div className="itr-ca-badge-row">
-          <span className="itr-ca-badge">⚡ 4-Hour Review SLA</span>
-          <span className="itr-ca-badge">🛡️ Notice Protection</span>
-        </div>
-      </div>
-
-      <div className="itr-success-actions">
-        <Link to={routePaths.dashboard} className="itr-success-btn-primary">
-          View Application Status &nbsp;→
-        </Link>
-        <button
-          type="button"
-          className="itr-success-btn-secondary"
-          onClick={handleDownloadReceipt}
-        >
-          <DownloadIcon size={16} />
-          Download TaxEdge Application Receipt
-        </button>
-      </div>
+  const renderActions = () => (
+    <div className="itr-success-actions">
+      <Link to={routePaths.dashboard} className="itr-success-btn-primary">
+        View Application Status &nbsp;→
+      </Link>
+      <button
+        type="button"
+        className="itr-success-btn-secondary"
+        onClick={handleDownloadReceipt}
+      >
+        <DownloadIcon size={16} />
+        Download TaxEdge Application Receipt
+      </button>
     </div>
   )
 
   return (
     <div className="itr-success-container">
       {renderHero()}
-      <div className="itr-success-desktop-grid">
-        <div className="itr-success-left-col">
-          {renderProgressTracker()}
-          {renderWhatWeHaveCard()}
-        </div>
-        {renderRightColumn()}
+      <div className="itr-success-content-stack">
+        {renderProgressTracker()}
+        {renderWhatWeHaveCard()}
+        {renderActions()}
       </div>
     </div>
   )

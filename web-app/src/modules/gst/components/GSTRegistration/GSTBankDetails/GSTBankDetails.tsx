@@ -2,6 +2,7 @@ import { type ChangeEvent } from 'react'
 import { gstInput } from '@modules/gst/utils/gstInputFormatters'
 import type { GstBusinessFormData } from '../GSTStepBusiness/GSTStepBusiness'
 import { lookupSampleBankByIfsc, fetchBankDetailsByIfsc } from '@shared/services'
+import { ConfirmAccountNumberInput } from '@shared/components'
 
 export interface GSTBankDetailsProps {
   data: Pick<
@@ -41,11 +42,6 @@ export const GSTBankDetails = ({
   const handleAccountNumberChange = (e: ChangeEvent<HTMLInputElement>) => {
     onChange('accountNumber', gstInput.accountNumber(e.target.value))
     onClearError?.('accountNumber')
-  }
-
-  const handleConfirmAccountNumberChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange('confirmAccountNumber', gstInput.accountNumber(e.target.value))
-    onClearError?.('confirmAccountNumber')
   }
 
   const handleIfscChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -114,7 +110,7 @@ export const GSTBankDetails = ({
             id="accountHolderName"
             type="text"
             className={`gst-form-input ${errors.accountHolderName ? 'gst-input--error' : ''}`}
-            placeholder="As per bank records"
+            placeholder="Enter account holder name"
             value={data.accountHolderName}
             onChange={handleAccountHolderNameChange}
           />
@@ -132,7 +128,7 @@ export const GSTBankDetails = ({
               type="text"
               inputMode="numeric"
               className={`gst-form-input ${errors.accountNumber ? 'gst-input--error' : ''}`}
-              placeholder="Enter account number"
+              placeholder="Enter bank account number"
               value={data.accountNumber}
               onChange={handleAccountNumberChange}
             />
@@ -143,16 +139,19 @@ export const GSTBankDetails = ({
             <label htmlFor="confirmAccountNumber" className="gst-form-label">
               Confirm Account Number <span className="gst-required-star">*</span>
             </label>
-            <input
+            <ConfirmAccountNumberInput
               id="confirmAccountNumber"
-              type="text"
-              inputMode="numeric"
+              name="confirmAccountNumber"
               className={`gst-form-input ${errors.confirmAccountNumber ? 'gst-input--error' : ''}`}
-              placeholder="Re-enter account number"
+              placeholder="Confirm bank account number"
               value={data.confirmAccountNumber}
-              onChange={handleConfirmAccountNumberChange}
+              onChange={(val) => {
+                onChange('confirmAccountNumber', val)
+                onClearError?.('confirmAccountNumber')
+              }}
+              hasError={Boolean(errors.confirmAccountNumber)}
+              error={errors.confirmAccountNumber}
             />
-            {errors.confirmAccountNumber && <span className="gst-field-error">{errors.confirmAccountNumber}</span>}
           </div>
         </div>
 
@@ -194,7 +193,7 @@ export const GSTBankDetails = ({
               type="text"
               maxLength={11}
               className={`gst-form-input ${errors.ifscCode ? 'gst-input--error' : ''}`}
-              placeholder="e.g. HDFC0000412"
+              placeholder="Enter IFSC code"
               value={data.ifscCode}
               onChange={handleIfscChange}
               onBlur={handleIfscBlur}

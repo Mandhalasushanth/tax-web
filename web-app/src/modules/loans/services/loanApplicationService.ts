@@ -16,7 +16,11 @@ export const loanStorageKey = (suffix: string): string => {
 
 export const loanApplicationService = {
   getDraft: <T>(loanType: string): T | null => {
-    return localStore.get<T>(loanStorageKey(loanType))
+    return (
+      localStore.get<T>(loanStorageKey(loanType)) ??
+      localStore.get<T>(`taxedge_loan_app_${loanType}`) ??
+      localStore.get<T>(`taxedge_loan_${loanType}`)
+    )
   },
 
   saveDraft: <T>(loanType: string, data: T): void => {
@@ -25,6 +29,8 @@ export const loanApplicationService = {
 
   clearDraft: (loanType: string): void => {
     localStore.remove(loanStorageKey(loanType))
+    localStore.remove(`taxedge_loan_app_${loanType}`)
+    localStore.remove(`taxedge_loan_${loanType}`)
   },
 
   getApplication: (refNumber: string): LoanApplicationBase | null => {

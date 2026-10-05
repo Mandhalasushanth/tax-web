@@ -25,7 +25,7 @@
 .gst-services-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.15rem;
+  gap: 1.25rem;
 }
 
 @media (max-width: 1024px) {
@@ -147,20 +147,27 @@
   letter-spacing: 0.04em;
 }
 
-.gst-service-card__header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
-}
-
 .gst-service-card__title {
   font-size: 1.125rem;
   font-weight: 700;
   color: #0f172a;
-  margin: 0;
-  line-height: 1.35;
+  margin: 0 0 0.5rem 0;
+}
+
+.gst-service-card__description {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.55;
+  flex-grow: 1;
+}
+
+.gst-service-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px dashed #e2e8f0;
 }
 
 .gst-service-card__action {
@@ -173,11 +180,10 @@
   font-weight: 700;
   font-size: 0.875rem;
   cursor: pointer;
-  padding: 4px 6px;
+  padding: 4px 8px;
   border-radius: 6px;
   transition: all 0.15s ease;
   font-family: inherit;
-  flex-shrink: 0;
 }
 
 .gst-service-card:hover .gst-service-card__action {
@@ -189,11 +195,3 @@
   width: 16px;
   height: 16px;
 }
-
-.gst-service-card__description {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin: 0;
-  line-height: 1.55;
-}
-

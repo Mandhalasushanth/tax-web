@@ -135,8 +135,10 @@ export const GSTServices = ({ services }: GSTServicesProps) => {
               </div>
             </div>
 
-            <div className="gst-service-card__header-row">
-              <h3 className="gst-service-card__title">{service.title}</h3>
+            <h3 className="gst-service-card__title">{service.title}</h3>
+            <p className="gst-service-card__description">{service.description}</p>
+
+            <div className="gst-service-card__footer">
               <button
                 type="button"
                 className="gst-service-card__action"
@@ -153,8 +155,6 @@ export const GSTServices = ({ services }: GSTServicesProps) => {
                 </svg>
               </button>
             </div>
-
-            <p className="gst-service-card__description">{service.description}</p>
           </div>
         ))}
       </div>

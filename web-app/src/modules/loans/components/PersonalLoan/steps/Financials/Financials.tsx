@@ -58,14 +58,6 @@ export const Financials: React.FC<PersonalLoanStepProps> = ({
         </div>
       </div>
 
-      {/* Security Bracket Callout */}
-      <div className="personal-applicant-card__callout">
-        <span className="personal-applicant-card__bracket" aria-hidden="true">&#123;</span>
-        <p className="personal-applicant-card__callout-text">
-          Personal details are securely fetched from your customer profile table. Manual re-entry is skipped.
-        </p>
-      </div>
-
       {/* Profile Details List */}
       <div className="personal-applicant-card__list">
         <div className="personal-applicant-card__row">

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { routePaths } from '@core/config'
 import { DocumentCard, StepActionBar } from '@shared/components'
-import { filterDigits, isValidMobile, isValidPincode, isValidEmail } from '../../utils/validation'
+import { filterDigits, filterMobile, isValidMobile, isValidPincode, isValidEmail } from '../../utils/validation'
 import { useIncorporationFlow } from '../../hooks'
 import './RegisteredOffice.css'
 
@@ -62,7 +62,7 @@ export const RegisteredOffice: React.FC = () => {
     setErrors((prev) => ({ ...prev, [field]: '' }))
     let finalVal = val
     if (field === 'pincode') finalVal = filterDigits(val, 6)
-    if (field === 'mobile') finalVal = filterDigits(val, 10)
+    if (field === 'mobile') finalVal = filterMobile(val)
     
     updateFormData({
       registeredOffice: { ...formData.registeredOffice, docs, addressData: { ...addressData, [field]: finalVal } }

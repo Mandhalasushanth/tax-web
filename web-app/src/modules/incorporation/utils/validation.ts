@@ -4,6 +4,7 @@ import {
   isValidPincode as sharedIsValidPincode,
   isValidEmail as sharedIsValidEmail,
   isValidAadhaar as sharedIsValidAadhaar,
+  formatMobile,
 } from '@shared/utils/validationUtils'
 
 /**
@@ -18,6 +19,9 @@ export const filterDigits = (val: string, maxLen?: number): string => {
   const digits = val.replace(/\D/g, '')
   return maxLen ? digits.slice(0, maxLen) : digits
 }
+
+// Mobile input: strips +91 / leading 0 and limits to 10 digits
+export const filterMobile = (val: string): string => formatMobile(val)
 
 // Aadhaar: exactly 12 digits, numeric only
 export const isValidAadhaar = (val: string): boolean => sharedIsValidAadhaar(val)

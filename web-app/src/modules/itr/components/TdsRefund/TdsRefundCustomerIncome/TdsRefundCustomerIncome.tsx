@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { User, Landmark, Calculator, ShieldCheck } from 'lucide-react'
 import { StepActionBar, ConfirmAccountNumberInput } from '@shared/components'
-import { validatePan, validateMobileNumber, validateAadhaar, validateIfsc, validateBankAccNumber, validateName, validateEmail } from '@shared/utils/validationUtils'
+import { formatMobile, validatePan, validateMobileNumber, validateAadhaar, validateIfsc, validateBankAccNumber, validateName, validateEmail } from '@shared/utils/validationUtils'
 import { DEFAULT_TDS_TAXPAYER, EMPTY_BANK, EMPTY_TAX, TdsIcons, fetchIfscDetails, type TdsTaxpayerProfile } from '../../../utils/tdsRefund.constants'
 import type { TdsBankDetails, TdsIncomeTaxData } from '../../../types/tdsRefund.types'
 import { TdsRefundProgressTracker } from '../TdsRefundOverview'
@@ -326,7 +326,7 @@ export const TdsRefundCustomerIncome: React.FC<TdsRefundCustomerIncomeProps> = (
               <div className="tds-form-group"><label htmlFor="tds-profile-dob" className="tds-label">Date of Birth</label><input id="tds-profile-dob" type="date" className="tds-input" value={profile.dob} onChange={(e) => handleProfileChange({ dob: e.target.value })} /></div>
               <div className="tds-form-group">
                 <label htmlFor="tds-profile-mobile" className="tds-label">Mobile Number</label>
-                <input id="tds-profile-mobile" type="tel" className={`tds-input ${fieldErrors.mobile ? 'has-error' : ''}`} value={profile.mobile} onChange={(e) => handleProfileChange({ mobile: e.target.value.replace(/\D/g, '').slice(0, 10) })} placeholder="Enter your mobile number" maxLength={10} />
+                <input id="tds-profile-mobile" type="tel" className={`tds-input ${fieldErrors.mobile ? 'has-error' : ''}`} value={profile.mobile} onChange={(e) => handleProfileChange({ mobile: formatMobile(e.target.value) })} placeholder="Enter your mobile number" />
                 {fieldErrors.mobile && <span className="tds-field-error" style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem', display: 'block' }}>{fieldErrors.mobile}</span>}
               </div>
               <div className="tds-form-group">

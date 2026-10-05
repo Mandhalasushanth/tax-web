@@ -6,6 +6,24 @@ import {
   panFromGstin,
   isValidGstin,
 } from './formatUtils'
+import { EMAIL_LIMITS, REGEX } from '../constants/common.constants'
+import {
+  INDIVIDUAL_PAN_HOLDER_CODE,
+  PAN_HOLDER_TYPES,
+  getAadhaarError,
+  getPanHolderCode,
+  isKnownPanHolderType,
+} from './identityValidation'
+
+export {
+  AADHAAR_LENGTH,
+  AGE_LIMITS,
+  PAN_HOLDER_TYPES,
+  ageOn,
+  getAgeRangeError,
+  isValidVerhoeff,
+  verhoeffCheckDigit,
+} from './identityValidation'
 
 export {
   formatAadhaar,
@@ -16,15 +34,20 @@ export {
   isValidGstin,
 }
 
-export const isValidPan = (value: string): boolean => /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(value.trim().toUpperCase())
+export const isValidPan = (value: string): boolean => validatePan(value) === null
 export const isValidPincode = (value: string): boolean => /^[1-9][0-9]{5}$/.test(value.trim())
 
 /**
  * Validates Email addresses (RFC 5322 compatible standard check)
  */
 export const isValidEmail = (email: string): boolean => {
-  const trimmed = email.trim()
-  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmed)
+  const trimmed = (email || '').trim()
+  const localPart = trimmed.split('@')[0] ?? ''
+  return (
+    trimmed.length <= EMAIL_LIMITS.maxLength &&
+    localPart.length <= EMAIL_LIMITS.maxLocalLength &&
+    REGEX.email.test(trimmed)
+  )
 }
 
 export const validateEmail = (email: string, label = 'Email address'): string | null => {
@@ -120,12 +143,15 @@ export const validateAccountMatch = (
   return null
 }
 
+/** Lengths GST accepts for HSN (goods) / SAC (services) codes */
+export const HSN_SAC_LENGTHS = [4, 6, 8] as const
+
 /**
- * Validates HSN / SAC code (2 to 8 alphanumeric characters)
+ * Validates HSN / SAC code: digits only, exactly 4, 6 or 8 digits
  */
 export const isValidHsnSac = (code: string): boolean => {
-  const trimmed = code.trim()
-  return /^[0-9A-Za-z]{2,8}$/.test(trimmed)
+  const trimmed = (code || '').trim()
+  return /^\d+$/.test(trimmed) && (HSN_SAC_LENGTHS as readonly number[]).includes(trimmed.length)
 }
 
 /**
@@ -136,8 +162,23 @@ export const validatePan = (pan: string, label = 'PAN'): string | null => {
   if (!trimmed) {
     return `${label} is required`
   }
-  if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(trimmed)) {
+  if (!REGEX.pan.test(trimmed)) {
     return 'Enter a valid PAN'
+  }
+  if (!isKnownPanHolderType(trimmed)) {
+    return `Enter a valid PAN (4th character must be one of ${Object.keys(PAN_HOLDER_TYPES).join(', ')})`
+  }
+  return null
+}
+
+/**
+ * Validates a PAN issued to an individual person: 4th character must be "P".
+ */
+export const validateIndividualPan = (pan: string, label = 'PAN'): string | null => {
+  const baseError = validatePan(pan, label)
+  if (baseError) return baseError
+  if (getPanHolderCode(pan) !== INDIVIDUAL_PAN_HOLDER_CODE) {
+    return `Enter an individual PAN (4th character must be "${INDIVIDUAL_PAN_HOLDER_CODE}")`
   }
   return null
 }
@@ -264,38 +305,60 @@ export const validateDobSignatory = (dob: string): string | null => {
   return null
 }
 
+/** Plausible window for a business commencement date (GST allows a short future start for new businesses) */
+export const COMMENCEMENT_DATE_LIMITS = { maxYearsInPast: 100, maxDaysInFuture: 30 } as const
+
+/** Earliest / latest allowed commencement dates as YYYY-MM-DD (also used for the date input's min / max) */
+export const getCommencementDateBounds = (today: Date = new Date()): { min: string; max: string } => {
+  const toIso = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  const min = new Date(today)
+  min.setFullYear(min.getFullYear() - COMMENCEMENT_DATE_LIMITS.maxYearsInPast)
+  const max = new Date(today)
+  max.setDate(max.getDate() + COMMENCEMENT_DATE_LIMITS.maxDaysInFuture)
+  return { min: toIso(min), max: toIso(max) }
+}
+
 /**
- * Validates Commencement Date:
- * - Must be a valid date
- * - Cannot be more than 30 days in the future
+ * Validates Commencement Date (YYYY-MM-DD):
+ * - Must be a real calendar date
+ * - Not more than 100 years in the past (rejects placeholders like 01-01-1900)
+ * - Not more than 30 days in the future
  */
-export const validateCommencementDate = (date: string): string | null => {
+export const validateCommencementDate = (date: string, today: Date = new Date()): string | null => {
   if (!date) {
     return 'Date of commencement is required'
   }
+  const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/)
   const dateObj = new Date(date)
-  if (isNaN(dateObj.getTime())) {
+  const isRealDate =
+    Boolean(match) &&
+    !isNaN(dateObj.getTime()) &&
+    dateObj.toISOString().slice(0, 10) === date
+  if (!isRealDate) {
     return 'Please select a valid date'
   }
-  const maxFuture = new Date()
-  maxFuture.setDate(maxFuture.getDate() + 30)
-  if (dateObj > maxFuture) {
-    return 'Commencement date cannot be more than 30 days in the future'
+  const { min, max } = getCommencementDateBounds(today)
+  if (date < min) {
+    return `Commencement date cannot be more than ${COMMENCEMENT_DATE_LIMITS.maxYearsInPast} years in the past`
+  }
+  if (date > max) {
+    return `Commencement date cannot be more than ${COMMENCEMENT_DATE_LIMITS.maxDaysInFuture} days in the future`
   }
   return null
 }
 
 /**
- * Validates genuine Indian 12-digit Aadhaar numbers
+ * Validates genuine Indian 12-digit Aadhaar numbers (UIDAI rules):
+ * exactly 12 digits, first digit 2-9, valid Verhoeff check digit,
+ * plus rejection of obvious dummy numbers.
  */
 export const validateAadhaar = (aadhaar: string, label = 'Aadhaar number'): string | null => {
-  const digits = (aadhaar || '').replace(/\D/g, '').trim()
+  const digits = (aadhaar || '').replace(/[\s-]/g, '')
 
-  if (!digits) {
-    return `${label} is required`
-  }
-  if (digits.length !== 12) {
-    return 'Enter a valid 12-digit Aadhaar number'
+  const formatError = getAadhaarError(digits, label)
+  if (formatError) {
+    return formatError
   }
   if (/^(\d)\1{11}$/.test(digits)) {
     return 'Enter a valid 12-digit Aadhaar number'

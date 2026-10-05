@@ -1,6 +1,16 @@
 export { authService } from './authService'
 export { authStorage } from './authStorage'
 export {
+  REDIRECT_PARAM,
+  buildLoginPath,
+  buildProfileCompletionPath,
+  isSafeRedirect,
+  resolvePostLoginPath,
+} from './authRedirect'
+export { isIdleExpired, startIdleWatcher } from './idleWatcher'
+export type { IdleWatcherOptions } from './idleWatcher'
+export type { SessionEndReason } from './sessionSync'
+export {
   AGENT_ROLES,
   ROLE_LABELS,
   STAFF_ROLES,

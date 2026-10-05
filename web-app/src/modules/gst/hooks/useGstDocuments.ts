@@ -1,6 +1,9 @@
 import { useState, useRef, useMemo, type ChangeEvent } from 'react'
 import type { DocumentItem, DocumentCategory, DocPreviewState } from '@modules/gst/types/gstDocuments.types'
-import { INITIAL_DOCUMENTS } from '@modules/gst/utils/gstDocuments.constants'
+import { validateUploadFile } from '@shared/utils'
+import { INITIAL_DOCUMENTS, getGstDocUploadRule } from '@modules/gst/utils/gstDocuments.constants'
+import { getDocumentsStepError } from '@modules/gst/utils/gstRegistrationGuard'
+import { gstUploadedFiles } from '@modules/gst/services/gstUploadedFiles'
 
 export const useGstDocuments = (
   initialDocs?: DocumentItem[],
@@ -11,6 +14,8 @@ export const useGstDocuments = (
   const [replacingDocId, setReplacingDocId] = useState<string | null>(null)
   const [previewDoc, setPreviewDoc] = useState<DocPreviewState | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
+  /** Per-document upload errors (wrong type, too large, fake content) */
+  const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({})
 
   // Adopt a new initialDocs list from the parent (during render, no extra effect pass)
   const [syncedInitialDocs, setSyncedInitialDocs] = useState(initialDocs)
@@ -59,22 +64,36 @@ export const useGstDocuments = (
     }
   }
 
-  const handleFileSelected = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0 || !activeUploadTargetId) return
-    const file = e.target.files[0]
-    const fileName = file.name
-
+  /**
+   * Accepts a file for a document slot only after it passes the slot's rule
+   * (allowed type, max size, genuine file signature). Rejected files leave the slot unchanged.
+   */
+  const acceptFile = async (docId: string, file: File) => {
+    const error = await validateUploadFile(file, getGstDocUploadRule(docId))
+    if (error) {
+      setUploadErrors((prev) => ({ ...prev, [docId]: error }))
+      return
+    }
+    setUploadErrors(({ [docId]: _removed, ...rest }) => rest)
+    gstUploadedFiles.set(docId, file)
     updateDocuments((prev) =>
-      prev.map((doc) =>
-        doc.id === activeUploadTargetId ? { ...doc, isUploaded: true, fileName } : doc
-      )
+      prev.map((doc) => (doc.id === docId ? { ...doc, isUploaded: true, fileName: file.name } : doc))
     )
-    setActiveUploadTargetId(null)
     setReplacingDocId(null)
     setValidationError(null)
   }
 
+  const handleFileSelected = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    const targetId = activeUploadTargetId
+    if (!file || !targetId) return
+    setActiveUploadTargetId(null)
+    await acceptFile(targetId, file)
+  }
+
   const handleDelete = (id: string) => {
+    setUploadErrors(({ [id]: _removed, ...rest }) => rest)
+    gstUploadedFiles.remove(id)
     updateDocuments((prev) =>
       prev.map((doc) => (doc.id === id ? { ...doc, isUploaded: false, fileName: undefined } : doc))
     )
@@ -86,7 +105,8 @@ export const useGstDocuments = (
   const handleView = (doc: DocumentItem) => {
     setPreviewDoc({
       title: doc.title,
-      fileName: doc.fileName || `${doc.title}.pdf`,
+      fileName: doc.fileName || doc.title,
+      file: gstUploadedFiles.get(doc.id),
     })
   }
 
@@ -100,32 +120,14 @@ export const useGstDocuments = (
   }
 
   const handleProceed = (onNext: () => void) => {
-    const addressDoc = documents.find((d) => d.id === 'address_proof')
-    if (addressDoc && !addressDoc.addressProofType) {
-      setValidationError('Please choose address type for Principal Place Address Proof.')
-      return
-    }
-
-    const pendingDocs = documents.filter((d) => !d.isUploaded)
-    if (pendingDocs.length > 0) {
-      setValidationError(
-        `Please upload all required documents (${pendingDocs.map((d) => d.title).join(', ')}) before proceeding.`
-      )
-      return
-    }
-    setValidationError(null)
-    onNext()
+    const stepError = getDocumentsStepError(documents)
+    setValidationError(stepError)
+    if (!stepError) onNext()
   }
 
-  const handleDirectUpload = (id: string, file: File) => {
-    updateDocuments((prev) =>
-      prev.map((doc) =>
-        doc.id === id ? { ...doc, isUploaded: true, fileName: file.name } : doc
-      )
-    )
+  const handleDirectUpload = async (id: string, file: File) => {
     setActiveUploadTargetId(null)
-    setReplacingDocId(null)
-    setValidationError(null)
+    await acceptFile(id, file)
   }
 
   return {
@@ -136,6 +138,7 @@ export const useGstDocuments = (
     replacingDocId,
     previewDoc,
     validationError,
+    uploadErrors,
     fileInputRef,
     cameraInputRef,
     handleTriggerUpload,

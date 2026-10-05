@@ -86,22 +86,50 @@ export const authStorage = {
   },
 
   getRegisteredUsers(): Record<string, RegisteredUserRecord> {
-    return localStore.get<Record<string, RegisteredUserRecord>>(STORAGE_KEYS.registeredUsers) || {}
+    const raw = localStore.get<Record<string, any>>(STORAGE_KEYS.registeredUsers) || {}
+    const result: Record<string, RegisteredUserRecord> = {}
+    for (const [key, val] of Object.entries(raw)) {
+      if (!val) continue
+      const user = val.user || val.profile || { mobile: key }
+      result[key] = {
+        mobile: val.mobile || key,
+        passcode: val.passcode || '',
+        isRegistered: Boolean(val.isRegistered),
+        user,
+      }
+    }
+    return result
   },
 
   getRegisteredUser(mobile: string): RegisteredUserRecord | null {
-    const rec = userRepository.getUserRecord(mobile) as { mobile: string; passcode?: string; isRegistered: boolean; profile: AuthUser } | null
+    const rec = userRepository.getUserRecord(mobile) as { mobile: string; passcode?: string; isRegistered: boolean; profile: AuthUser; user?: AuthUser } | null
     if (!rec) return null
     return {
       mobile: rec.mobile,
       passcode: rec.passcode || '',
       isRegistered: rec.isRegistered,
-      user: rec.profile,
+      user: rec.user || rec.profile,
     }
   },
 
   saveRegisteredUser(record: RegisteredUserRecord): void {
-    userRepository.createUser(record.user, record.passcode)
+    const clean = (record.mobile || record.user?.mobile || '').replace(/\D/g, '')
+    const userToSave: AuthUser = {
+      ...record.user,
+      mobile: clean,
+      isProfileComplete: record.isRegistered,
+    }
+    userRepository.createUser(userToSave, record.passcode)
+    const raw = localStore.get<Record<string, any>>(STORAGE_KEYS.registeredUsers) || {}
+    raw[clean] = {
+      mobile: clean,
+      passcode: record.passcode || '',
+      hasPasscode: Boolean(record.passcode),
+      isRegistered: Boolean(record.isRegistered),
+      profile: userToSave,
+      user: userToSave,
+    }
+    localStore.set(STORAGE_KEYS.registeredUsers, raw)
   },
 
   isMobileRegistered(mobile: string): boolean {

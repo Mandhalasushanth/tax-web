@@ -232,7 +232,7 @@ describe('TaxNoticeAssistance Component', () => {
     // Card should show View Document, Replace, and Delete trash button
     expect(screen.getByText('View Document')).toBeDefined()
     expect(screen.getByText('Replace')).toBeDefined()
-    const deleteBtn = screen.getByRole('button', { name: /Delete document/i })
+    const deleteBtn = screen.getByRole('button', { name: /^Delete /i })
     expect(deleteBtn).toBeDefined()
 
     // Click delete trash button to remove file

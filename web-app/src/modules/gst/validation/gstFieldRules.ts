@@ -1,4 +1,5 @@
 import {
+  HSN_SAC_LENGTHS,
   isValidBankAccNumber,
   isValidGstin,
   isValidHsnSac,
@@ -65,7 +66,8 @@ export const gstFieldRules = {
   hsnSac: (v?: string): string | undefined => {
     const value = trimmed(v)
     if (!value) return 'HSN / SAC code is required'
-    return isValidHsnSac(value) ? undefined : 'HSN / SAC must be 2 to 8 alphanumeric characters'
+    if (!/^\d+$/.test(value)) return 'HSN / SAC code must contain digits only'
+    return isValidHsnSac(value) ? undefined : `HSN / SAC code must be ${HSN_SAC_LENGTHS.join(', ').replace(/, (\d+)$/, ' or $1')} digits`
   },
 
   personName: (label: string): Rule => (v) => {

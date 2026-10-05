@@ -1,6 +1,11 @@
 import { useState, type FC, type ReactNode } from 'react'
 import type { DocumentItem } from '@modules/gst/types/gstDocuments.types'
-import { ADDRESS_PROOF_OPTIONS } from '@modules/gst/utils/gstDocuments.constants'
+import { acceptAttributeFor } from '@shared/utils'
+import {
+  ADDRESS_PROOF_OPTIONS,
+  getGstDocUploadHint,
+  getGstDocUploadRule,
+} from '@modules/gst/utils/gstDocuments.constants'
 import {
   PanCardIcon,
   AadhaarCardIcon,
@@ -23,6 +28,8 @@ interface GSTDocCardProps {
   onDelete: (id: string) => void
   onView: (doc: DocumentItem) => void
   onAddressProofChange?: (value: string) => void
+  /** Why the last selected file was rejected (type / size / content) */
+  uploadError?: string
 }
 
 const getDocIcon = (id: string): ReactNode => {
@@ -53,7 +60,9 @@ export const GSTDocCard: FC<GSTDocCardProps> = ({
   onDelete,
   onView,
   onAddressProofChange,
+  uploadError,
 }) => {
+  const uploadErrorId = `${doc.id}-upload-error`
   const [addressWarning, setAddressWarning] = useState(false)
 
   const handleUploadClick = () => {
@@ -86,20 +95,25 @@ export const GSTDocCard: FC<GSTDocCardProps> = ({
     <UploadDocument
       id={doc.id}
       title={doc.title}
-      subtitle={doc.subtitle}
+      subtitle={`${doc.subtitle} · ${getGstDocUploadHint(doc.id)}`}
       isRequired={true}
       icon={getDocIcon(doc.id)}
       iconBg="#eff6ff"
       iconColor="#2563eb"
       isUploaded={doc.isUploaded && !isReplacing}
       fileName={doc.fileName}
-      accept=".pdf,.jpg,.jpeg,.png,.docx"
+      accept={acceptAttributeFor(getGstDocUploadRule(doc.id))}
       onUploadClick={handleUploadClick}
       onUpload={handleUploadFile}
       onReplace={handleReplace}
       onRemove={() => onDelete(doc.id)}
       onView={() => onView(doc)}
     >
+      {uploadError && (
+        <p id={uploadErrorId} className="gst-doc-upload-error" role="alert">
+          {uploadError}
+        </p>
+      )}
       {doc.id === 'address_proof' && (
         <div className="gst-doc-address-wrapper">
           <div

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { routePaths } from '@core/config'
+import { buildProfileCompletionPath } from '@core/auth'
 import { useAuthStore } from '@store/index'
 import { CompleteProfileModal } from '@shared/components'
 import { GST_SERVICE_ROUTES, GST_SERVICE_ICON_IMAGE_MAP, type GstService } from '@modules/gst/constants/gstServices.constants'
@@ -100,7 +100,7 @@ export const GSTServices = ({ services }: GSTServicesProps) => {
 
   const handleConfirmProfile = () => {
     setIsProfileModalOpen(false)
-    navigate(routePaths.auth.register, {
+    navigate(buildProfileCompletionPath(selectedTarget), {
       state: { returnTo: selectedTarget, mobile: user?.mobile },
     })
   }

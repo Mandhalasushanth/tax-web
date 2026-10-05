@@ -52,6 +52,7 @@ export const GSTStepReview: FC<GSTStepReviewProps> = ({
     { label: 'Legal Name', value: businessData.legalName || '—' },
     { label: 'Trade Name', value: businessData.tradeName || businessData.legalName || '—' },
     { label: 'Constitution', value: businessData.constitution || '—' },
+    { label: 'Business PAN', value: businessData.businessPan || '—' },
     { label: 'Nature of Business', value: businessData.natureOfBusiness || '—' },
     { label: 'Date of Commencement', value: businessData.commencementDate || '—' },
     { label: 'Reason for Reg.', value: businessData.registrationReason || '—' },

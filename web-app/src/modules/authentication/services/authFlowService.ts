@@ -1,10 +1,13 @@
 import { env } from '@core/config'
+import { isValidEmail } from '@shared/utils'
 import { authStorage, permissionsFor, userRepository } from '@core/auth'
 import type { AuthSession, AuthUser, UserRole } from '@core/auth'
 
 import { authApi } from '../api/authApi'
+import { DuplicateIdentityError, findIdentityConflicts } from './identityRegistry'
 import type {
   LoginPayload,
+  ResetPasscodePayload,
   SaveRegistrationStep1Payload,
   VerifyOtpPayload,
   VerifyPasscodePayload,
@@ -79,6 +82,28 @@ const mockSession = (mobile: string): AuthSession => ({
 const delay = (ms = 400) => new Promise((resolve) => setTimeout(resolve, ms))
 /* ------------------------------------------------------------------ */
 
+const digitsOf = (value: string | undefined) => (value ?? '').replace(/\D/g, '')
+
+/**
+ * Server-side style checks for profile creation (mirrors what the API must enforce):
+ * the profile can only be saved for the mobile number verified by OTP in this session,
+ * and the email must be well formed.
+ */
+const assertRegistrationAllowed = (payload: SaveRegistrationStep1Payload, cleanMobile: string): void => {
+  const verifiedMobile = digitsOf(authStorage.getUser()?.mobile)
+  if (verifiedMobile && (cleanMobile !== verifiedMobile || digitsOf(payload.user.mobile) !== verifiedMobile)) {
+    throw new Error('Mobile number does not match the number verified by OTP. Please sign in again.')
+  }
+  if (payload.user.email && !isValidEmail(payload.user.email)) {
+    throw new Error('Please enter a valid email address.')
+  }
+  // Unique constraint: one account per PAN and per email
+  const conflicts = findIdentityConflicts({ mobile: cleanMobile, pan: payload.user.pan, email: payload.user.email })
+  if (Object.keys(conflicts).length > 0) {
+    throw new DuplicateIdentityError(conflicts)
+  }
+}
+
 /**
  * Business rules for signing in and registration.
  * Calls the userRepository storage abstraction, isolating UI from direct storage/API.
@@ -110,6 +135,13 @@ export const authFlowService = {
   savePasscodeState(mobile: string, passcode: string): void {
     const clean = mobile.replace(/\D/g, '')
     userRepository.savePasscodeState(clean, passcode)
+    const record = authStorage.getRegisteredUser(clean)
+    authStorage.saveRegisteredUser({
+      mobile: clean,
+      isRegistered: true,
+      user: record?.user ?? mockUser(clean),
+      passcode,
+    })
   },
 
   /** Get user profile through storage abstraction */
@@ -175,6 +207,8 @@ export const authFlowService = {
         },
       }
       userRepository.saveSession(session)
+      authStorage.setTokens(session.tokens)
+      authStorage.setUser(userProfile)
       return session
     }
 
@@ -183,6 +217,7 @@ export const authFlowService = {
 
   async saveRegistrationStep1(payload: SaveRegistrationStep1Payload): Promise<void> {
     const clean = payload.mobile.replace(/\D/g, '')
+    assertRegistrationAllowed(payload, clean)
     const step1User: AuthUser = {
       ...payload.user,
       isProfileComplete: true,
@@ -190,6 +225,14 @@ export const authFlowService = {
 
     // Persist passcode and profile through storage abstraction
     userRepository.createUser(step1User, payload.passcode)
+
+    authStorage.saveRegisteredUser({
+      mobile: clean,
+      passcode: payload.passcode,
+      isRegistered: true,
+      user: step1User,
+    })
+    authStorage.setUser(step1User)
 
     const session: AuthSession = {
       user: step1User,
@@ -211,11 +254,42 @@ export const authFlowService = {
         isProfileComplete: true,
       }
       userRepository.saveProfile(clean, updatedUser)
+      const record = authStorage.getRegisteredUser(clean)
+      if (record) {
+        authStorage.saveRegisteredUser({
+          ...record,
+          isRegistered: true,
+          user: updatedUser,
+        })
+      }
+      authStorage.setUser(updatedUser)
+
       const currentTokens = authStorage.getTokens()
       if (currentTokens) {
         userRepository.saveSession({ user: updatedUser, tokens: currentTokens })
       }
     }
+  },
+
+  /** Replaces the passcode of an existing account after its OTP has been verified (Forgot Passcode). */
+  async resetPasscode(payload: ResetPasscodePayload): Promise<void> {
+    const clean = payload.mobile.replace(/\D/g, '')
+    if (env.enableMocks) {
+      await delay(300)
+      if (!this.hasPasscode(clean)) {
+        throw new Error('No registered account found for this mobile number.')
+      }
+      userRepository.savePasscodeState(clean, payload.passcode)
+      const record = authStorage.getRegisteredUser(clean)
+      authStorage.saveRegisteredUser({
+        mobile: clean,
+        isRegistered: true,
+        user: record?.user ?? mockUser(clean),
+        passcode: payload.passcode,
+      })
+      return
+    }
+    await authApi.setPasscode({ mobile: clean, passcode: payload.passcode })
   },
 
   async sendOtp(mobile: string): Promise<void> {

@@ -12,6 +12,7 @@ export interface StoredUserRecord {
   hasPasscode: boolean
   isRegistered: boolean
   profile: AuthUser
+  user?: AuthUser
   selectedServices?: string[]
   createdAt: string
   updatedAt: string
@@ -140,6 +141,7 @@ export class LocalStorageUserRepository implements IUserRepository {
       hasPasscode: hasPass,
       isRegistered: isReg,
       profile: fullProfile,
+      user: fullProfile,
       selectedServices: existing?.selectedServices || [],
       createdAt: existing?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),

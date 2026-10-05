@@ -98,14 +98,14 @@ export function openDocumentPreview(params: {
   }) => void;
 }): void {
   try {
-    const rawFile =
+    const rawFile: unknown =
       params.file ||
       (typeof window !== "undefined"
         ? (window as unknown as { __taxedge_uploaded_files?: Map<string, File> })
             .__taxedge_uploaded_files?.get(params.id)
         : undefined);
 
-    if (rawFile instanceof File || rawFile instanceof Blob) {
+    if (rawFile && rawFile instanceof Blob) {
       try {
         let viewableBlob: Blob = rawFile;
         let mimeType = rawFile.type;

@@ -23,7 +23,6 @@ export const GSTAmendmentForm = ({
   onBackToSelection,
 }: GSTAmendmentFormProps) => {
   const {
-    fileInputRef,
     selectedFieldKey,
     newValue,
     setNewValue,
@@ -36,7 +35,6 @@ export const GSTAmendmentForm = ({
     filterNewValue,
     handleFieldSelectChange,
     handleFileChange,
-    handleBrowseClick,
     handleRemoveFile,
     handleSubmit,
   } = useGSTAmendmentForm({

@@ -3,7 +3,8 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { routePaths } from '@core/config'
 import { buildProfileCompletionPath } from '@core/auth'
 import { initialsOf } from '@shared/utils'
-import { CompleteProfileModal } from '@shared/components'
+import { CompleteProfileModal, LogoutConfirmModal, LogoutIcon } from '@shared/components'
+import { useLogoutConfirm } from '@modules/authentication'
 import { useAuthStore } from '@store/index'
 import { navSections } from './navigation'
 import { useDashboardSummary } from '@modules/dashboard'
@@ -40,7 +41,7 @@ const ChatIcon = () => (
 export const DashboardLayout = () => {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
-  const signOut = useAuthStore((state) => state.signOut)
+  const logout = useLogoutConfirm()
   const location = useLocation()
   const { data } = useDashboardSummary()
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
@@ -181,8 +182,8 @@ export const DashboardLayout = () => {
             </div>
           </div>
 
-          <button className="shell__signout" type="button" onClick={signOut}>
-            <span aria-hidden="true">⇥</span> Sign out
+          <button className="shell__signout" type="button" onClick={logout.requestLogout}>
+            <LogoutIcon size={14} /> Log out
           </button>
         </div>
       </aside>
@@ -230,6 +231,13 @@ export const DashboardLayout = () => {
           </Suspense>
         </main>
       </div>
+
+      <LogoutConfirmModal
+        isOpen={logout.isConfirmOpen}
+        isLoggingOut={logout.isLoggingOut}
+        onConfirm={logout.confirmLogout}
+        onCancel={logout.cancelLogout}
+      />
 
       <CompleteProfileModal
         isOpen={isProfileModalOpen}

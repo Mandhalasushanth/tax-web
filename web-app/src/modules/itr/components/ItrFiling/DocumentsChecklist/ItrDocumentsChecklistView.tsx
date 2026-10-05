@@ -61,7 +61,6 @@ export const ItrDocumentsChecklistView: React.FC<ItrDocumentsChecklistViewProps>
         subtitle={doc.desc}
         isRequired={Boolean(doc.isMandatory)}
         icon={<doc.Icon />}
-        uploadLabel="Upload File"
         accept=".pdf,.jpg,.jpeg,.png"
         isUploaded={Boolean(uploaded)}
         fileName={uploaded?.fileName}

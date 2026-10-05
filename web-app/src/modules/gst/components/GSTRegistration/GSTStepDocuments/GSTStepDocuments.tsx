@@ -37,6 +37,7 @@ export const GSTStepDocuments: FC<GSTStepDocumentsProps> = ({
     handleTriggerUpload,
     handleTriggerCamera,
     handleFileSelected,
+    handleDirectUpload,
     handleDelete,
     handleStartReplace,
     handleCancelReplace,
@@ -86,6 +87,7 @@ export const GSTStepDocuments: FC<GSTStepDocumentsProps> = ({
                 isReplacing={replacingDocId === doc.id}
                 onTriggerCamera={handleTriggerCamera}
                 onTriggerUpload={handleTriggerUpload}
+                onDirectUpload={handleDirectUpload}
                 onStartReplace={handleStartReplace}
                 onCancelReplace={handleCancelReplace}
                 onDelete={handleDelete}

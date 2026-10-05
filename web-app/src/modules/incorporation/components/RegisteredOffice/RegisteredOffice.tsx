@@ -86,26 +86,31 @@ export const RegisteredOffice: React.FC = () => {
 
   const handleContinue = () => {
     const newErrors: Record<string, string> = {}
-    if (!addressData.addressLine1.trim()) newErrors.addressLine1 = 'Building / premises address is required'
-    if (!addressData.city.trim()) newErrors.city = 'City is required'
-    if (!addressData.district.trim()) newErrors.district = 'District is required'
-    if (!addressData.state.trim()) newErrors.state = 'State is required'
-    if (!addressData.pincode.trim()) {
+    if (!(addressData.addressLine1 || '').trim()) newErrors.addressLine1 = 'Building / premises address is required'
+    if (!(addressData.city || '').trim()) newErrors.city = 'City is required'
+    if (!(addressData.district || '').trim()) newErrors.district = 'District is required'
+    if (!(addressData.state || '').trim()) newErrors.state = 'State is required'
+    if (!(addressData.pincode || '').trim()) {
       newErrors.pincode = 'PIN code is required'
     } else if (!isValidPincode(addressData.pincode)) {
       newErrors.pincode = 'Enter a valid 6-digit PIN code'
     }
     if (!addressData.ownershipStatus) newErrors.ownershipStatus = 'Premises ownership status is required'
-    if (!addressData.email.trim()) {
+    if (!(addressData.email || '').trim()) {
       newErrors.email = 'Email address is required'
     } else if (!isValidEmail(addressData.email)) {
       newErrors.email = 'Enter a valid email address'
     }
-    if (!addressData.mobile.trim()) {
+    if (!(addressData.mobile || '').trim()) {
       newErrors.mobile = 'Mobile number is required'
     } else if (!isValidMobile(addressData.mobile)) {
       newErrors.mobile = 'Enter a valid 10-digit Indian mobile number'
     }
+    docs.forEach((d: OfficeDocItem) => {
+      if (d.isRequired && !d.isUploaded) {
+        newErrors[d.id] = `${d.title} is required`
+      }
+    })
     const unuploadedDoc = docs.find((d: OfficeDocItem) => d.isRequired && !d.isUploaded)
     if (unuploadedDoc) {
       newErrors.docs = `Please upload mandatory document: ${unuploadedDoc.title}`
@@ -210,17 +215,20 @@ export const RegisteredOffice: React.FC = () => {
 
         <div className="reg-office-docs-list">
           {docs.map((doc: OfficeDocItem) => (
-            <DocumentCard
-              key={doc.id}
-              id={doc.id}
-              title={doc.title}
-              subtitle={doc.subtitle}
-              isRequired={doc.isRequired}
-              isUploaded={doc.isUploaded}
-              fileName={doc.fileName}
-              onUpload={(_, file) => handleUploadDoc(doc.id, file)}
-              onRemove={() => handleRemoveDoc(doc.id)}
-            />
+            <div key={doc.id} className="reg-office-doc-item-wrapper">
+              <DocumentCard
+                id={doc.id}
+                title={doc.title}
+                subtitle={doc.subtitle}
+                isRequired={doc.isRequired}
+                isUploaded={doc.isUploaded}
+                fileName={doc.fileName}
+                className={errors[doc.id] ? 'loan-doc-item--error doc-card--error' : ''}
+                onUpload={(_, file) => handleUploadDoc(doc.id, file)}
+                onRemove={() => handleRemoveDoc(doc.id)}
+              />
+              {errors[doc.id] && <span className="reg-office-field-error">{errors[doc.id]}</span>}
+            </div>
           ))}
         </div>
         {errors.docs && <span className="reg-office-field-error reg-office-field-error--spaced">{errors.docs}</span>}
@@ -231,7 +239,6 @@ export const RegisteredOffice: React.FC = () => {
         onBack={() => navigate(routePaths.incorporation.companyDetails)}
         onNext={handleContinue}
         onSaveDraft={() => navigate(routePaths.dashboard)}
-        nextDisabled={!(addressData.addressLine1.trim() && addressData.city.trim() && addressData.state.trim() && addressData.pincode.trim().length >= 6 && addressData.ownershipStatus && addressData.email.trim() && docs.filter((d: OfficeDocItem) => d.isRequired).every((d: OfficeDocItem) => d.isUploaded))}
         nextLabel="Continue"
       />
     </div>

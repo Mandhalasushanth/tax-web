@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { StepActionBar } from '@shared/components'
+import { StepActionBar, UploadDocument } from '@shared/components'
 import { TDS_DOCUMENTS, DocIcons, TdsIcons, type TdsDocumentConfig } from '../../../utils/tdsRefund.constants'
 import { TdsRefundProgressTracker } from '../TdsRefundOverview'
 import './TdsRefundDocuments.css'
@@ -157,67 +157,28 @@ export const TdsRefundDocuments: React.FC<TdsRefundDocumentsProps> = ({
     const IconComp = DocIcons[doc.id] || DocIcons.pan
 
     return (
-      <div
+      <UploadDocument
         key={doc.id}
-        className={`tds-doc-card ${uploaded ? 'tds-doc-card--uploaded' : ''}`}
-        data-testid={`tds-doc-card-${doc.id}`}
-      >
-        <input
-          type="file"
-          ref={(el) => {
-            fileInputRefs.current[doc.id] = el
-          }}
-          className="tds-doc-file-input-hidden"
-          onChange={(e) => handleFileChange(doc.id, e)}
-          accept=".pdf,.jpg,.jpeg,.png"
-        />
-
-        <div className="tds-doc-info-wrap">
-          <div className={`tds-doc-icon-box tds-doc-icon-box--${doc.id}`}>
-            <IconComp />
-          </div>
-          <div className="tds-doc-texts">
-            <div className="tds-doc-title-row">
-              <span className="tds-doc-title">{doc.title}</span>
-              {doc.required ? (
-                <span className="tds-doc-required-star" title="Mandatory document">*</span>
-              ) : (
-                <span className="tds-doc-optional-tag">(Optional)</span>
-              )}
-            </div>
-            <span className="tds-doc-subtitle">{doc.subtitle}</span>
-          </div>
-        </div>
-
-        <div className="tds-doc-action">
-          {uploaded ? (
-            <div className="tds-doc-uploaded-state">
-              <span className="tds-doc-uploaded-pill" title={uploaded.name}>
-                ✓ {uploaded.name}
-              </span>
-              <button
-                type="button"
-                className="tds-doc-remove-btn"
-                onClick={() => handleRemove(doc.id)}
-                title="Remove file"
-                data-testid={`remove-btn-${doc.id}`}
-              >
-                ✕
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              className="tds-doc-upload-btn"
-              onClick={() => triggerUpload(doc.id)}
-              data-testid={`upload-btn-${doc.id}`}
-            >
-              <span className="tds-doc-upload-arrow">↑</span>
-              <span>Upload</span>
-            </button>
-          )}
-        </div>
-      </div>
+        id={doc.id}
+        title={doc.title}
+        subtitle={doc.subtitle}
+        isRequired={Boolean(doc.required)}
+        badge={!doc.required ? <span className="loan-doc-item__badge loan-doc-item__badge--optional">Optional</span> : undefined}
+        icon={<IconComp />}
+        iconBg="#eff6ff"
+        iconColor="#2563eb"
+        isUploaded={Boolean(uploaded)}
+        fileName={uploaded?.name}
+        fileSize={uploaded?.size ? `${(uploaded.size / 1024).toFixed(1)} KB` : undefined}
+        file={uploaded || undefined}
+        accept=".pdf,.jpg,.jpeg,.png"
+        onUpload={(id, file) => {
+          handleFileChange(id, {
+            target: { files: [file] },
+          } as unknown as React.ChangeEvent<HTMLInputElement>)
+        }}
+        onRemove={(id) => handleRemove(id)}
+      />
     )
   }
 

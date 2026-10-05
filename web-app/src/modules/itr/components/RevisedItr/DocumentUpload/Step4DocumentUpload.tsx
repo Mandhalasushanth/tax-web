@@ -1,6 +1,6 @@
 import React from 'react'
 import type { DocumentTypeId, UploadedDocument } from '../../../types/revisedItr.types'
-import { DocumentCard } from '@shared/components/DocumentCard/DocumentCard'
+import { DocumentCard } from '@shared/components'
 import './Step4DocumentUpload.css'
 
 export interface DocumentSlotItem {

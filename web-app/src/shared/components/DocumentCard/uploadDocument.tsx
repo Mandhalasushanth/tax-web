@@ -29,11 +29,125 @@ export interface UploadDocumentProps {
   onReplace?: (id: string) => void;
   isNotApplicable?: boolean;
   onToggleNotApplicable?: (id: string) => void;
+  onUploadClick?: (e: React.MouseEvent) => boolean | void;
+  ariaLabel?: string;
   children?: React.ReactNode;
   className?: string;
 }
 
 export type DocumentCardProps = UploadDocumentProps;
+
+/**
+ * Reusable execution helper that runs an action within structured exception handling.
+ */
+export function executeSafely<T>(
+  action: () => T,
+  fallback?: T,
+  onError?: (err: unknown) => void,
+): T | undefined {
+  try {
+    return action();
+  } catch (err) {
+    try {
+      if (typeof onError === "function") {
+        onError(err);
+      } else {
+        console.warn("UploadDocument: Protected operation failed safely:", err);
+      }
+    } catch {
+      // Prevent secondary errors during logging/reporting
+    }
+    return fallback;
+  }
+}
+
+/**
+ * Extracts the primary uploaded file from a change event, safely resetting the input value.
+ */
+export function extractUploadedFile(
+  e: React.ChangeEvent<HTMLInputElement>,
+): File {
+  try {
+    const file = e.target.files?.[0];
+    if (!file) {
+      throw new Error("No file found in input change event");
+    }
+    return file;
+  } finally {
+    try {
+      e.target.value = "";
+    } catch {
+      // Silently ignore target reset exceptions
+    }
+  }
+}
+
+/**
+ * Handles document preview with graceful fallbacks and popup-blocker protection.
+ */
+export function openDocumentPreview(params: {
+  id: string;
+  title: string;
+  fileName?: string;
+  file?: File;
+  onView?: (doc: {
+    id: string;
+    title: string;
+    fileName?: string;
+    file?: File;
+  }) => void;
+}): void {
+  try {
+    if (typeof params.onView === "function") {
+      params.onView({
+        id: params.id,
+        title: params.title,
+        fileName: params.fileName,
+        file: params.file,
+      });
+      return;
+    }
+
+    if (params.file instanceof File) {
+      let previewUrl = "";
+      try {
+        previewUrl = URL.createObjectURL(params.file);
+        const openedWindow = window.open(previewUrl, "_blank");
+        if (!openedWindow) {
+          throw new Error("Window open returned null (popup blocker)");
+        }
+      } catch (previewErr) {
+        console.warn(
+          "UploadDocument: Object URL preview failed, falling back to alert:",
+          previewErr,
+        );
+        alert(`Viewing ${params.fileName || params.file.name || params.title}`);
+      }
+      return;
+    }
+
+    alert(`Viewing ${params.fileName || params.title}`);
+  } catch (err) {
+    console.error("UploadDocument: View preview failed entirely:", err);
+  }
+}
+
+/**
+ * Pure helper to compute custom icon styling without nested conditionals.
+ */
+export function buildIconStyle(
+  iconBg?: string,
+  iconColor?: string,
+): React.CSSProperties | undefined {
+  try {
+    const style: React.CSSProperties = {};
+    if (iconBg) style.backgroundColor = iconBg;
+    if (iconColor) style.color = iconColor;
+    return Object.keys(style).length > 0 ? style : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 export const UploadDocument: React.FC<UploadDocumentProps> = ({
   id,
@@ -56,6 +170,8 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
   onRemove,
   onView,
   onReplace,
+  onUploadClick,
+  ariaLabel,
   isNotApplicable = false,
   onToggleNotApplicable,
   children,
@@ -64,32 +180,76 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      onUpload?.(id, e.target.files[0]);
-      e.target.value = "";
-    }
+    executeSafely(
+      () => {
+        const selectedFile = extractUploadedFile(e);
+        onUpload?.(id, selectedFile);
+      },
+      undefined,
+      (err) => console.warn("UploadDocument: File change handled safely:", err),
+    );
   };
 
   const handleView = () => {
-    if (onView) {
-      onView({ id, title, fileName, file });
-    } else if (file) {
-      const url = URL.createObjectURL(file);
-      window.open(url, "_blank");
-    } else {
-      alert(`Viewing ${fileName || title}`);
-    }
+    openDocumentPreview({ id, title, fileName, file, onView });
   };
 
   const handleReplaceClick = () => {
-    if (onReplace) {
-      onReplace(id);
-    } else {
-      fileInputRef.current?.click();
-    }
+    executeSafely(
+      () => {
+        if (typeof onReplace === "function") {
+          onReplace(id);
+          return;
+        }
+        fileInputRef.current?.click();
+      },
+      undefined,
+      (err) =>
+        console.error("UploadDocument: Replace action failed safely:", err),
+    );
+  };
+
+  const handleUploadBtnClick = (e: React.MouseEvent) => {
+    executeSafely(
+      () => {
+        if (typeof onUploadClick === "function") {
+          const allowed = onUploadClick(e);
+          if (allowed === false) return;
+        }
+        fileInputRef.current?.click();
+      },
+      undefined,
+      (err) =>
+        console.error(
+          "UploadDocument: Upload button click failed safely:",
+          err,
+        ),
+    );
+  };
+
+  const handleDeleteClick = () => {
+    executeSafely(
+      () => onRemove?.(id),
+      undefined,
+      (err) =>
+        console.error("UploadDocument: Delete action failed safely:", err),
+    );
+  };
+
+  const handleToggleNotApplicable = () => {
+    executeSafely(
+      () => onToggleNotApplicable?.(id),
+      undefined,
+      (err) =>
+        console.error(
+          "UploadDocument: Toggle Not Applicable failed safely:",
+          err,
+        ),
+    );
   };
 
   const effectiveSubtitle = subtitle || desc;
+  const iconStyle = buildIconStyle(iconBg, iconColor);
 
   return (
     <div
@@ -109,14 +269,7 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
         <div className="supporting-doc-item__left">
           <div
             className="supporting-doc-item__icon-box"
-            {...(iconBg || iconColor
-              ? {
-                  style: {
-                    ...(iconBg ? { backgroundColor: iconBg } : {}),
-                    ...(iconColor ? { color: iconColor } : {}),
-                  },
-                }
-              : {})}
+            style={iconStyle}
             aria-hidden="true"
           >
             {icon || (
@@ -138,7 +291,7 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
             <div className="supporting-doc-item__title-row">
               <span className="supporting-doc-item__title">
                 {title}{" "}
-                {isRequired && !badge && (
+                {isRequired && (
                   <span className="supporting-doc-item__required">*</span>
                 )}
               </span>
@@ -180,7 +333,7 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
               <button
                 type="button"
                 className="supporting-doc-item__na-undo"
-                onClick={() => onToggleNotApplicable(id)}
+                onClick={handleToggleNotApplicable}
               >
                 Change
               </button>
@@ -191,8 +344,8 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
             <button
               type="button"
               className="supporting-doc-item__upload-btn"
-              onClick={() => fileInputRef.current?.click()}
-              aria-label={`Upload ${title}`}
+              onClick={handleUploadBtnClick}
+              aria-label={ariaLabel || `Upload ${title}`}
               data-testid={`upload-btn-${id}`}
             >
               {uploadIcon || (
@@ -216,7 +369,7 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
               <button
                 type="button"
                 className="supporting-doc-item__na-btn"
-                onClick={() => onToggleNotApplicable(id)}
+                onClick={handleToggleNotApplicable}
               >
                 Not Applicable
               </button>
@@ -283,7 +436,7 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
             <button
               type="button"
               className="supporting-doc-item__action-link supporting-doc-item__action-link--delete supporting-doc-item__trash-btn"
-              onClick={() => onRemove?.(id)}
+              onClick={handleDeleteClick}
               title="Delete document"
               aria-label="Delete document"
               data-testid={`delete-doc-${id}`}
@@ -310,7 +463,7 @@ export const UploadDocument: React.FC<UploadDocumentProps> = ({
   );
 };
 
-// Aliases for compatibility
+// Aliases for backward and cross-import compatibility
 export const uploadDocument = UploadDocument;
 export const DocumentCard = UploadDocument;
 

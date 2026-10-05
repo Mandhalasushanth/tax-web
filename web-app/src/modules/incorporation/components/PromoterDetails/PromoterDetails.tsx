@@ -101,12 +101,12 @@ export const PromoterDetails: React.FC = () => {
 
     const allErrors = directors.reduce<Record<number, Record<string, string>>>((acc, d) => {
       const dErrors: Record<string, string> = {}
-      if (!d.fullName.trim()) {
+      if (!(d.fullName || '').trim()) {
         dErrors.fullName = 'Name is required'
       } else if (!isValidName(d.fullName)) {
         dErrors.fullName = 'Enter a valid name (letters only)'
       }
-      if (!d.pan.trim()) {
+      if (!(d.pan || '').trim()) {
         dErrors.pan = 'PAN is required'
       } else if (!isValidPan(d.pan)) {
         dErrors.pan = 'Enter a valid PAN'
@@ -118,30 +118,30 @@ export const PromoterDetails: React.FC = () => {
         const dobError = validateDobSignatory(d.dob)
         if (dobError) dErrors.dob = dobError
       }
-      if (!d.fatherName.trim()) {
+      if (!(d.fatherName || '').trim()) {
         dErrors.fatherName = "Father's name is required"
       } else if (!isValidName(d.fatherName)) {
         dErrors.fatherName = "Enter a valid name (letters only)"
       }
       if (!d.gender) dErrors.gender = 'Gender is required'
-      if (!d.nationality.trim()) dErrors.nationality = 'Nationality is required'
-      if (!d.designation.trim()) dErrors.designation = 'Designation is required'
-      if (!d.category.trim()) dErrors.category = 'Category is required'
-      if (!d.email.trim()) {
+      if (!(d.nationality || '').trim()) dErrors.nationality = 'Nationality is required'
+      if (!(d.designation || '').trim()) dErrors.designation = 'Designation is required'
+      if (!(d.category || '').trim()) dErrors.category = 'Category is required'
+      if (!(d.email || '').trim()) {
         dErrors.email = 'Email address is required'
       } else if (!isValidEmail(d.email)) {
         dErrors.email = 'Enter a valid email address'
       }
-      if (!d.mobile.trim()) {
+      if (!(d.mobile || '').trim()) {
         dErrors.mobile = 'Mobile number is required'
       } else if (!isValidMobile(d.mobile)) {
         dErrors.mobile = 'Enter a valid 10-digit Indian mobile number'
       }
-      if (!d.addressLine1.trim()) dErrors.addressLine1 = 'Address line 1 is required'
-      if (!d.city.trim()) dErrors.city = 'City is required'
-      if (!d.district.trim()) dErrors.district = 'District is required'
-      if (!d.state.trim()) dErrors.state = 'State is required'
-      if (!d.pincode.trim()) {
+      if (!(d.addressLine1 || '').trim()) dErrors.addressLine1 = 'Address line 1 is required'
+      if (!(d.city || '').trim()) dErrors.city = 'City is required'
+      if (!(d.district || '').trim()) dErrors.district = 'District is required'
+      if (!(d.state || '').trim()) dErrors.state = 'State is required'
+      if (!(d.pincode || '').trim()) {
         dErrors.pincode = 'PIN code is required'
       } else if (!isValidPincode(d.pincode)) {
         dErrors.pincode = 'Enter a valid 6-digit PIN code'
@@ -234,7 +234,6 @@ export const PromoterDetails: React.FC = () => {
         onBack={() => navigate(routePaths.incorporation.registeredOffice)}
         onNext={handleContinue}
         onSaveDraft={() => navigate(routePaths.dashboard)}
-        nextDisabled={!(directors.length > 0 && directors.every((d: DirectorDetails) => d.fullName?.trim() && d.pan?.trim()))}
         nextLabel="Continue"
       />
     </div>

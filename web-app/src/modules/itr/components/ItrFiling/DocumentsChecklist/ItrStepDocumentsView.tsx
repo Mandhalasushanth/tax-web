@@ -1,12 +1,11 @@
 import React, { useRef } from 'react'
-import { StepActionBar } from '@shared/components'
+import { StepActionBar, UploadDocument } from '@shared/components'
 import {
   type UploadedDocInfo,
   type ChecklistDocConfig,
   REQUIRED_DOCS,
   RECOMMENDED_DOCS,
   ALL_DOCS,
-  IconUpload,
 } from '../itrFiling.constants'
 import { ItrStepHeaderStepper } from '../ItrStepHeaderStepper'
 import './ItrStepDocumentsView.css'
@@ -19,56 +18,39 @@ export type { UploadedDocInfo }
 interface ItrDocItemRowProps {
   doc: ChecklistDocConfig
   uploaded?: UploadedDocInfo
-  onTriggerUpload: (docId: string) => void
+  onUploadDoc: (docId: string, doc: UploadedDocInfo) => void
   onRemoveDoc: (docId: string) => void
 }
 
 const ItrDocItemRow: React.FC<ItrDocItemRowProps> = ({
   doc,
   uploaded,
-  onTriggerUpload,
+  onUploadDoc,
   onRemoveDoc,
 }) => (
-  <div className={`itr-doc-item ${uploaded ? 'itr-doc-item--uploaded' : ''}`}>
-    <div className="itr-doc-item__left">
-      <div className="itr-doc-icon-box" aria-hidden="true">
-        <doc.Icon />
-      </div>
-      <div className="itr-doc-item__titles">
-        <h4 className="itr-doc-item__title">{doc.title}</h4>
-        <p className="itr-doc-item__desc">{doc.desc}</p>
-        {uploaded && (
-          <div className="itr-doc-uploaded-meta">
-            <span>✓ {uploaded.fileName}</span>
-            <span>({uploaded.fileSize})</span>
-          </div>
-        )}
-      </div>
-    </div>
-
-    <div className="itr-doc-item__actions">
-      {uploaded ? (
-        <button
-          type="button"
-          className="itr-btn-remove-doc"
-          onClick={() => onRemoveDoc(doc.id)}
-          aria-label={`Remove ${doc.title}`}
-        >
-          Remove
-        </button>
-      ) : (
-        <button
-          type="button"
-          className="itr-btn-upload"
-          onClick={() => onTriggerUpload(doc.id)}
-          aria-label={`Upload ${doc.title}`}
-        >
-          <IconUpload />
-          <span>Upload File</span>
-        </button>
-      )}
-    </div>
-  </div>
+  <UploadDocument
+    id={doc.id}
+    title={doc.title.replace(/\s*\*+$/, '')}
+    subtitle={doc.desc}
+    isRequired={Boolean(doc.isMandatory)}
+    icon={<doc.Icon />}
+    iconBg="#eff6ff"
+    iconColor="#2563eb"
+    accept=".pdf,.jpg,.jpeg,.png"
+    isUploaded={Boolean(uploaded)}
+    fileName={uploaded?.fileName}
+    fileSize={uploaded?.fileSize}
+    onUpload={(id, file) => {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(2)
+      onUploadDoc(id, {
+        id,
+        fileName: file.name,
+        fileSize: `${sizeMb} MB`,
+        uploadedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      })
+    }}
+    onRemove={(id) => onRemoveDoc(id)}
+  />
 )
 
 /* ==========================================================================
@@ -167,7 +149,7 @@ export const ItrStepDocumentsView: React.FC<ItrStepDocumentsViewProps> = ({
               key={doc.id}
               doc={doc}
               uploaded={uploadedDocs[doc.id]}
-              onTriggerUpload={handleTriggerUpload}
+              onUploadDoc={onUploadDoc}
               onRemoveDoc={onRemoveDoc}
             />
           ))}
@@ -186,7 +168,7 @@ export const ItrStepDocumentsView: React.FC<ItrStepDocumentsViewProps> = ({
               key={doc.id}
               doc={doc}
               uploaded={uploadedDocs[doc.id]}
-              onTriggerUpload={handleTriggerUpload}
+              onUploadDoc={onUploadDoc}
               onRemoveDoc={onRemoveDoc}
             />
           ))}

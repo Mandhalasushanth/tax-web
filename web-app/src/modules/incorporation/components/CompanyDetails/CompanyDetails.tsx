@@ -86,16 +86,16 @@ export const CompanyDetails: React.FC = () => {
     if (!currentData.classOfCompany) newErrors.classOfCompany = 'Class of company is required'
     if (!currentData.categoryOfCompany) newErrors.categoryOfCompany = 'Category of company is required'
     if (!currentData.subCategoryOfCompany) newErrors.subCategoryOfCompany = 'Sub-category of company is required'
-    if (!currentData.primaryBusinessActivity.trim()) newErrors.primaryBusinessActivity = 'Primary business activity is required'
+    if (!(currentData.primaryBusinessActivity || '').trim()) newErrors.primaryBusinessActivity = 'Primary business activity is required'
     if (showNicCode) {
-      if (!currentData.nicCode.trim()) {
+      if (!(currentData.nicCode || '').trim()) {
         newErrors.nicCode = 'NIC 5-digit code is required'
       } else if (!isValidNicCode(currentData.nicCode)) {
         newErrors.nicCode = 'Enter a valid 5-digit numeric NIC code'
       }
     }
-    if (!currentData.firstPreferredName.trim()) newErrors.firstPreferredName = 'First preferred name is required'
-    if (!currentData.secondPreferredName.trim()) newErrors.secondPreferredName = 'Second preferred name is required'
+    if (!(currentData.firstPreferredName || '').trim()) newErrors.firstPreferredName = 'First preferred name is required'
+    if (!(currentData.secondPreferredName || '').trim()) newErrors.secondPreferredName = 'Second preferred name is required'
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
@@ -256,12 +256,6 @@ export const CompanyDetails: React.FC = () => {
         onBack={() => navigate(routePaths.incorporation.selectType)}
         onNext={handleContinue}
         onSaveDraft={() => navigate(routePaths.dashboard)}
-        nextDisabled={Boolean(
-          !currentData.primaryBusinessActivity?.trim() ||
-          !currentData.firstPreferredName?.trim() ||
-          !currentData.secondPreferredName?.trim() ||
-          (showNicCode && (!currentData.nicCode?.trim() || !isValidNicCode(currentData.nicCode)))
-        )}
         nextLabel="Continue"
       />
     </div>

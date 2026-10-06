@@ -7,9 +7,9 @@ import { routePaths } from '@core/config'
 import { DraftConfirmModal } from '@shared/components'
 import { GSTAmendmentProofUpload as GSTProofUpload } from '@modules/gst/shared/GSTProofUpload'
 import { GSTCancellationSubmitted } from './GSTCancellationSubmitted'
-import { GSTCancellationSidebar } from './GSTCancellationSidebar'
 import { GSTCancellationFields } from './GSTCancellationFields'
 import { GSTCancellationReview } from './GSTCancellationReview'
+import { GSTCancellationStepper } from './GSTCancellationStepper'
 import { useGSTCancellationForm, type CancellationFormData } from '@modules/gst/hooks/useGSTCancellationForm'
 import './GSTCancellationCard.css'
 
@@ -112,6 +112,8 @@ export const GSTCancellationCard: React.FC<GSTCancellationCardProps> = ({
         </p>
       </div>
 
+      <GSTCancellationStepper currentStep={1} />
+
       <form onSubmit={handleReviewProceed} noValidate>
         <div className="gst-canc-info-banner">
           <div className="gst-canc-info-banner-icon">
@@ -147,8 +149,6 @@ export const GSTCancellationCard: React.FC<GSTCancellationCardProps> = ({
               }}
             />
           </div>
-
-          <GSTCancellationSidebar />
         </div>
 
         <div

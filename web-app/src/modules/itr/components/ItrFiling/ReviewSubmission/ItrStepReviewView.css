@@ -83,7 +83,7 @@
   justify-content: space-between;
   margin-bottom: 0.85rem;
 }
-.itr-rv2-section-header-row .itr-rv2-section-title {  }
+.itr-rv2-section-header-row .itr-rv2-section-title { margin: 0; }
 .itr-rv2-edit-btn {
   background: none;
   border: none;
@@ -228,7 +228,7 @@
 }
 .itr-rv2-net-tax-sub { font-size: 0.75rem; font-weight: 500; color: #64748b; }
 .itr-rv2-net-tax-amount { font-size: 1.25rem; font-weight: 900; color: #e11d48; }
-.itr-rv2-net-tax-box--refund .itr-rv2-net-tax-amount {  }
+.itr-rv2-net-tax-box--refund .itr-rv2-net-tax-amount { color: #059669; }
 
 /* Info note inside tax card */
 .itr-rv2-info-note {
@@ -407,7 +407,7 @@
 
 @media (max-width: 980px) {
   .itr-rv2-desktop-grid { grid-template-columns: 1fr; gap: 1.5rem; }
-  .itr-rv2-right-col {  }
+  .itr-rv2-right-col { position: static; }
 }
 
 .itr-rv2-badge--blue {

@@ -22,10 +22,8 @@
 
 /* 2 Column Grid */
 .gst-canc-review-grid {
-  display: grid;
-  grid-template-columns: 1.6fr 1fr;
-  gap: 1.5rem;
-  align-items: stretch;
+  display: block;
+  width: 100%;
 }
 
 .gst-canc-summary-card {
@@ -128,72 +126,7 @@
   font-weight: 500;
 }
 
-/* Accepted proofs card */
-.gst-canc-review-accepted-card {
-  background-color: #fff8f0;
-  border: 1px solid #fed7aa;
-  border-radius: 12px;
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-}
 
-.gst-canc-review-accepted-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.25rem;
-}
-
-.gst-canc-review-accepted-icon {
-  color: #ea580c;
-  display: flex;
-  align-items: center;
-}
-
-.gst-canc-review-accepted-icon svg {
-  width: 22px;
-  height: 22px;
-}
-
-.gst-canc-review-accepted-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0;
-}
-
-.gst-canc-review-accepted-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-}
-
-.gst-canc-review-accepted-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  font-size: 0.875rem;
-  color: #334155;
-  line-height: 1.45;
-  font-weight: 500;
-}
-
-.gst-canc-review-check-icon {
-  color: #ea580c;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.gst-canc-review-check-icon svg {
-  width: 18px;
-  height: 18px;
-}
 
 /* Declaration Card */
 .gst-canc-review-declaration-card {

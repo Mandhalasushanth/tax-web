@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { gstFieldRules } from '@modules/gst/validation/gstFieldRules'
-import { FINANCIAL_YEAR_OPTIONS } from '@modules/gst/utils/gstPeriodOptions'
+import { CURRENT_FINANCIAL_YEAR, FINANCIAL_YEAR_OPTIONS } from '@modules/gst/utils/gstPeriodOptions'
 import { generateGstReference } from '@modules/gst/utils/gstFormat'
 import { gstProfileService } from '@modules/gst/services/gstProfileService'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -23,7 +23,7 @@ export function useGSTComplianceForm({
   const navigate = useNavigate()
   const location = useLocation()
   const [gstin, setGstin] = useState(() => initialGstin ?? gstProfileService.get().gstin)
-  const [financialYear, setFinancialYear] = useState(() => initialFinancialYear ?? FINANCIAL_YEAR_OPTIONS[0]?.value ?? '')
+  const [financialYear, setFinancialYear] = useState(() => initialFinancialYear ?? CURRENT_FINANCIAL_YEAR ?? FINANCIAL_YEAR_OPTIONS[0]?.value ?? '')
   const [requestType, setRequestType] = useState<'Reconciliation Support' | 'Notice Response'>(
     initialRequestType
   )

@@ -174,45 +174,17 @@
   pointer-events: none;
 }
 
-/* Card 3: Supporting proof & Accepted proofs grid */
+/* Card 3: Supporting proof */
 .gst-canc-proof-grid {
   margin-top: 1.5rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  align-items: stretch;
+  display: block;
+  width: 100%;
 }
-.gst-canc-proof-left { display: flex; flex-direction: column; }
-.gst-canc-accepted-card {
-  background-color: #fff8f0;
-  border: 1px solid #fed7aa;
-  border-radius: 12px;
-  padding: 1.25rem 1.5rem;
+.gst-canc-proof-left {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
-.gst-canc-accepted-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.875rem; }
-.gst-canc-accepted-icon { color: #ea580c; display: flex; align-items: center; }
-.gst-canc-accepted-icon svg { width: 20px; height: 20px; }
-.gst-canc-accepted-title { font-size: 1.05rem; font-weight: 700; color: #1e293b; margin: 0; }
-.gst-canc-accepted-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-}
-.gst-canc-accepted-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.625rem;
-  font-size: 0.875rem;
-  color: #334155;
-  line-height: 1.45;
-  font-weight: 500;
-}
-.gst-canc-bullet { color: #ea580c; font-size: 1.1rem; line-height: 1; }
 
 /* Card 4: Declaration Checkbox Card */
 .gst-canc-declaration-card {

@@ -92,13 +92,6 @@ export const GSTFilingReview: React.FC<GSTFilingReviewProps> = ({
 
   return (
     <div className="gst-review-page">
-      {/* Stepper */}
-      <div className="gst-review-top-bar">
-        <div className="gst-review-stepper-wrap">
-          <GSTFilingStepper currentStep={3} onStepClick={onStepClick} />
-        </div>
-      </div>
-
       {/* Main Page Header */}
       <header className="gst-review-header">
         <h1 className="gst-review-title">Filing Review &amp; Computation</h1>
@@ -106,6 +99,13 @@ export const GSTFilingReview: React.FC<GSTFilingReviewProps> = ({
           Review your details, check the computed tax figures and proceed to file your GST return.
         </p>
       </header>
+
+      {/* Stepper */}
+      <div className="gst-review-top-bar">
+        <div className="gst-review-stepper-wrap">
+          <GSTFilingStepper currentStep={3} onStepClick={onStepClick} />
+        </div>
+      </div>
 
       {/* Dark Navy "Ready for Review" Banner */}
       <div className="gst-review-ready-banner" role="status">

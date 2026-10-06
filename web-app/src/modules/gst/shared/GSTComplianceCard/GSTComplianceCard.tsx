@@ -7,6 +7,7 @@ import { ChevronIcon, FieldRow } from './GSTComplianceFileDropzone'
 import { GSTComplianceReconFields } from './GSTComplianceReconFields'
 import { GSTComplianceNoticeFields } from './GSTComplianceNoticeFields'
 import { useGSTComplianceForm } from '@modules/gst/hooks/useGSTComplianceForm'
+import { FINANCIAL_YEAR_OPTIONS } from '@modules/gst/utils/gstPeriodOptions'
 import './GSTComplianceCard.css'
 
 export interface ComplianceFormData {
@@ -149,9 +150,9 @@ export const GSTComplianceCard: React.FC<GSTComplianceCardProps> = ({
               onChange={(e) => setFinancialYear(e.target.value)}
               className="compliance-select"
             >
-              {['FY 2026-27', 'FY 2025-26', 'FY 2024-25', 'FY 2023-24'].map((y) => (
-                <option key={y} value={y}>
-                  {y}
+              {FINANCIAL_YEAR_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
                 </option>
               ))}
             </select>

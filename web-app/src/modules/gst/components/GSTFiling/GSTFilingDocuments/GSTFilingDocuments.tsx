@@ -197,13 +197,6 @@ export const GSTFilingDocuments: React.FC<GSTFilingDocumentsProps> = ({
 
   return (
     <div className="gst-docs-page">
-      {/* Stepper */}
-      <div className="gst-docs-top-bar">
-        <div className="gst-docs-stepper-wrap">
-          <GSTFilingStepper currentStep={2} onStepClick={onStepClick} />
-        </div>
-      </div>
-
       {/* Main Page Header */}
       <header className="gst-docs-header">
         <h1 className="gst-docs-title">Filing Documents</h1>
@@ -211,6 +204,13 @@ export const GSTFilingDocuments: React.FC<GSTFilingDocumentsProps> = ({
           Upload the required documents for your GST return for {periodShort}. Clear invoices ensure 100% accurate Input Tax Credit (ITC) claim.
         </p>
       </header>
+
+      {/* Stepper */}
+      <div className="gst-docs-top-bar">
+        <div className="gst-docs-stepper-wrap">
+          <GSTFilingStepper currentStep={2} onStepClick={onStepClick} />
+        </div>
+      </div>
 
       {/* Modern Progress Tracker matching Image 2 */}
       <DocumentTracker

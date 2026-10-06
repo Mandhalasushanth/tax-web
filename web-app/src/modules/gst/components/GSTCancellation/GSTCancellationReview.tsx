@@ -2,6 +2,7 @@ import { GSTSaveDraftButton } from '@modules/gst/shared/GSTSaveDraftButton'
 import { formatGstFileSize } from '@modules/gst/utils/gstFile'
 import React, { useState } from 'react'
 import { orNotAvailable } from '@modules/gst/services/gstProfileService'
+import { GSTCancellationStepper } from './GSTCancellationStepper'
 import type { CancellationFormData } from './GSTCancellationCard'
 import './GSTCancellationReview.css'
 
@@ -13,14 +14,6 @@ interface GSTCancellationReviewProps {
   onSubmit: () => void
 }
 
-const ACCEPTED_PROOFS = [
-  'Business Closure Proof',
-  'Sale / Transfer Agreement',
-  'Merger / Amalgamation Document',
-  'Revised Constitution / Partnership Document',
-  'Death Certificate',
-  'Other Relevant Supporting Document',
-]
 
 export const GSTCancellationReview: React.FC<GSTCancellationReviewProps> = ({
   formData,
@@ -65,6 +58,13 @@ export const GSTCancellationReview: React.FC<GSTCancellationReviewProps> = ({
           Confirm application details before submission
         </p>
       </div>
+
+      <GSTCancellationStepper
+        currentStep={2}
+        onStepClick={(step) => {
+          if (step === 1) onBack()
+        }}
+      />
 
       <form onSubmit={handleSubmit} noValidate>
         {/* Top 2-Column Grid */}
@@ -134,32 +134,7 @@ export const GSTCancellationReview: React.FC<GSTCancellationReviewProps> = ({
             </div>
           </div>
 
-          {/* Right Column: Accepted Proofs Card */}
-          <div className="gst-canc-review-accepted-card">
-            <div className="gst-canc-review-accepted-header">
-              <span className="gst-canc-review-accepted-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="16" x2="12" y2="12" />
-                  <line x1="12" y1="8" x2="12.01" y2="8" />
-                </svg>
-              </span>
-              <h3 className="gst-canc-review-accepted-title">Accepted proofs</h3>
-            </div>
 
-            <ul className="gst-canc-review-accepted-list">
-              {ACCEPTED_PROOFS.map((item) => (
-                <li key={item} className="gst-canc-review-accepted-item">
-                  <span className="gst-canc-review-check-icon">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                    </svg>
-                  </span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
 
         {/* Declaration Card */}
